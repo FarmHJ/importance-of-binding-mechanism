@@ -1,0 +1,119 @@
+# Reference: 
+# Li Z, Dutta S, Sheng J, Tran PN, Wu W, Chang K, Mdluli T, Strauss DG, Colatsky T. 
+# Improving the In Silico Assessment of Proarrhythmia Risk by Combining hERG (Human Ether-à-go-go-Related Gene) 
+# Channel-Drug Binding Kinetics and Multichannel Pharmacology. Circ Arrhythm Electrophysiol. 
+# 2017 Feb;10(2):e004628. doi: 10.1161/CIRCEP.116.004628. 
+
+
+class BindingParameters(object):
+    """
+    To create a library of all the dynamic hERG-binding parameters for
+    different drug compounds.
+    (ref. Table 2)
+    """
+
+    def __init__(self):
+        super(BindingParameters, self).__init__()
+
+        self.drug_compounds = ['dofetilide', 'bepridil', 'terfenadine',
+                               'cisapride', 'verapamil', 'ranolazine']
+        self.binding_parameters = {
+            'dofetilide': {
+                'Kmax': 1e8,
+                'Ku': 1.79e-5,
+                'EC50': 5.483e8,
+                'N': 0.9999,
+                'Vhalf': -1.147,
+                'Cmax': 2
+            },
+            'bepridil': {
+                'Kmax': 3.735e7,
+                'Ku': 1.765e-4,
+                'EC50': 1e9,
+                'N': 0.9365,
+                'Vhalf': -54.93,
+                'Cmax': 33
+            },
+            'terfenadine': {
+                'Kmax': 9884,
+                'Ku': 8.18e-5,
+                'EC50': 41380,
+                'N': 0.65,
+                'Vhalf': -77.49,
+                'Cmax': 4
+            },
+            'cisapride': {
+                'Kmax': 9.997,
+                'Ku': 4.161e-4,
+                'EC50': 42.06,
+                'N': 0.9728,
+                'Vhalf': -199.5,
+                'Cmax': 2.6
+            },
+            'cisapride_kmax_verapamil': {
+                'Kmax': 4.646e4,
+                'Ku': 4.161e-4,
+                'EC50': 42.06,
+                'N': 0.9728,
+                'Vhalf': -199.5,
+                'Cmax': 2.6
+            },
+            'cisapride_kmax_bepridil': {
+                'Kmax': 3.735e7,
+                'Ku': 4.161e-4,
+                'EC50': 42.06,
+                'N': 0.9728,
+                'Vhalf': -199.5,
+                'Cmax': 2.6
+            },
+            'cisapride_EC50_ranolazine': {
+                'Kmax': 9.997,
+                'Ku': 4.161e-4,
+                'EC50': 1.472e5,
+                'N': 0.9728,
+                'Vhalf': -199.5,
+                'Cmax': 2.6
+            },
+            'cisapride_EC50_verapamil': {
+                'Kmax': 9.997,
+                'Ku': 4.161e-4,
+                'EC50': 9.184e6,
+                'N': 0.9728,
+                'Vhalf': -199.5,
+                'Cmax': 2.6
+            },
+            'cisapride_kmax_EC50_verapamil': {
+                'Kmax': 4.646e4,
+                'Ku': 4.161e-4,
+                'EC50': 9.184e6,
+                'N': 0.9728,
+                'Vhalf': -199.5,
+                'Cmax': 2.6
+            },
+
+            'verapamil': {
+                'Kmax': 4.646e4,
+                'Ku': 7.927e-4,
+                'EC50': 9.184e6,
+                'N': 1.043,
+                'Vhalf': -100,
+                'Cmax': 81
+            },
+            'ranolazine': {
+                'Kmax': 55.84,
+                'Ku': 1.929e-2,
+                'EC50': 1.472e5,
+                'N': 0.95,
+                'Vhalf': -94.87,
+                'Cmax': 1948.2
+            },
+            'mexiletine': {
+                'Kmax': 9.996,
+                'Ku': 9.967e-2,
+                'EC50': 2.308e6,
+                'N': 1.304,
+                'Vhalf': -86.26,
+                'Cmax': 4129
+            }
+
+        }

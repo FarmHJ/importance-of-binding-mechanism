@@ -1,6 +1,6 @@
 # Reference: 
 # Li Z, Dutta S, Sheng J, Tran PN, Wu W, Chang K, Mdluli T, Strauss DG, Colatsky T. 
-# Improving the In Silico Assessment of Proarrhythmia Risk by Combining hERG (Human Ether-à-go-go-Related Gene) 
+# Improving the In Silico Assessment of Proarrhythmia Risk by Combining hERG (Human Ether-Ã -go-go-Related Gene) 
 # Channel-Drug Binding Kinetics and Multichannel Pharmacology. Circ Arrhythm Electrophysiol. 
 # 2017 Feb;10(2):e004628. doi: 10.1161/CIRCEP.116.004628. 
 
@@ -114,6 +114,50 @@ class BindingParameters(object):
                 'N': 1.304,
                 'Vhalf': -86.26,
                 'Cmax': 4129
+            },
+            'cisapride_kmax_bepridil': {
+                'Kmax': 3.735e7,
+                'Ku': 4.161e-4,
+                'EC50': 42.06,
+                'N': 0.9728,
+                'Vhalf': -199.5,
+                'Cmax': 2.6
+            },
+            'cisapride_kmax_verapamil': {
+                'Kmax': 4.646e4,
+                'Ku': 4.161e-4,
+                'EC50': 42.06,
+                'N': 0.9728,
+                'Vhalf': -199.5,
+                'Cmax': 2.6
+            },
+            'cisapride_EC50_verapamil': {
+                'Kmax': 9.997,
+                'Ku': 4.161e-4,
+                'EC50': 9.184e6,
+                'N': 0.9728,
+                'Vhalf': -199.5,
+                'Cmax': 2.6
+            },
+            'cisapride_EC50_ranolazine': {
+                'Kmax': 9.997,
+                'Ku': 4.161e-4,
+                'EC50': 1.472e5,
+                'N': 0.9728,
+                'Vhalf': -199.5,
+                'Cmax': 2.6
+            },
+            'cisapride_kmax_EC50_verapamil': {
+                'Kmax': 4.646e4,
+                'Ku': 4.161e-4,
+                'EC50': 9.184e6,
+                'N': 0.9728,
+                'Vhalf': -199.5,
+                'Cmax': 2.6
             }
 
         }
+        self.Hill_curve = {
+            'dofetilide': {
+                'Hill_coef': 1.002,
+                'IC50': 6.187}}

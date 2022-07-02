@@ -79,7 +79,6 @@ class BindingKinetics(object):
 
 
     def state_occupancy_plot(self, ax, signal_log, pulse):
-        # fig = plt.figure(figsize=(5, 2))
         ax.stackplot(signal_log.time(),
                 *[signal_log[s, pulse] for s in self.model.states() if s.name() != 'D'],
                 labels = [s.name() for s in self.model.states() if s.name() != 'D'],

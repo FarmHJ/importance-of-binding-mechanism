@@ -24,9 +24,9 @@ import pints
 
 import modelling
 
-run_sim = False
+run_sim = True
 steady_state = False
-plot_fig = False
+plot_fig = True
 
 drug = 'dofetilide'
 protocol_name = 'Milnes'
@@ -39,13 +39,13 @@ elif drug == 'verapamil':
 repeats = 1000
 drug_labels = [str(i) + ' nM' for i in drug_conc]
 
-saved_data_dir = '../../examples/simulation_data/binding_kinetics_comparison/'
-+ drug + '/' + protocol_name + '/'
+saved_data_dir = '../../simulation_data/binding_kinetics_comparison/' + \
+    drug + '/' + protocol_name + '/'
 result_filename = 'OHaraCiPA-conductance-fit.txt'
 
 testing_fig_dir = '../../figures/testing/'
-final_fig_dir = '../../figures/binding_kinetics_comparison/' + drug + '/'
-+ protocol_name + '/'
+final_fig_dir = '../../figures/binding_kinetics_comparison/' + drug + '/' + \
+    protocol_name + '/'
 
 saved_fig_dir = testing_fig_dir
 
@@ -70,14 +70,31 @@ for i in range(len(drug_conc)):
 
 # Plot hERG currents for different drug concentrations
 if plot_fig:
-    fig = modelling.figures.CurrentPlot(drug_model)
-    fig.add_plot_current_various(total_log, drug_conc, pulse_time)
-    fig.adjust_ticks(fig.axs[1], pulse_time)
-    plt.savefig(saved_fig_dir + "hERG_trapping_" + drug + "_concs.pdf")
+    # fig = modelling.figures.CurrentPlot(drug_model)
+    # fig.add_plot_current_various(total_log, drug_conc, pulse_time)
+    # fig.adjust_ticks(fig.axs[1], pulse_time)
+    # plt.savefig(saved_fig_dir + "hERG_trapping_" + drug + "_concs.pdf")
+
+    fig = modelling.figures.FigureStructure(figsize=(5, 3),
+                                            gridspec=(2, 1))
+    plot = modelling.figures.FigurePlot()
+
+    labels = [str(i) + ' nM' for i in drug_conc]
+    plot.add_single(fig.axs[0][0], total_log[0], 'membrane.V', color='k')
+    plot.add_multiple(fig.axs[1][0], total_log, 'ikr.IKr', labels=labels)
+
+    fig.axs[1][0].legend()
+    fig.sharex(['Time (s)'], [(0, pulse_time)])
+    fig.sharey(['Voltage (mV)', 'Current (A/F)'])
+    fig.adjust_ticks(fig.axs[1][0], pulse_time)
+    # fig_plot = modelling.figures.ReferenceStructure()
+    # fig = fig_plot.current_concs(total_log, pulse_time, drug_conc)
+    fig.savefig(saved_fig_dir + "hERG_trapping_" + drug + "_concs.pdf")
 
 # Plot drug response against drug concentration curve
 peaks = (peaks - min(peaks)) / (max(peaks) - min(peaks))
-modelling.figures.set_general_format()
+
+plt.rcParams.update({'font.size': 9})
 
 if plot_fig:
     plt.figure(figsize=(4, 3))
@@ -158,9 +175,9 @@ if not plot_fig:
     # fig.adjust_ticks(fig.axs[1], pulse_time)
     # plt.savefig(saved_fig_dir + "hERG_conductance_" + drug + "_concs.pdf")
 
-    fig = modelling.new_figures.FigureStructure(figsize=(5, 4),
-                                                gridspec=(3, 1))
-    plot = modelling.new_figures.FigurePlot()
+    fig = modelling.figures.FigureStructure(figsize=(5, 4),
+                                            gridspec=(3, 1))
+    plot = modelling.figures.FigurePlot()
     cmap = matplotlib.cm.get_cmap('viridis')
 
     labels = [str(i) + ' nM' for i in drug_conc]
@@ -180,7 +197,7 @@ if not plot_fig:
 # Check hERG current
 if plot_fig:
     row, col = 3, 3
-    fig = modelling.figures.CurrentPlot(drug_model)
+    fig = modelling.old_figures.CurrentPlot(drug_model)
     fig.hERG_compare(log_trapping, log_conductance, drug_conc, pulse_time,
                      row=row, col=col)
     plt.savefig(saved_fig_dir + "hERG_compare_" + drug + "_concs.pdf")
@@ -269,14 +286,14 @@ if plot_fig:
 
         # Plot action potentials - steady state
         plotting_pulse_time = pulse_time * save_signal
-        fig = modelling.figures.CurrentPlot(AP_model)
+        fig = modelling.old_figures.CurrentPlot(AP_model)
         fig.add_plot_2AP_various(AP_trapping, drug_conc,
                                  plotting_pulse_time, 2)
         fig.axs[0].set_title("O'Hara-CiPA model (with trapping)")
         plt.savefig(saved_fig_dir + "2AP_hERG_trapping_" + drug + "_concs.pdf")
         plt.close()
 
-        fig = modelling.figures.CurrentPlot(AP_model)
+        fig = modelling.old_figures.CurrentPlot(AP_model)
         fig.add_plot_2AP_various(AP_conductance, drug_conc,
                                  plotting_pulse_time, 2)
         fig.axs[0].set_title("O'Hara model (without trapping)")
@@ -284,10 +301,10 @@ if plot_fig:
                     + "_concs.pdf")
         plt.close()
 
-        fig = modelling.new_figures.FigureStructure(figsize=(8, 4),
-                                                    gridspec=(3, 2),
-                                                    wspace=0.08)
-        plot = modelling.new_figures.FigurePlot()
+        fig = modelling.figures.FigureStructure(figsize=(8, 4),
+                                                gridspec=(3, 2),
+                                                wspace=0.08)
+        plot = modelling.figures.FigurePlot()
         cmap = matplotlib.cm.get_cmap('viridis')
 
         plot.add_continuous(fig.axs[0][0], AP_trapping[0], 'stimulus.i_stim')
@@ -384,10 +401,10 @@ if plot_fig:
         cmap = matplotlib.cm.get_cmap('viridis')
         plotting_pulse_time = pulse_time * save_signal
 
-        fig = modelling.new_figures.FigureStructure(figsize=(10, 4),
-                                                    gridspec=(2, 1),
-                                                    height_ratios=[1, 1])
-        plot = modelling.new_figures.FigurePlot()
+        fig = modelling.figures.FigureStructure(figsize=(10, 4),
+                                                gridspec=(2, 1),
+                                                height_ratios=[1, 1])
+        plot = modelling.figures.FigurePlot()
 
         plot.add_multiple_continuous(fig.axs[0][0], AP_trapping, 'membrane.V',
                                      cmap=cmap)
@@ -403,10 +420,10 @@ if plot_fig:
                     + "_concs.pdf")
         plt.close()
 
-        fig = modelling.new_figures.FigureStructure(figsize=(10, 4),
-                                                    gridspec=(2, 1),
-                                                    height_ratios=[1, 1])
-        plot = modelling.new_figures.FigurePlot()
+        fig = modelling.figures.FigureStructure(figsize=(10, 4),
+                                                gridspec=(2, 1),
+                                                height_ratios=[1, 1])
+        plot = modelling.figures.FigurePlot()
 
         plot.add_multiple_continuous(fig.axs[0][0], AP_conductance,
                                      'membrane.V', cmap=cmap)
@@ -456,10 +473,10 @@ if plot_fig:
                     + "_concs.pdf", bbox_inches='tight')
         plt.close()
 
-        fig = modelling.new_figures.FigureStructure(figsize=(10, 4),
-                                                    gridspec=(2, 4),
-                                                    height_ratios=[1, 1],
-                                                    hspace=0.2, wspace=0.08)
+        fig = modelling.figures.FigureStructure(figsize=(10, 4),
+                                                gridspec=(2, 4),
+                                                height_ratios=[1, 1],
+                                                hspace=0.2, wspace=0.08)
         for i in range(len(drug_conc)):
             for j in range(len(drug_conc)):
                 if i == j:

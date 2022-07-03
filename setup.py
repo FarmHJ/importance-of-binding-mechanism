@@ -59,9 +59,12 @@ setup(
     # List of dependencies
     install_requires=[
         # Dependencies go here!
-        'numpy>=1.8',
+        'math',
         'matplotlib',
         'myokit',
+        'numpy>=1.8',
+        'pandas',
+        'pints',
     ],
     extras_require={
         'docs': [

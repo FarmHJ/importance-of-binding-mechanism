@@ -234,3 +234,43 @@ class FigurePlot(object):
 
         for pulse in range(end_pulse - start_pulse):
             ax.plot(log.time(), log[key, start_pulse + pulse], zorder=-10)
+
+
+class ReferenceStructure(object):
+    """
+    Create few default structure for figures
+    """
+    def __init__(self):
+        super(ReferenceStructure, self).__init__()
+
+    def current_concs(self, log, pulse_time, drug_conc):
+        fig = FigureStructure(figsize=(5, 3), gridspec=(2, 1))
+        plot = FigurePlot()
+
+        labels = [str(i) + ' nM' for i in drug_conc]
+        plot.add_single(fig.axs[0][0], log[0], 'membrane.V', color='k')
+        plot.add_multiple(fig.axs[1][0], log, 'ikr.IKr', labels=labels)
+
+        fig.axs[1][0].legend()
+        fig.sharex(['Time (s)'], [(0, pulse_time)])
+        fig.sharey(['Voltage (mV)', 'Current (A/F)'])
+        fig.adjust_ticks(fig.axs[1][0], pulse_time)
+
+        return fig
+
+    def hERG_compare(self, log_trapping, log_conductance, drug_conc, grid=(1, 1)):
+        row, col = grid
+        fig = FigureStructure(figsize=(2 * col, 2 * row), gridspec=grid,
+                              height_ratios=[1] * row, hspace=0.3)
+        plot = FigurePlot()
+
+        # labels = [str(i) + ' nM' for i in drug_conc]
+        for i in range(len(drug_conc)):
+            plot.add_single(fig.axs[][], log_trapping[i], 'ikr.IKr', label='trapping')
+            plot.add_single(fig.axs[][], log_conductance[i], 'ikr.IKr', label='w/o trapping')
+            fig.axs[][].set_title('%.1e nM' % drug_conc[i], fontsize=8)
+
+        fig.axs[1][0].legend()
+        fig.sharex(['Time (s)'], [(0, pulse_time)])
+        fig.sharey(['Voltage (mV)', 'Current (A/F)'])
+        fig.adjust_ticks(fig.axs[1][0], pulse_time)

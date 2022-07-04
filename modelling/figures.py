@@ -258,7 +258,7 @@ class ReferenceStructure(object):
 
         return fig
 
-    def hERG_compare(self, log_trapping, log_conductance, drug_conc, grid=(1, 1)):
+    def hERG_compare(self, log_trapping, log_conductance, drug_conc, pulse_time, grid=(1, 1)):
         row, col = grid
         fig = FigureStructure(figsize=(2 * col, 2 * row), gridspec=grid,
                               height_ratios=[1] * row, hspace=0.3)
@@ -266,11 +266,17 @@ class ReferenceStructure(object):
 
         # labels = [str(i) + ' nM' for i in drug_conc]
         for i in range(len(drug_conc)):
-            plot.add_single(fig.axs[][], log_trapping[i], 'ikr.IKr', label='trapping')
-            plot.add_single(fig.axs[][], log_conductance[i], 'ikr.IKr', label='w/o trapping')
-            fig.axs[][].set_title('%.1e nM' % drug_conc[i], fontsize=8)
+            plot.add_single(fig.axs[i // col][i % col], log_trapping[i], 'ikr.IKr', label='trapping')
+            plot.add_single(fig.axs[i // col][i % col], log_conductance[i], 'ikr.IKr', label='w/o trapping')
+            fig.axs[i // col][i % col].set_title('%.1e nM' % drug_conc[i], fontsize=8)
 
-        fig.axs[1][0].legend()
-        fig.sharex(['Time (s)'], [(0, pulse_time)])
-        fig.sharey(['Voltage (mV)', 'Current (A/F)'])
-        fig.adjust_ticks(fig.axs[1][0], pulse_time)
+        fig.axs[0][0].legend()
+        fig.sharex(['Time (s)'] * col, [(0, pulse_time)] * col)
+        fig.sharey(['Current (A/F)'] * row)
+        for i in range(col):
+            fig.adjust_ticks(fig.axs[row - 1][i], pulse_time)
+
+        plt.tight_layout(pad=0.4, w_pad=0.5, h_pad=1.0)
+        plt.subplots_adjust(hspace=0)
+        
+        # return fig

@@ -59,7 +59,6 @@ setup(
     # List of dependencies
     install_requires=[
         # Dependencies go here!
-        'math',
         'matplotlib',
         'myokit',
         'numpy>=1.8',

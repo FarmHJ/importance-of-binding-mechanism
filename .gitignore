@@ -99,5 +99,6 @@ venv.bak/
 *.synctex.gz
 *.toc
 
-# Figures
+# Results and figures
+simulation_data/
 figures/

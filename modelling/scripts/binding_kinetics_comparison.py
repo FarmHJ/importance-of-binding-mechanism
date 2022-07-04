@@ -24,7 +24,7 @@ import pints
 
 import modelling
 
-run_sim = False
+run_sim = True
 steady_state = False
 plot_fig = True
 

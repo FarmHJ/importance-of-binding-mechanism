@@ -66,7 +66,6 @@ optimiser = modelling.HillsModelOpt(Hill_model)
 max_grid = np.ceil(np.log(drug_conc[-1])) + 1
 conc_grid = np.arange(-3, max_grid, 1)  # for plotting
 
-
 for p in range(len(protocols)):
     drug_model.protocol = protocols[p]
 
@@ -80,9 +79,6 @@ for p in range(len(protocols)):
         total_log.append(log)
 
     # Plot hERG current
-    # fig = modelling.figures.CurrentPlot(drug_model)
-    # fig.add_plot_current_various(total_log, drug_conc, pulse_times[p])
-    # fig.adjust_ticks(fig.axs[1], pulse_times[p])
     fig_plot = modelling.figures.ReferenceStructure()
     fig = fig_plot.current_concs(total_log, pulse_times[p], drug_conc)
     plt.savefig(saved_fig_dir + "hERG_OHaraCiPA_" + protocol_name[p] +
@@ -92,24 +88,24 @@ for p in range(len(protocols)):
     estimates, _ = optimiser.optimise(drug_conc, peaks)
     print(estimates)
 
-    Hill_fig, Hill_ax = plt.subplots(1, 1, figsize=(4, 3))
-    Hill_ax.plot(np.log(drug_conc[1:]), peaks[1:], 'o', color=color[p])
-    Hill_ax.plot(conc_grid,
-                 Hill_model.simulate(estimates[:2], np.exp(conc_grid)),
-                 '-', color=color[p], label=protocol_name[p])
-    Hill_ax.text(-2.5, 0.6 - p * 0.15,
-                 protocol_name[p] + r': $n=$%.2f' % (estimates[0]) + "\n" +
-                 r'IC$_{50}=$%.2f' % (estimates[1]),
-                 fontsize=8)  # , wrap=True)
+#     Hill_fig, Hill_ax = plt.subplots(1, 1, figsize=(4, 3))
+#     Hill_ax.plot(np.log(drug_conc[1:]), peaks[1:], 'o', color=color[p])
+#     Hill_ax.plot(conc_grid,
+#                  Hill_model.simulate(estimates[:2], np.exp(conc_grid)),
+#                  '-', color=color[p], label=protocol_name[p])
+#     Hill_ax.text(-2.5, 0.6 - p * 0.15,
+#                  protocol_name[p] + r': $n=$%.2f' % (estimates[0]) + "\n" +
+#                  r'IC$_{50}=$%.2f' % (estimates[1]),
+#                  fontsize=8)  # , wrap=True)
 
-Hill_ax.set_xlabel('Drug concentration (log)')
-Hill_ax.set_ylabel('Normalised peak current')
-Hill_fig.legend()
-Hill_fig.tight_layout(pad=0.4)
-Hill_fig.savefig(saved_fig_dir + "peak_hERG_OHaraCiPA_concs.pdf")
+# Hill_ax.set_xlabel('Drug concentration (log)')
+# Hill_ax.set_ylabel('Normalised peak current')
+# Hill_fig.legend()
+# Hill_fig.tight_layout(pad=0.4)
+# Hill_fig.savefig(saved_fig_dir + "peak_hERG_OHaraCiPA_concs.pdf")
 params = estimates
 
-param_lib = modelling.BindingParameters()
+# param_lib = modelling.BindingParameters()
 # Hillcoef = param_lib.Hill_curve[drug]['Hill_coef']
 # IC50 = param_lib.Hill_curve[drug]['IC50']
 params = np.loadtxt(saved_data_dir + result_filename, unpack=True)
@@ -175,20 +171,6 @@ for p in range(len(protocols)):
     # log_combine = [total_log, total_log_conduct]
     peak_combine = [peaks, peaks_conduct]
     model_name = ['OHaraCiPA', 'conductance']
-
-    # Plot hERG current
-#     fig = modelling.figures.CurrentPlot(drug_model)
-    # fig.add_plot_current_various_compare(total_log, total_log_conduct,
-    #                                      drug_conc, pulse_times[p],
-    #                                      model_name)
-#     fig.adjust_ticks(fig.axs[1], pulse_times[p])
-#     plt.savefig(saved_fig_dir + "hERG_" + protocol_name[p] +  "_concs.pdf",
-#             bbox_inches='tight')
-#     plt.close()
-
-#     Hill_fig = plt.figure(figsize=(4, 3))
-#     gs = Hill_fig.add_gridspec(1, 1)
-#     Hill_ax = Hill_fig.add_subplot(gs[0])
 
     fig_Hill = modelling.figures.FigureStructure(figsize=(4, 3))
     plot_Hill = modelling.figures.FigurePlot()

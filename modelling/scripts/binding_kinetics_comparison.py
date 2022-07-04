@@ -24,8 +24,8 @@ import pints
 
 import modelling
 
-run_sim = True
-steady_state = False
+run_sim = False
+steady_state = True
 plot_fig = True
 
 drug = 'dofetilide'
@@ -197,9 +197,9 @@ if not plot_fig:
 # Check hERG current
 if plot_fig:
     row, col = 3, 3
-    fig = modelling.old_figures.CurrentPlot(drug_model)
+    fig = modelling.figures.ReferenceStructure()
     fig.hERG_compare(log_trapping, log_conductance, drug_conc, pulse_time,
-                     row=row, col=col)
+                     grid=(row, col))
     plt.savefig(saved_fig_dir + "hERG_compare_" + drug + "_concs.pdf")
 
 # Check hERG peak current
@@ -286,20 +286,6 @@ if plot_fig:
 
         # Plot action potentials - steady state
         plotting_pulse_time = pulse_time * save_signal
-        fig = modelling.old_figures.CurrentPlot(AP_model)
-        fig.add_plot_2AP_various(AP_trapping, drug_conc,
-                                 plotting_pulse_time, 2)
-        fig.axs[0].set_title("O'Hara-CiPA model (with trapping)")
-        plt.savefig(saved_fig_dir + "2AP_hERG_trapping_" + drug + "_concs.pdf")
-        plt.close()
-
-        fig = modelling.old_figures.CurrentPlot(AP_model)
-        fig.add_plot_2AP_various(AP_conductance, drug_conc,
-                                 plotting_pulse_time, 2)
-        fig.axs[0].set_title("O'Hara model (without trapping)")
-        plt.savefig(saved_fig_dir + "2AP_hERG_conductance_" + drug
-                    + "_concs.pdf")
-        plt.close()
 
         fig = modelling.figures.FigureStructure(figsize=(8, 4),
                                                 gridspec=(3, 2),
@@ -319,6 +305,8 @@ if plot_fig:
                                      labels=drug_labels)
         plot.add_multiple_continuous(fig.axs[2][1], AP_conductance, 'ikr.IKr',
                                      cmap=cmap, labels=drug_labels)
+        fig.axs[0][0].set_title('with trapping', fontsize=8)
+        fig.axs[0][1].set_title('without trapping', fontsize=8)
 
         unique = fig.legend_without_duplicate_labels(fig.axs[2][1])
         fig.axs[2][1].legend(*zip(*unique), loc='right',

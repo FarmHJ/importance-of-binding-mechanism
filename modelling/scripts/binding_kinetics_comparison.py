@@ -25,7 +25,7 @@ import pints
 import modelling
 
 run_sim = False
-steady_state = True
+steady_state = False
 plot_fig = True
 
 drug = 'dofetilide'
@@ -70,25 +70,8 @@ for i in range(len(drug_conc)):
 
 # Plot hERG currents for different drug concentrations
 if plot_fig:
-    # fig = modelling.figures.CurrentPlot(drug_model)
-    # fig.add_plot_current_various(total_log, drug_conc, pulse_time)
-    # fig.adjust_ticks(fig.axs[1], pulse_time)
-    # plt.savefig(saved_fig_dir + "hERG_trapping_" + drug + "_concs.pdf")
-
-    fig = modelling.figures.FigureStructure(figsize=(5, 3),
-                                            gridspec=(2, 1))
-    plot = modelling.figures.FigurePlot()
-
-    labels = [str(i) + ' nM' for i in drug_conc]
-    plot.add_single(fig.axs[0][0], total_log[0], 'membrane.V', color='k')
-    plot.add_multiple(fig.axs[1][0], total_log, 'ikr.IKr', labels=labels)
-
-    fig.axs[1][0].legend()
-    fig.sharex(['Time (s)'], [(0, pulse_time)])
-    fig.sharey(['Voltage (mV)', 'Current (A/F)'])
-    fig.adjust_ticks(fig.axs[1][0], pulse_time)
-    # fig_plot = modelling.figures.ReferenceStructure()
-    # fig = fig_plot.current_concs(total_log, pulse_time, drug_conc)
+    fig_plot = modelling.figures.ReferenceStructure()
+    fig = fig_plot.current_concs(total_log, pulse_time, drug_conc)
     fig.savefig(saved_fig_dir + "hERG_trapping_" + drug + "_concs.pdf")
 
 # Plot drug response against drug concentration curve

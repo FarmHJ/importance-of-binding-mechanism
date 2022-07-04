@@ -98,3 +98,6 @@ venv.bak/
 *.out
 *.synctex.gz
 *.toc
+
+# Figures
+figures/

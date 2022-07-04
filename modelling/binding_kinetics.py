@@ -1,11 +1,11 @@
-# Reference: 
-# Li Z, Dutta S, Sheng J, Tran PN, Wu W, Chang K, Mdluli T, Strauss DG, Colatsky T. 
-# Improving the In Silico Assessment of Proarrhythmia Risk by Combining hERG (Human Ether-Ã -go-go-Related Gene) 
-# Channel-Drug Binding Kinetics and Multichannel Pharmacology. Circ Arrhythm Electrophysiol. 
-# 2017 Feb;10(2):e004628. doi: 10.1161/CIRCEP.116.004628. 
+# Reference:
+# Li Z, Dutta S, Sheng J, Tran PN, Wu W, Chang K, Mdluli T, Strauss DG,
+# Colatsky T. Improving the In Silico Assessment of Proarrhythmia Risk by
+# Combining hERG (Human Ether-Ã -go-go-Related Gene) Channel-Drug Binding
+# Kinetics and Multichannel Pharmacology. Circ Arrhythm Electrophysiol.
+# 2017 Feb;10(2):e004628. doi: 10.1161/CIRCEP.116.004628.
 
 
-import matplotlib.pyplot as plt
 import myokit
 import numpy as np
 
@@ -28,22 +28,22 @@ class BindingKinetics(object):
         # self.sim.set_default_state(self.sim.state())
         self.initial_state = self.sim.state()
 
-        if current_head == None:    
-           self.current_head = next(iter(self.model.states())).parent()
+        if current_head is None:
+            self.current_head = next(iter(self.model.states())).parent()
         else:
             self.current_head = self.model.get(current_head)
         # Save model's original constants
         self.original_constants = {
-                "Vhalf": self.model.get(self.current_head.var('Vhalf')).eval(),
-                "Kmax": self.model.get(self.current_head.var('Kmax')).eval(),
-                "Ku": self.model.get(self.current_head.var('Ku')).eval(),
-                "n": self.model.get(self.current_head.var('n')).eval(),
-                "EC50": self.model.get(self.current_head.var('halfmax')).eval(),
-                "Kt": self.model.get(self.current_head.var('Kt')).eval(),
-                "gKr": self.model.get(self.current_head.var('gKr')).eval(),}
+            "Vhalf": self.model.get(self.current_head.var('Vhalf')).eval(),
+            "Kmax": self.model.get(self.current_head.var('Kmax')).eval(),
+            "Ku": self.model.get(self.current_head.var('Ku')).eval(),
+            "n": self.model.get(self.current_head.var('n')).eval(),
+            "EC50": self.model.get(self.current_head.var('halfmax')).eval(),
+            "Kt": self.model.get(self.current_head.var('Kt')).eval(),
+            "gKr": self.model.get(self.current_head.var('gKr')).eval(), }
 
     def drug_simulation(self, drug, drug_conc, repeats,
-            timestep=0.1, save_signal=1):
+                        timestep=0.1, save_signal=1):
         param_lib = modelling.BindingParameters()
 
         Vhalf = param_lib.binding_parameters[drug]['Vhalf']
@@ -53,10 +53,10 @@ class BindingKinetics(object):
         EC50 = param_lib.binding_parameters[drug]['EC50']
 
         t_max = self.protocol.characteristic_time()
-        
+
         concentration = self.model.get('ikr.D')
         concentration.set_state_value(drug_conc)
-        
+
         self.sim = myokit.Simulation(self.model, self.protocol)
         self.sim.reset()
         # self.sim.set_state(self.initial_state)
@@ -68,7 +68,7 @@ class BindingKinetics(object):
         self.sim.set_constant(self.current_head.var('halfmax'), EC50)
         self.sim.set_constant(self.current_head.var('Kt'), 3.5e-5)
         self.sim.set_constant(self.current_head.var('gKr'),
-                self.original_constants["gKr"])
+                              self.original_constants["gKr"])
 
         self.sim.pre(t_max * (repeats - save_signal))
         log = self.sim.run(t_max * save_signal, log_interval=timestep)
@@ -81,54 +81,54 @@ class BindingKinetics(object):
         return d2
 
     def conductance_simulation(self, conductance, repeats,
-            timestep=1, save_signal=1):
+                               timestep=1, save_signal=1):
         self.sim = myokit.Simulation(self.model, self.protocol)
         self.sim.reset()
-        
+
         self.sim.set_constant(self.current_head.var('Vhalf'),
-                self.original_constants["Vhalf"])
+                              self.original_constants["Vhalf"])
         self.sim.set_constant(self.current_head.var('Kmax'),
-                self.original_constants["Kmax"])
+                              self.original_constants["Kmax"])
         self.sim.set_constant(self.current_head.var('Ku'),
-                self.original_constants["Ku"])
+                              self.original_constants["Ku"])
         self.sim.set_constant(self.current_head.var('n'),
-                self.original_constants["n"])
+                              self.original_constants["n"])
         self.sim.set_constant(self.current_head.var('halfmax'),
-                self.original_constants["EC50"])
+                              self.original_constants["EC50"])
         self.sim.set_constant(self.current_head.var('Kt'),
-                self.original_constants["Kt"])
+                              self.original_constants["Kt"])
         self.sim.set_constant(self.current_head.var('gKr'), conductance)
         t_max = self.protocol.characteristic_time()
-        
+
         self.sim.pre(t_max * (repeats - save_signal))
         log = self.sim.run(t_max * save_signal, log_interval=timestep)
         d2 = log.npview()
         if save_signal > 1:
             d2 = d2.fold(t_max)
 
-        # self.sim.reset() 
+        # self.sim.reset()
 
         return d2
-    
+
     def state_occupancy_plot(self, ax, signal_log, pulse=None, legend=True):
 
-        if pulse == None:
-             ax.stackplot(signal_log.time(),
-                 *[signal_log[s] for s in self.model.states() \
+        if pulse is None:
+            ax.stackplot(signal_log.time(),
+                         *[signal_log[s] for s in self.model.states()
                          if str(s.parent()) == 'ikr' and s.name() != 'D'],
-                 labels = [s.name() for s in self.model.states() \
+                         labels=[s.name() for s in self.model.states()
                          if str(s.parent()) == 'ikr' and s.name() != 'D'],
-                 zorder=-10)
+                         zorder=-10)
         else:
             ax.stackplot(signal_log.time(),
-                *[signal_log[s, pulse] for s in self.model.states() \
-                        if str(s.parent()) == 'ikr' and s.name() != 'D'],
-                labels = [s.name() for s in self.model.states() \
-                        if str(s.parent()) == 'ikr' and s.name() != 'D'],
-                zorder=-10)
-        
+                         *[signal_log[s, pulse] for s in self.model.states()
+                         if str(s.parent()) == 'ikr' and s.name() != 'D'],
+                         labels=[s.name() for s in self.model.states()
+                         if str(s.parent()) == 'ikr' and s.name() != 'D'],
+                         zorder=-10)
+
         ax.set_xlabel('Time (ms)')
-        
+
         label_list = []
         for t in ax.get_legend_handles_labels():
             label_list.append(t)
@@ -136,31 +136,30 @@ class BindingKinetics(object):
         new_list = ['O*' if x == 'Obound' else x for x in new_list]
         new_list = ['C*' if x == 'Cbound' else x for x in new_list]
         new_list = ['IO*' if x == 'IObound' else x for x in new_list]
-        
+
         if legend:
             ax.legend(ncol=2, handles=label_list[0], labels=new_list,
-                    loc="lower right", handlelength=1, columnspacing=1,
-                    labelspacing=0.3)
+                      loc="lower right", handlelength=1, columnspacing=1,
+                      labelspacing=0.3)
         ax.set_rasterization_zorder(0)
-        
-        return ax
 
+        return ax
 
     def extract_peak(self, signal_log, current_name):
         peaks = []
         pulses = len(signal_log.keys_like(current_name))
-        
+
         if pulses == 0:
             peaks.append(np.max(signal_log[current_name]))
 
         for i in range(pulses):
             peaks.append(np.max(signal_log[current_name, i]))
-       
+
         if peaks[0] == 0:
             peak_reduction = 0
         else:
             peak_reduction = (peaks[0] - peaks[-1]) / peaks[0]
-        
+
         return peaks, peak_reduction
 
     def APD90(self, signal, offset, timestep):

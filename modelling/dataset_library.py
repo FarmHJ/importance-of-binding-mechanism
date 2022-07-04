@@ -2,6 +2,7 @@ import myokit
 import os
 import pandas as pd
 
+
 class DatasetLibrary(object):
     """
     A data library class that reads the experimental data
@@ -10,17 +11,19 @@ class DatasetLibrary(object):
     def __init__(self):
         super(DatasetLibrary, self).__init__()
 
-        self._directory =  os.path.join(
+        self._directory = os.path.join(
             os.path.dirname(os.path.dirname(
-            os.path.dirname(__file__))),
+                os.path.dirname(__file__))),
             "220122_exp_data")
-    
+
         self.protocol_choice = ["CIPA", "Pharm"]
         self.drug_choice = ["Cisapride", "Dofetilide", "Verapamil"]
-        self.protocol_title = {"CIPA": "CiPA protocol", "Pharm": "Roche's protocol"}
-        self.compound_name = {"Cisapride": ["19"],
-                "Dofetilide": ["110", "RO0319253-000-001"],
-                "Verapamil": ["13"]}
+        self.protocol_title = {"CIPA": "CiPA protocol",
+                               "Pharm": "Roche's protocol"}
+        self.compound_name = {
+            "Cisapride": ["19"],
+            "Dofetilide": ["110", "RO0319253-000-001"],
+            "Verapamil": ["13"]}
 
     def exp_data_list(self, protocol, drug):
         """
@@ -35,7 +38,8 @@ class DatasetLibrary(object):
 
         if drug not in self.drug_choice:
             raise ValueError(
-                "Choice of drug must be one of 'Cisapride', 'Dofetilide' and 'Verapamil'")
+                "Choice of drug must be one of 'Cisapride', 'Dofetilide' \
+                    and 'Verapamil'")
 
         filepath = os.path.join(self._directory, protocol, drug)
         file_cells = os.listdir(filepath)
@@ -51,20 +55,24 @@ class DatasetLibrary(object):
             if filename.startswith("DMSO"):
                 conc_file = os.path.join(filepath, filename)
                 conc_info = pd.read_excel(conc_file)
-        
-        cell_name_path = pd.DataFrame(data={"cells": cells, "file_path": files, "drug_concentration": [0] * len(cells)})
+
+        cell_name_path = pd.DataFrame(data={
+            "cells": cells, "file_path": files,
+            "drug_concentration": [0] * len(cells)})
 
         # Get drug concentration used for each cell
         for cell_num in cells:
-            conc = conc_info.loc[conc_info["WELL ID"] == cell_num, "Concentration (Mol/L)"].iloc[0]
-            cell_name_path.loc[cell_name_path["cells"] == cell_num, "drug_concentration"] = conc
-        
+            conc = conc_info.loc[conc_info["WELL ID"] == cell_num,
+                                 "Concentration (Mol/L)"].iloc[0]
+            cell_name_path.loc[cell_name_path["cells"] == cell_num,
+                               "drug_concentration"] = conc
+
         return cell_name_path
 
     def exp_data_read(self, filepath):
         """
         Returns the dataframe of experimental data
-        of given file path 
+        of given file path
         """
         data = pd.read_csv(filepath, header=2, sep=';')
 
@@ -83,17 +91,18 @@ class DatasetLibrary(object):
 
         if drug not in self.drug_choice:
             raise ValueError(
-                "Choice of drug must be one of 'Cisapride', 'Dofetilide' and 'Verapamil'")
+                "Choice of drug must be one of 'Cisapride', 'Dofetilide' \
+                    and 'Verapamil'")
 
         filepath = os.path.join(self._directory, protocol, drug)
         file_cells = os.listdir(filepath)
-        files = []
         for filename in file_cells:
             if filename.endswith("_processed.csv"):
                 file_dir = os.path.join(filepath, filename)
                 data = pd.read_csv(file_dir, index_col=0)
 
         return data
+
 
 class ProtocolLibrary(object):
     """
@@ -108,7 +117,7 @@ class ProtocolLibrary(object):
         protocol.schedule(-90, 800, 100, period=t_max)
         protocol.schedule(-80, 900, 100, period=t_max)
         protocol.schedule(-80, 11000, 13999, period=t_max)
-        
+
         return protocol
 
     def current_impulse(self, t_max):
@@ -116,12 +125,12 @@ class ProtocolLibrary(object):
 
     def validation3(self, t_max):
         protocol = myokit.Protocol()
-        protocol.schedule(-80, 0, 100) #, period=t_max)
-        protocol.schedule(-40, 100, 50) #, period=t_max)
-        protocol.schedule(20, 150, 500) #, period=t_max)
-        protocol.schedule(-40, 650, 500) #, period=t_max)
-        protocol.schedule(-80, 1150, 200) #, period=t_max)
-        
+        protocol.schedule(-80, 0, 100)  # , period=t_max)
+        protocol.schedule(-40, 100, 50)  # , period=t_max)
+        protocol.schedule(20, 150, 500)  # , period=t_max)
+        protocol.schedule(-40, 650, 500)  # , period=t_max)
+        protocol.schedule(-80, 1150, 200)  # , period=t_max)
+
         return protocol
 
     def hERG_validation(self, t_max):
@@ -151,7 +160,7 @@ class ProtocolLibrary(object):
 
     def P40(self, t_max):
         protocol = myokit.Protocol()
-        protocol.schedule(-80, 0, 100, period=t_max) 
+        protocol.schedule(-80, 0, 100, period=t_max)
         protocol.schedule(40, 100, 5000, period=t_max)
         protocol.schedule(-60, 5100, 200, period=t_max)
         protocol.schedule(-80, 5300, 100 - 1, period=t_max)

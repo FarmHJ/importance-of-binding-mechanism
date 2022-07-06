@@ -88,10 +88,10 @@ class FigureStructure(object):
 
         ax.set_xticklabels(xaxis_label)
 
-    def savefig(self, filename):
+    def savefig(self, filename, format=None):
 
         plt.subplots_adjust(hspace=0)
-        self.fig.savefig(filename, bbox_inches='tight')
+        self.fig.savefig(filename, bbox_inches='tight', format=format)
         plt.close()
 
     def reference_structure(self):

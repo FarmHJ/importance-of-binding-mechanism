@@ -9,7 +9,6 @@
 # kinetics, calibrated with Hill curve from Milnes protocol.
 
 import matplotlib
-import matplotlib.pyplot as plt
 import myokit
 import numpy as np
 import pandas as pd

@@ -115,7 +115,7 @@ for p in range(len(protocols)):
         # total_log_conduct.append(log_conduct)
         plot_log.add_single(fig_log.axs[2][0], log_conduct, 'ikr.IKr',
                             color=cmap(norm(i)),
-                            label=str(int(drug_conc[i])) + ' nM')
+                            label=str(drug_conc[i]) + ' nM')
 
     plot_log.add_single(fig_log.axs[0][0], log, 'membrane.V', color='k')
     fig_log.axs[0][0].set_title(protocol_name[p] + ' protocol')

@@ -29,9 +29,10 @@ steady_state = False
 plot_fig = True
 
 drug = 'dofetilide'
-protocol_name = 'Milnes'
-pulse_time = 25e3
-protocol = modelling.ProtocolLibrary().Milnes(pulse_time)
+protocol_name = 'P0'
+protocol_params = modelling.ProtocolParameters()
+pulse_time = protocol_params.protocol_parameters[protocol_name]['pulse_time']
+protocol = protocol_params.protocol_parameters[protocol_name]['function']
 if drug == 'dofetilide':
     drug_conc = [0, 0.1, 1, 30, 100, 300, 500, 1000]  # nM
 elif drug == 'verapamil':
@@ -48,7 +49,7 @@ testing_fig_dir = '../../figures/testing/'
 final_fig_dir = '../../figures/binding_kinetics_comparison/' + drug + '/' + \
     protocol_name + '/'
 
-saved_fig_dir = testing_fig_dir
+saved_fig_dir = final_fig_dir
 
 # Load IKr model
 model = '../../model/ohara-cipa-v1-2017-IKr.mmt'
@@ -234,7 +235,7 @@ APD_trapping = []
 hERG_peak_trapping = []
 
 for i in range(len(drug_conc)):
-    log = AP_model.drug_simulation(drug, drug_conc[i], repeats + 1,
+    log = AP_model.drug_simulation(drug, drug_conc[i], repeats,  # + 1
                                    timestep=0.1, save_signal=save_signal)
     APD_trapping_pulse = []
     hERG_trapping_pulse = []

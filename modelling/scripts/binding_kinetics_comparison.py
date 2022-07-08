@@ -28,8 +28,8 @@ run_sim = True
 steady_state = False
 plot_fig = True
 
-drug = 'dofetilide'
-protocol_name = 'P0'
+drug = 'verapamil'
+protocol_name = 'Milnes'
 protocol_params = modelling.ProtocolParameters()
 pulse_time = protocol_params.protocol_parameters[protocol_name]['pulse_time']
 protocol = protocol_params.protocol_parameters[protocol_name]['function']

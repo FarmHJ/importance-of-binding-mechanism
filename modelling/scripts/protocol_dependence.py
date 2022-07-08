@@ -28,10 +28,11 @@ saved_data_dir = '../../simulation_data/binding_kinetics_comparison/' + \
 result_filename = 'OHaraCiPA-conductance-fit.txt'
 
 testing_fig_dir = '../../figures/testing/'
-final_fig_dir = '../../figures/binding_kinetics_comparison/OHaraCiPA_model/\
-    protocol/' + drug + '/'
+final_fig_dir = \
+    '../../figures/binding_kinetics_comparison/OHaraCiPA_model/protocol/' + \
+    drug + '/'
 
-saved_fig_dir = testing_fig_dir
+saved_fig_dir = final_fig_dir
 
 # Load IKr model
 model = '../../model/ohara-cipa-v1-2017-IKr.mmt'
@@ -43,11 +44,11 @@ APmodel = '../../model/ohara-cipa-v1-2017.mmt'
 # Set up variables
 # pulse_time = 25e3
 pulse_times = [25e3, 5400, 5400, 5400]
-# drug = 'dofetilide'
-# drug_conc = [0, 0.1, 1, 30, 300, 500, 1000] #nM #dofetilide
-# drug = 'verapamil'
-# drug_conc = [0, 0.1, 1, 30, 300, 500, 1000, 1e4, 1e5] #nM #verapamil
-# drug_conc = [30]
+if drug == 'dofetilide':
+    drug_conc = [0, 0.1, 1, 30, 100, 300, 500, 1000]  # nM
+elif drug == 'verapamil':
+    drug_conc = [0, 0.1, 1, 30, 300, 500, 1000, 10000, 1e5]  # nM
+
 repeats = 1000
 
 PMilnes = modelling.ProtocolLibrary().Milnes(pulse_times[0])
@@ -148,7 +149,7 @@ for i in range(len(peak_combine)):
         estimates[:2], np.exp(conc_grid)), '-', color=color[i],
         label=model_name[i])
     fig_Hill.axs[0][0].text(
-        -3, 0.35 - i * 0.1,
+        -3, 0.5 - i * 0.13,
         model_name[i] + r': $n=$%.2f' % (estimates[0]) + "\n" +
         r'IC$_{50}=$%.2f' % (estimates[1]), fontsize=7)  # , wrap=True)
 

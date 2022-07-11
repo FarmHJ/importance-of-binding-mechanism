@@ -5,7 +5,7 @@ import numpy as np
 import modelling
 
 steady_state = False
-hERG_model = False
+hERG_model = True
 
 drugs = ['dofetilide', 'verapamil']
 drug_concs = [30, 1000]  # nM
@@ -117,11 +117,11 @@ elif steady_state and not hERG_model:
 else:
     repeats = 10
 
-    fig = modelling.figures.FigureStructure(figsize=(8, 4), gridspec=(3, 1))
+    fig = modelling.figures.FigureStructure(figsize=(7, 4), gridspec=(3, 1))
     plot = modelling.figures.FigurePlot()
 
     for d in range(len(drugs)):
-        log = AP_model.drug_simulation(drugs[d], drug_concs[d], repeats,
+        log = drug_model.drug_simulation(drugs[d], drug_concs[d], repeats,
                                        save_signal=repeats)
         if d == 0:
             max_hERG = np.max(log['ikr.IKr', 0])

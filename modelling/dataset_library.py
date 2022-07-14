@@ -116,7 +116,7 @@ class ProtocolLibrary(object):
         protocol.schedule(-80, 0, 800, period=t_max)
         protocol.schedule(-90, 800, 100, period=t_max)
         protocol.schedule(-80, 900, 100, period=t_max)
-        protocol.schedule(-80, 11000, 13999, period=t_max)
+        protocol.schedule(-80, 11000, 14000, period=t_max)
 
         return protocol
 
@@ -146,7 +146,7 @@ class ProtocolLibrary(object):
         protocol.schedule(-80, 0, 200, period=t_max)
         protocol.schedule(20, 200, 500, period=t_max)
         protocol.schedule(-50, 700, 200, period=t_max)
-        protocol.schedule(-80, 900, 4500 - 1, period=t_max)
+        protocol.schedule(-80, 900, 4500, period=t_max)
 
         return protocol
 
@@ -154,7 +154,7 @@ class ProtocolLibrary(object):
         protocol = myokit.Protocol()
         protocol.schedule(-80, 0, 100, period=t_max)
         protocol.schedule(-60, 5100, 200, period=t_max)
-        protocol.schedule(-80, 5300, 100 - 1, period=t_max)
+        protocol.schedule(-80, 5300, 100, period=t_max)
 
         return protocol
 
@@ -163,6 +163,6 @@ class ProtocolLibrary(object):
         protocol.schedule(-80, 0, 100, period=t_max)
         protocol.schedule(40, 100, 5000, period=t_max)
         protocol.schedule(-60, 5100, 200, period=t_max)
-        protocol.schedule(-80, 5300, 100 - 1, period=t_max)
+        protocol.schedule(-80, 5300, 100, period=t_max)
 
         return protocol

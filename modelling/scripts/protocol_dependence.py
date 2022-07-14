@@ -51,6 +51,7 @@ elif drug == 'verapamil':
 
 repeats = 1000
 
+protocol_params = modelling.ProtocolParameters()
 PMilnes = modelling.ProtocolLibrary().Milnes(pulse_times[0])
 Pneg80 = modelling.ProtocolLibrary().Pneg80(pulse_times[1])
 P0 = modelling.ProtocolLibrary().P0(pulse_times[1])
@@ -93,8 +94,10 @@ for p in range(len(protocols)):
     fig_log = modelling.figures.FigureStructure(figsize=(5, 4),
                                                 gridspec=(3, 1))
     plot_log = modelling.figures.FigurePlot()
+
+    fig_protocol = modelling.figures.FigureStructure(figsize=(4, 1.5))
+    plot_protocol = modelling.figures.FigurePlot()
     # Simulate hERG current
-#     total_log = []
     peaks = []
 
 #     total_log_conduct = []
@@ -127,6 +130,15 @@ for p in range(len(protocols)):
     fig_log.axs[2][0].legend(loc='lower right', bbox_to_anchor=(1.4, 0))
     fig_log.savefig(saved_fig_dir + "hERG_" + protocol_name[p] + "_concs.svg",
                     format='svg')
+
+    plot_protocol.add_single(fig_protocol.axs[0][0], log, 'membrane.V',
+                             color='k', label=protocol_name[p])
+    fig_protocol.sharex([' '], [(0, pulse_times[p])])
+    fig_protocol.axs[0][0].set_yticks(protocol_params.protocol_parameters[
+        protocol_name[p]]['voltage_points'])
+    fig_protocol.axs[0][0].spines['top'].set_visible(False)
+    fig_protocol.axs[0][0].spines['right'].set_visible(False)
+    fig_protocol.savefig(saved_fig_dir + protocol_name[p] + ".pdf")
 
     if p == 0:
         peak_combine = [peaks_conduct, peaks]

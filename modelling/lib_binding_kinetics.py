@@ -138,17 +138,21 @@ class ProtocolParameters(object):
             'Milnes': {
                 'pulse_time': 25e3,
                 'function': modelling.ProtocolLibrary().Milnes(25e3),
+                'voltage_points': [-80, 0],
             },
             'Pneg80': {
                 'pulse_time': 5400,
                 'function': modelling.ProtocolLibrary().Pneg80(5400),
+                'voltage_points': [-80, -50, 20],
             },
             'P0': {
                 'pulse_time': 5400,
                 'function': modelling.ProtocolLibrary().P0(5400),
+                'voltage_points': [-80, -60, 0],
             },
             'P40': {
                 'pulse_time': 5400,
                 'function': modelling.ProtocolLibrary().P40(5400),
+                'voltage_points': [-80, -60, 40],
             },
         }

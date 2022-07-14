@@ -25,11 +25,11 @@ import pints
 import modelling
 
 run_sim = True
-steady_state = False
+steady_state = True
 plot_fig = True
 
-drug = 'verapamil'
-protocol_name = 'Milnes'
+drug = 'dofetilide'
+protocol_name = 'P40'
 protocol_params = modelling.ProtocolParameters()
 pulse_time = protocol_params.protocol_parameters[protocol_name]['pulse_time']
 protocol = protocol_params.protocol_parameters[protocol_name]['function']

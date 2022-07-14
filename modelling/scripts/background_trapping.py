@@ -122,7 +122,7 @@ else:
 
     for d in range(len(drugs)):
         log = drug_model.drug_simulation(drugs[d], drug_concs[d], repeats,
-                                       save_signal=repeats)
+                                         save_signal=repeats)
         if d == 0:
             max_hERG = np.max(log['ikr.IKr', 0])
         plot.add_continuous(fig.axs[d + 1][0], log, 'ikr.IKr')

@@ -135,30 +135,17 @@ conductance = model.get('ikr.gKr').value()
 peaks_conductance = []
 log_conductance = []
 
-peaks_trapping = []
-log_trapping = []
-
 drug_model.current_head = drug_model.model.get('ikr')
 for i in range(len(drug_conc)):
-    log = drug_model.drug_simulation(drug, drug_conc[i], repeats)
-    log_trapping.append(log)
-
-    peaks, _ = drug_model.extract_peak(log, 'ikr.IKr')
-    peaks_trapping.append(peaks[-1])
 
     scale = conductance_scale_df.iloc[i][drug]
     d2 = drug_model.conductance_simulation(conductance * scale, repeats)
-    # , current_head='ikr')
     log_conductance.append(d2)
 
-    peaks, _ = drug_model.extract_peak(d2, 'ikr.IKr')
-    peaks_conductance.append(peaks[-1])
+    peak, _ = drug_model.extract_peak(d2, 'ikr.IKr')
+    peaks_conductance.append(peak[-1])
 
 if not plot_fig:
-    # fig = modelling.figures.CurrentPlot(drug_model)
-    # fig.add_plot_current_various(log_conductance, drug_conc, pulse_time)
-    # fig.adjust_ticks(fig.axs[1], pulse_time)
-    # plt.savefig(saved_fig_dir + "hERG_conductance_" + drug + "_concs.pdf")
 
     fig = modelling.figures.FigureStructure(figsize=(5, 4),
                                             gridspec=(3, 1))
@@ -166,8 +153,8 @@ if not plot_fig:
     cmap = matplotlib.cm.get_cmap('viridis')
 
     labels = [str(i) + ' nM' for i in drug_conc]
-    plot.add_single(fig.axs[0][0], log_trapping[0], 'membrane.V', color='k')
-    plot.add_multiple(fig.axs[1][0], log_trapping, 'ikr.IKr', labels=labels,
+    plot.add_single(fig.axs[0][0], total_log[0], 'membrane.V', color='k')
+    plot.add_multiple(fig.axs[1][0], total_log, 'ikr.IKr', labels=labels,
                       color=cmap)
     plot.add_multiple(fig.axs[2][0], log_conductance, 'ikr.IKr', labels=labels,
                       color=cmap)
@@ -183,19 +170,17 @@ if not plot_fig:
 if plot_fig:
     row, col = 3, 3
     fig = modelling.figures.ReferenceStructure()
-    fig.hERG_compare(log_trapping, log_conductance, drug_conc, pulse_time,
+    fig.hERG_compare(total_log, log_conductance, drug_conc, pulse_time,
                      grid=(row, col))
     plt.savefig(saved_fig_dir + "hERG_compare_" + drug + "_concs.pdf")
 
 # Check hERG peak current
-peaks_trapping_norm = (peaks_trapping - min(peaks_trapping)) / (
-    max(peaks_trapping) - min(peaks_trapping))
 peaks_conductance_norm = (peaks_conductance - min(peaks_conductance)) / (
     max(peaks_conductance) - min(peaks_conductance))
 
 if plot_fig:
     plt.figure(figsize=(4, 3))
-    plt.plot(np.log(drug_conc[1:]), peaks_trapping_norm[1:],
+    plt.plot(np.log(drug_conc[1:]), peaks[1:],
              'o', label='trapping')
     plt.plot(np.log(drug_conc[1:]), peaks_conductance_norm[1:],
              'o', label='w/o trapping')

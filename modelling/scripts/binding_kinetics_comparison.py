@@ -29,17 +29,17 @@ steady_state = True
 plot_fig = True
 check_plot = False
 
-drug = 'dofetilide'
+drug = 'verapamil'
 protocol_name = 'Milnes'
 protocol_params = modelling.ProtocolParameters()
 pulse_time = protocol_params.protocol_parameters[protocol_name]['pulse_time']
 protocol = protocol_params.protocol_parameters[protocol_name]['function']
 if drug == 'dofetilide':
     # drug_conc = [0, 0.1, 1, 30, 100, 300, 500, 1000]  # nM
-    drug_conc = [0, 0.1, 0.3, 1, 30, 100, 300, 500, 1000]
+    drug_conc = [0, 0.1, 1, 10, 30, 100, 300, 500, 1000]
 elif drug == 'verapamil':
     # drug_conc = [0, 0.1, 1, 30, 300, 500, 1000, 10000, 1e5]  # nM
-    drug_conc = [0, 0.1, 1, 30, 300, 1000, 10000, 1e5]
+    drug_conc = [0, 0.1, 1, 30, 300, 1000, 10000, 100000]
 repeats = 1000
 drug_labels = [str(i) + ' nM' for i in drug_conc]
 
@@ -51,7 +51,7 @@ testing_fig_dir = '../../figures/testing/'
 final_fig_dir = '../../figures/binding_kinetics_comparison/' + drug + '/' + \
     protocol_name + '/'
 
-saved_fig_dir = testing_fig_dir
+saved_fig_dir = final_fig_dir
 
 # Load IKr model
 model = '../../model/ohara-cipa-v1-2017-IKr.mmt'
@@ -147,7 +147,7 @@ for i in range(len(drug_conc)):
     peak, _ = drug_model.extract_peak(d2, 'ikr.IKr')
     peaks_conductance.append(peak[-1])
 
-if check_plot:
+if plot_fig:
 
     fig = modelling.figures.FigureStructure(figsize=(5, 4),
                                             gridspec=(3, 1))
@@ -257,35 +257,47 @@ for i in range(len(drug_conc)):
 if plot_fig:
     if steady_state:
 
+        # Remove repeated signals at high concentrations
+        second_EAD_trap = [i for i, e in enumerate(APD_trapping)
+                           if e == 1000][1:]
+        second_EAD_conduct = [i for i, e in enumerate(APD_conductance)
+                              if e == 1000][1:]
+        AP_trapping_plot = [e for i, e in enumerate(AP_trapping)
+                            if i not in second_EAD_trap]
+        AP_conductance_plot = [e for i, e in enumerate(AP_conductance)
+                               if i not in second_EAD_conduct]
+
         # Plot action potentials - steady state
         plotting_pulse_time = pulse_time * save_signal
 
-        fig = modelling.figures.FigureStructure(figsize=(8, 4),
-                                                gridspec=(3, 2),
+        fig = modelling.figures.FigureStructure(figsize=(8, 3),
+                                                gridspec=(2, 2),
+                                                height_ratios=[1, 1],
                                                 wspace=0.08)
         plot = modelling.figures.FigurePlot()
         cmap = matplotlib.cm.get_cmap('viridis')
 
-        plot.add_continuous(fig.axs[0][0], AP_trapping[0], 'stimulus.i_stim')
-        plot.add_multiple_continuous(fig.axs[1][0], AP_trapping, 'membrane.V',
-                                     cmap=cmap, labels=drug_labels)
-        plot.add_multiple_continuous(fig.axs[2][0], AP_trapping, 'ikr.IKr',
-                                     cmap=cmap, labels=drug_labels)
-        plot.add_continuous(fig.axs[0][1], AP_conductance[0],
-                            'stimulus.i_stim')
-        plot.add_multiple_continuous(fig.axs[1][1], AP_conductance,
+        # plot.add_continuous(fig.axs[0][0], AP_trapping[0], 'stimulus.i_stim')
+        plot.add_multiple_continuous(fig.axs[0][0], AP_trapping_plot,
                                      'membrane.V', cmap=cmap,
                                      labels=drug_labels)
-        plot.add_multiple_continuous(fig.axs[2][1], AP_conductance, 'ikr.IKr',
-                                     cmap=cmap, labels=drug_labels)
+        plot.add_multiple_continuous(fig.axs[1][0], AP_trapping_plot,
+                                     'ikr.IKr', cmap=cmap, labels=drug_labels)
+        # plot.add_continuous(fig.axs[0][1], AP_conductance[0],
+        #                     'stimulus.i_stim')
+        plot.add_multiple_continuous(fig.axs[0][1], AP_conductance_plot,
+                                     'membrane.V', cmap=cmap,
+                                     labels=drug_labels)
+        plot.add_multiple_continuous(fig.axs[1][1], AP_conductance_plot,
+                                     'ikr.IKr', cmap=cmap, labels=drug_labels)
         fig.axs[0][0].set_title('drug binding kinetics', fontsize=8)
         fig.axs[0][1].set_title('conductance scaling', fontsize=8)
 
-        unique = fig.legend_without_duplicate_labels(fig.axs[2][1])
-        fig.axs[2][1].legend(*zip(*unique), loc='right',
-                             bbox_to_anchor=(1.4, 0.6))
+        unique = fig.legend_without_duplicate_labels(fig.axs[1][1])
+        fig.axs[1][1].legend(*zip(*unique), loc='right',
+                             bbox_to_anchor=(1.45, 0.6))
         fig.sharex(['Time (ms)'] * 2, [(0, plotting_pulse_time)] * 2)
-        fig.sharey(['Current\nstimulus', 'Voltage (mV)', 'Current (A/F)'])
+        fig.sharey(['Voltage (mV)', 'Current (A/F)'])
         fig.savefig(saved_fig_dir + "2AP_steady_trapping_nontrapping.pdf")
 
         # APD plot at steady state
@@ -317,12 +329,18 @@ if plot_fig:
         #             + "_concs.pdf")
         # plt.close()
 
+        # Create EAD marker
+        EAD_marker = [1050 if (i >= 1000 or j >= 1000) else None for (i, j)
+                      in zip(APD_trapping[1:], APD_conductance[1:])]
+
         # Plot APD90
         plt.figure(figsize=(4, 3))
         plt.plot(np.log(drug_conc[1:]), APD_trapping[1:],
-                 'o-', color='orange', label='binding kinetics')
+                 'o', color='orange', label='binding kinetics')
         plt.plot(np.log(drug_conc[1:]), APD_conductance[1:],
-                 'o--', color='blue', label='conductance scaling')
+                 'o', color='blue', label='conductance scaling')
+        plt.plot(np.log(drug_conc[1:]), EAD_marker, 'o',
+                 color='k', marker=(5, 2))
         plt.xlabel('Drug concentration (log)')
         plt.ylabel(r'APD$_{90}$')
         plt.legend()

@@ -24,17 +24,19 @@ import pints
 
 import modelling
 
-run_sim = True
+run_sim = False
 steady_state = True
 plot_fig = True
+check_plot = False
 
 drug = 'dofetilide'
-protocol_name = 'P40'
+protocol_name = 'Milnes'
 protocol_params = modelling.ProtocolParameters()
 pulse_time = protocol_params.protocol_parameters[protocol_name]['pulse_time']
 protocol = protocol_params.protocol_parameters[protocol_name]['function']
 if drug == 'dofetilide':
-    drug_conc = [0, 0.1, 1, 30, 100, 300, 500, 1000]  # nM
+    # drug_conc = [0, 0.1, 1, 30, 100, 300, 500, 1000]  # nM
+    drug_conc = [0, 0.1, 0.3, 1, 30, 100, 300, 500, 1000]
 elif drug == 'verapamil':
     # drug_conc = [0, 0.1, 1, 30, 300, 500, 1000, 10000, 1e5]  # nM
     drug_conc = [0, 0.1, 1, 30, 300, 1000, 10000, 1e5]
@@ -49,7 +51,7 @@ testing_fig_dir = '../../figures/testing/'
 final_fig_dir = '../../figures/binding_kinetics_comparison/' + drug + '/' + \
     protocol_name + '/'
 
-saved_fig_dir = final_fig_dir
+saved_fig_dir = testing_fig_dir
 
 # Load IKr model
 model = '../../model/ohara-cipa-v1-2017-IKr.mmt'
@@ -71,7 +73,7 @@ for i in range(len(drug_conc)):
     total_log.append(log)
 
 # Plot hERG currents for different drug concentrations
-if plot_fig:
+if check_plot:
     fig_plot = modelling.figures.ReferenceStructure()
     fig = fig_plot.current_concs(total_log, pulse_time, drug_conc)
     fig.savefig(saved_fig_dir + "hERG_trapping_" + drug + "_concs.pdf")
@@ -81,7 +83,7 @@ peaks = (peaks - min(peaks)) / (max(peaks) - min(peaks))
 
 plt.rcParams.update({'font.size': 9})
 
-if plot_fig:
+if check_plot:
     plt.figure(figsize=(4, 3))
     plt.plot(np.log(drug_conc), peaks, 'o')
     plt.xlabel('Drug concentration (log)')
@@ -145,7 +147,7 @@ for i in range(len(drug_conc)):
     peak, _ = drug_model.extract_peak(d2, 'ikr.IKr')
     peaks_conductance.append(peak[-1])
 
-if not plot_fig:
+if check_plot:
 
     fig = modelling.figures.FigureStructure(figsize=(5, 4),
                                             gridspec=(3, 1))
@@ -167,7 +169,7 @@ if not plot_fig:
     fig.savefig(saved_fig_dir + 'combine_comparison_viridis.pdf')
 
 # Check hERG current
-if plot_fig:
+if check_plot:
     row, col = 3, 3
     fig = modelling.figures.ReferenceStructure()
     fig.hERG_compare(total_log, log_conductance, drug_conc, pulse_time,
@@ -178,7 +180,7 @@ if plot_fig:
 peaks_conductance_norm = (peaks_conductance - min(peaks_conductance)) / (
     max(peaks_conductance) - min(peaks_conductance))
 
-if plot_fig:
+if check_plot:
     plt.figure(figsize=(4, 3))
     plt.plot(np.log(drug_conc[1:]), peaks[1:],
              'o', label='trapping')
@@ -232,7 +234,8 @@ for i in range(len(drug_conc)):
         hERG_trapping_pulse.append(hERG_peak)
 
     AP_trapping.append(log)
-    APD_trapping.append(APD_trapping_pulse)
+    # APD_trapping.append(APD_trapping_pulse)
+    APD_trapping.append(max(APD_trapping_pulse))
     hERG_peak_trapping.append(hERG_trapping_pulse)
 
     scale = conductance_scale_df.iloc[i][drug]
@@ -248,7 +251,7 @@ for i in range(len(drug_conc)):
         hERG_conductance_pulse.append(hERG_peak)
 
     AP_conductance.append(d2)
-    APD_conductance.append(APD_conductance_pulse)
+    APD_conductance.append(max(APD_conductance_pulse))
     hERG_peak_conductance.append(hERG_conductance_pulse)
 
 if plot_fig:
@@ -275,8 +278,8 @@ if plot_fig:
                                      labels=drug_labels)
         plot.add_multiple_continuous(fig.axs[2][1], AP_conductance, 'ikr.IKr',
                                      cmap=cmap, labels=drug_labels)
-        fig.axs[0][0].set_title('with trapping', fontsize=8)
-        fig.axs[0][1].set_title('without trapping', fontsize=8)
+        fig.axs[0][0].set_title('drug binding kinetics', fontsize=8)
+        fig.axs[0][1].set_title('conductance scaling', fontsize=8)
 
         unique = fig.legend_without_duplicate_labels(fig.axs[2][1])
         fig.axs[2][1].legend(*zip(*unique), loc='right',
@@ -286,26 +289,40 @@ if plot_fig:
         fig.savefig(saved_fig_dir + "2AP_steady_trapping_nontrapping.pdf")
 
         # APD plot at steady state
-        APD_trap_plot = []
-        APD_conduct_plot = []
-        APD_trap_plot_previous = []
-        APD_conduct_plot_previous = []
-        for i in range(len(APD_trapping)):
-            APD_trap_plot.append(APD_trapping[i][-1])
-            APD_conduct_plot.append(APD_conductance[i][-1])
-            APD_trap_plot_previous.append(APD_trapping[i][-2])
-            APD_conduct_plot_previous.append(APD_conductance[i][-2])
+        # APD_trap_plot = []
+        # APD_conduct_plot = []
+        # APD_trap_plot_previous = []
+        # APD_conduct_plot_previous = []
+        # for i in range(len(APD_trapping)):
+        #     APD_trap_plot.append(APD_trapping[i][-1])
+        #     APD_conduct_plot.append(APD_conductance[i][-1])
+        #     APD_trap_plot_previous.append(APD_trapping[i][-2])
+        #     APD_conduct_plot_previous.append(APD_conductance[i][-2])
 
         # Plot APD90 for 2 pulses
+        # plt.figure(figsize=(4, 3))
+        # plt.plot(np.log(drug_conc[1:]), APD_trap_plot[1:],
+        #          'o-', color='orange', label='trapping - last pulse')
+        # plt.plot(np.log(drug_conc[1:]), APD_trap_plot_previous[1:],
+        #          '^-', color='orange', label='trapping - 2nd last pulse')
+        # plt.plot(np.log(drug_conc[1:]), APD_conduct_plot[1:],
+        #          'o--', color='blue', label='w/o trapping - last pulse')
+        # plt.plot(np.log(drug_conc[1:]), APD_conduct_plot_previous[1:],
+        #          '^--', color='blue', label='w/o trapping - 2nd last pulse')
+        # plt.xlabel('Drug concentration (log)')
+        # plt.ylabel(r'APD$_{90}$')
+        # plt.legend()
+        # plt.tight_layout()
+        # plt.savefig(saved_fig_dir + "APD90_compare_2pulses_hERG_" + drug
+        #             + "_concs.pdf")
+        # plt.close()
+
+        # Plot APD90
         plt.figure(figsize=(4, 3))
-        plt.plot(np.log(drug_conc[1:]), APD_trap_plot[1:],
-                 'o-', color='orange', label='trapping - last pulse')
-        plt.plot(np.log(drug_conc[1:]), APD_trap_plot_previous[1:],
-                 '^-', color='orange', label='trapping - 2nd last pulse')
-        plt.plot(np.log(drug_conc[1:]), APD_conduct_plot[1:],
-                 'o--', color='blue', label='w/o trapping - last pulse')
-        plt.plot(np.log(drug_conc[1:]), APD_conduct_plot_previous[1:],
-                 '^--', color='blue', label='w/o trapping - 2nd last pulse')
+        plt.plot(np.log(drug_conc[1:]), APD_trapping[1:],
+                 'o-', color='orange', label='binding kinetics')
+        plt.plot(np.log(drug_conc[1:]), APD_conductance[1:],
+                 'o--', color='blue', label='conductance scaling')
         plt.xlabel('Drug concentration (log)')
         plt.ylabel(r'APD$_{90}$')
         plt.legend()

@@ -25,21 +25,23 @@ import pints
 import modelling
 
 run_sim = False
-steady_state = True
+steady_state = False
 plot_fig = True
 check_plot = False
 
-drug = 'verapamil'
+drug = 'dofetilide'
 protocol_name = 'Milnes'
 protocol_params = modelling.ProtocolParameters()
 pulse_time = protocol_params.protocol_parameters[protocol_name]['pulse_time']
 protocol = protocol_params.protocol_parameters[protocol_name]['function']
 if drug == 'dofetilide':
     # drug_conc = [0, 0.1, 1, 30, 100, 300, 500, 1000]  # nM
-    drug_conc = [0, 0.1, 1, 10, 30, 100, 300, 500, 1000]
+    # drug_conc = [0, 0.1, 1, 10, 30, 100, 300, 500, 1000]
+    drug_conc = [30, 100]
 elif drug == 'verapamil':
     # drug_conc = [0, 0.1, 1, 30, 300, 500, 1000, 10000, 1e5]  # nM
-    drug_conc = [0, 0.1, 1, 30, 300, 1000, 10000, 100000]
+    # drug_conc = [0, 0.1, 1, 30, 300, 1000, 10000, 100000]
+    drug_conc = [1000, 100000]
 repeats = 1000
 drug_labels = [str(i) + ' nM' for i in drug_conc]
 
@@ -51,7 +53,7 @@ testing_fig_dir = '../../figures/testing/'
 final_fig_dir = '../../figures/binding_kinetics_comparison/' + drug + '/' + \
     protocol_name + '/'
 
-saved_fig_dir = final_fig_dir
+saved_fig_dir = testing_fig_dir
 
 # Load IKr model
 model = '../../model/ohara-cipa-v1-2017-IKr.mmt'
@@ -107,7 +109,7 @@ else:
 max_grid = np.ceil(np.log(drug_conc[-1]))
 conc_grid = np.arange(-3, max_grid, 1)
 
-if plot_fig:
+if check_plot:
     plt.figure(figsize=(4, 3))
     plt.plot(np.log(drug_conc[1:]), peaks[1:], 'o', label='peak current')
     plt.plot(conc_grid, Hill_model.simulate(estimates[:2], np.exp(conc_grid)),
@@ -210,7 +212,7 @@ if steady_state:
         repeats = 150
     save_signal = 2
 else:
-    repeats = 10
+    repeats = 300
     save_signal = repeats
 
 AP_conductance = []
@@ -222,6 +224,7 @@ APD_trapping = []
 hERG_peak_trapping = []
 
 for i in range(len(drug_conc)):
+    print('simulating concentration: ' + str(drug_conc[i]))
     log = AP_model.drug_simulation(drug, drug_conc[i], repeats,  # + 1
                                    timestep=0.1, save_signal=save_signal)
     APD_trapping_pulse = []
@@ -234,8 +237,8 @@ for i in range(len(drug_conc)):
         hERG_trapping_pulse.append(hERG_peak)
 
     AP_trapping.append(log)
-    # APD_trapping.append(APD_trapping_pulse)
-    APD_trapping.append(max(APD_trapping_pulse))
+    APD_trapping.append(APD_trapping_pulse)
+    # APD_trapping.append(max(APD_trapping_pulse))
     hERG_peak_trapping.append(hERG_trapping_pulse)
 
     scale = conductance_scale_df.iloc[i][drug]
@@ -251,11 +254,16 @@ for i in range(len(drug_conc)):
         hERG_conductance_pulse.append(hERG_peak)
 
     AP_conductance.append(d2)
-    APD_conductance.append(max(APD_conductance_pulse))
+    APD_conductance.append(APD_conductance_pulse)
     hERG_peak_conductance.append(hERG_conductance_pulse)
+
+    print('done concentration: ' + str(drug_conc[i]))
 
 if plot_fig:
     if steady_state:
+
+        APD_trapping = [max(i) for i in APD_trapping]
+        APD_conductance = [max(i) for i in APD_conductance]
 
         # Remove repeated signals at high concentrations
         second_EAD_trap = [i for i, e in enumerate(APD_trapping)
@@ -299,35 +307,6 @@ if plot_fig:
         fig.sharex(['Time (ms)'] * 2, [(0, plotting_pulse_time)] * 2)
         fig.sharey(['Voltage (mV)', 'Current (A/F)'])
         fig.savefig(saved_fig_dir + "2AP_steady_trapping_nontrapping.pdf")
-
-        # APD plot at steady state
-        # APD_trap_plot = []
-        # APD_conduct_plot = []
-        # APD_trap_plot_previous = []
-        # APD_conduct_plot_previous = []
-        # for i in range(len(APD_trapping)):
-        #     APD_trap_plot.append(APD_trapping[i][-1])
-        #     APD_conduct_plot.append(APD_conductance[i][-1])
-        #     APD_trap_plot_previous.append(APD_trapping[i][-2])
-        #     APD_conduct_plot_previous.append(APD_conductance[i][-2])
-
-        # Plot APD90 for 2 pulses
-        # plt.figure(figsize=(4, 3))
-        # plt.plot(np.log(drug_conc[1:]), APD_trap_plot[1:],
-        #          'o-', color='orange', label='trapping - last pulse')
-        # plt.plot(np.log(drug_conc[1:]), APD_trap_plot_previous[1:],
-        #          '^-', color='orange', label='trapping - 2nd last pulse')
-        # plt.plot(np.log(drug_conc[1:]), APD_conduct_plot[1:],
-        #          'o--', color='blue', label='w/o trapping - last pulse')
-        # plt.plot(np.log(drug_conc[1:]), APD_conduct_plot_previous[1:],
-        #          '^--', color='blue', label='w/o trapping - 2nd last pulse')
-        # plt.xlabel('Drug concentration (log)')
-        # plt.ylabel(r'APD$_{90}$')
-        # plt.legend()
-        # plt.tight_layout()
-        # plt.savefig(saved_fig_dir + "APD90_compare_2pulses_hERG_" + drug
-        #             + "_concs.pdf")
-        # plt.close()
 
         # Create EAD marker
         EAD_marker = [1050 if (i >= 1000 or j >= 1000) else None for (i, j)
@@ -408,6 +387,7 @@ if plot_fig:
         fig.sharex(['Time (s)'], [(0, plotting_pulse_time)])
         fig.sharey(['Voltage (mV)', 'hERG current'])
         fig.adjust_ticks(fig.axs[1][0], plotting_pulse_time)
+        fig.axs[0][0].set_title(drug + ", binding kinetics")
 
         fig.savefig(saved_fig_dir + "10AP_transient_hERG_trapping_" + drug
                     + "_concs.pdf")
@@ -427,6 +407,7 @@ if plot_fig:
         fig.sharex(['Time (s)'], [(0, plotting_pulse_time)])
         fig.sharey(['Voltage (mV)', 'hERG current'])
         fig.adjust_ticks(fig.axs[1][0], plotting_pulse_time)
+        fig.axs[0][0].set_title(drug + ", conductance scaling")
 
         fig.savefig(saved_fig_dir + "10AP_transient_hERG_conductance_" + drug
                     + "_concs.pdf")
@@ -466,112 +447,27 @@ if plot_fig:
                     + "_concs.pdf", bbox_inches='tight')
         plt.close()
 
-        # if drug == 'verapamil':
-        #     fig = modelling.figures.FigureStructure(figsize=(8, 6),
-        #                                             gridspec=(3, 3),
-        #                                             height_ratios=[1, 1, 1],
-        #                                             hspace=0.2, wspace=0.08)
-        #     for i in range(len(drug_conc)):
-        #         for j in range(len(drug_conc)):
-        #             if i == j:
-        #                 fig.axs[i // 3][i % 3].plot(
-        #                     np.arange(save_signal), np.array(APD_trapping[j]),
-        #                     'o-', label='with trapping',
-        #                     color='orange', zorder=5)
-        #                 fig.axs[i // 3][i % 3].plot(
-        #                     np.arange(save_signal),
-        #                     np.array(APD_conductance[j]), '^--',
-        #                     label='w/o trapping', color='blue', zorder=5)
-        #             else:
-        #                 fig.axs[i // 3][i % 3].plot(
-        #                     np.arange(save_signal), np.array(APD_trapping[j]),
-        #                     'o-', label=str(drug_conc[i]) + 'nM - trapping',
-        #                     color='grey', alpha=0.2, zorder=1)
-        #                 fig.axs[i // 3][i % 3].plot(
-        #                     np.arange(save_signal),
-        #                     np.array(APD_conductance[j]), '^--',
-        #                     label=str(drug_conc[i]) + 'nM - w/o trapping',
-        #                     color='grey', alpha=0.2, zorder=1)
-        #         fig.axs[i // 3][i % 3].set_title(str(drug_conc[i]) + 'nM')
-
-        #     handles, labels = fig.axs[0][0].get_legend_handles_labels()
-        #     lgds = [(h, l) for i, (h, l) in enumerate(zip(handles, labels)) if
-        #             i <= 1]
-        #     fig.axs[0][2].legend(*zip(*lgds), loc='right',
-        #                          bbox_to_anchor=(1, 1.4))
-        #     fig.sharex(['Sweeps'] * 3)
-        #     fig.sharey([r"APD$_{90}$"] * 3)
-
-        # if drug == 'dofetilide':
-        fig = modelling.figures.FigureStructure(figsize=(10, 4),
-                                                gridspec=(2, 4),
-                                                height_ratios=[1, 1],
-                                                hspace=0.2, wspace=0.08)
+        fig = modelling.figures.FigureStructure(figsize=(5, 2),
+                                                gridspec=(1, 2),
+                                                wspace=0.08)
         for i in range(len(drug_conc)):
             for j in range(len(drug_conc)):
                 if i == j:
                     fig.axs[int(i / 4)][i % 4].plot(
                         np.arange(save_signal), np.array(APD_trapping[j]),
-                        'o-', label='with trapping',
+                        'o-', label='binding kinetics',
                         color='orange', zorder=5)
                     fig.axs[int(i / 4)][i % 4].plot(
                         np.arange(save_signal),
                         np.array(APD_conductance[j]), '^--',
-                        label='w/o trapping', color='blue', zorder=5)
-                else:
-                    fig.axs[int(i / 4)][i % 4].plot(
-                        np.arange(save_signal), np.array(APD_trapping[j]),
-                        'o-', label=str(drug_conc[i]) + 'nM - trapping',
-                        color='grey', alpha=0.2, zorder=1)
-                    fig.axs[int(i / 4)][i % 4].plot(
-                        np.arange(save_signal),
-                        np.array(APD_conductance[j]), '^--',
-                        label=str(drug_conc[i]) + 'nM - w/o trapping',
-                        color='grey', alpha=0.2, zorder=1)
+                        label='conductance scaling', color='blue', zorder=5)
             fig.axs[int(i / 4)][i % 4].set_title(str(drug_conc[i]) + 'nM')
 
         handles, labels = fig.axs[0][0].get_legend_handles_labels()
         lgds = [(h, l) for i, (h, l) in enumerate(zip(handles, labels)) if
                 i <= 1]
-        fig.axs[0][3].legend(*zip(*lgds), loc='right',
-                             bbox_to_anchor=(1, 1.4))
-        fig.sharex(['Sweeps'] * 4)
-        fig.sharey([r"APD$_{90}$"] * 2)
+        fig.axs[0][0].legend(*zip(*lgds), loc='upper right')
+        fig.sharex(['Sweeps'] * 2)
+        fig.sharey([r"APD$_{90}$"])
 
         fig.savefig(saved_fig_dir + "APD90_compare_transient_multiples.pdf")
-
-        # Plot APD90 of 10 pulses - adjustments for specific case (verapamil,
-        # Milnes)
-        # fig, (ax, ax2) = plt.subplots(2, 1, figsize=(4, 3), sharex=True,
-        #         gridspec_kw={'height_ratios': [1, 3]})
-        # for i in range(len(drug_conc)):
-        #     # mask = ~np.isnan(APD_trapping[i])
-        #     ax2.plot(np.arange(save_signal), np.array(APD_trapping[i]), 'o-',
-        #             label=str(int(drug_conc[i])) + 'nM - trapping',
-        #             # color=cmap_trap(norm(i)))
-        #             color=cmap(norm(i)))
-        #     ax.plot(np.arange(save_signal), np.array(APD_trapping[i]), 'o-',
-        #             color=cmap(norm(i)))
-        #     ax2.plot(np.arange(save_signal), np.array(APD_conductance[i]),
-        #              '^--',
-        #              label=str(int(drug_conc[i])) + 'nM - w/o trapping',
-        #             # color=cmap_conduct(norm(i)))
-        #             color=cmap(norm(i)))
-        #     ax.plot(np.arange(save_signal), np.array(APD_conductance[i]),
-        #             '^--', color=cmap(norm(i)))
-        #
-        # ax.set_ylim(950, 1000)
-        # ax2.set_ylim(200, 650)
-        #
-        # ax.spines['bottom'].set_visible(False)
-        # ax2.spines['top'].set_visible(False)
-        # ax.xaxis.tick_top()
-        # ax.tick_params(labeltop=False)
-        # ax2.xaxis.tick_bottom()
-        #
-        # ax2.legend(loc='upper right', bbox_to_anchor=(1.75, 1.5))
-        # plt.xlabel('Sweeps')
-        # plt.ylabel(r'APD$_{90}$')
-        # plt.savefig(saved_fig_dir + "10APD90_compare_hERG_" + drug
-        #             + "_concs.pdf", bbox_inches='tight')
-        # plt.close()

@@ -17,7 +17,7 @@ import modelling
 
 run_sim = True
 
-drug = 'dofetilide'
+drug = 'verapamil'
 protocol_name = 'Milnes'
 # pulse_time = 25e3
 # protocol = modelling.ProtocolLibrary().Milnes(pulse_time)
@@ -95,7 +95,7 @@ for p in range(len(protocols)):
                                                 gridspec=(3, 1))
     plot_log = modelling.figures.FigurePlot()
 
-    fig_protocol = modelling.figures.FigureStructure(figsize=(4, 1.5))
+    fig_protocol = modelling.figures.FigureStructure(figsize=(2, 0.7))
     plot_protocol = modelling.figures.FigurePlot()
     # Simulate hERG current
     peaks = []
@@ -136,9 +136,10 @@ for p in range(len(protocols)):
     fig_protocol.sharex([' '], [(0, pulse_times[p])])
     fig_protocol.axs[0][0].set_yticks(protocol_params.protocol_parameters[
         protocol_name[p]]['voltage_points'])
+    fig_protocol.axs[0][0].set_title(protocol_name[p] + " protocol")
     fig_protocol.axs[0][0].spines['top'].set_visible(False)
     fig_protocol.axs[0][0].spines['right'].set_visible(False)
-    fig_protocol.savefig(saved_fig_dir + protocol_name[p] + ".pdf")
+    fig_protocol.savefig(saved_fig_dir +  "../" + protocol_name[p] + ".pdf")
 
     if p == 0:
         peak_combine = [peaks_conduct, peaks]

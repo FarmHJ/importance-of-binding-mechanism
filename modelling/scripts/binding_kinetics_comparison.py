@@ -21,27 +21,40 @@ import myokit
 import numpy as np
 import pandas as pd
 import pints
+import sys
 
 import modelling
 
-run_sim = False
-steady_state = False
+if len(sys.argv) - 1 >= 4:
+    run_sim = sys.argv[4]
+else:
+    run_sim = False
+steady_state = sys.argv[3]
 plot_fig = True
-check_plot = False
+if len(sys.argv) - 1 >= 5:
+    check_plot = sys.argv[5]
+else:
+    check_plot = False
 
-drug = 'dofetilide'
-protocol_name = 'Milnes'
+# To plot the comparison of APD90 between binding kinetics and conductance scaling
+# If False, then plot only the APD90 of conductance scaling
+plot_compare = False
+
+drug = sys.argv[1]
+protocol_name = sys.argv[2]
 protocol_params = modelling.ProtocolParameters()
 pulse_time = protocol_params.protocol_parameters[protocol_name]['pulse_time']
 protocol = protocol_params.protocol_parameters[protocol_name]['function']
+##########################
+# Drug concentration can be set referencing to hERG_peak figure
 if drug == 'dofetilide':
     # drug_conc = [0, 0.1, 1, 30, 100, 300, 500, 1000]  # nM
-    # drug_conc = [0, 0.1, 1, 10, 30, 100, 300, 500, 1000]
-    drug_conc = [30, 100]
+    drug_conc = [0, 0.1, 1, 10, 30, 100, 300, 500, 1000]
+    # drug_conc = [30, 100]
 elif drug == 'verapamil':
     # drug_conc = [0, 0.1, 1, 30, 300, 500, 1000, 10000, 1e5]  # nM
-    # drug_conc = [0, 0.1, 1, 30, 300, 1000, 10000, 100000]
-    drug_conc = [1000, 100000]
+    drug_conc = [0, 0.1, 1, 30, 300, 1000, 10000, 100000]
+    # drug_conc = [1000, 10000]
 repeats = 1000
 drug_labels = [str(i) + ' nM' for i in drug_conc]
 
@@ -53,7 +66,7 @@ testing_fig_dir = '../../figures/testing/'
 final_fig_dir = '../../figures/binding_kinetics_comparison/' + drug + '/' + \
     protocol_name + '/'
 
-saved_fig_dir = testing_fig_dir
+saved_fig_dir = final_fig_dir
 
 # Load IKr model
 model = '../../model/ohara-cipa-v1-2017-IKr.mmt'
@@ -309,23 +322,31 @@ if plot_fig:
         fig.savefig(saved_fig_dir + "2AP_steady_trapping_nontrapping.pdf")
 
         # Create EAD marker
-        EAD_marker = [1050 if (i >= 1000 or j >= 1000) else None for (i, j)
-                      in zip(APD_trapping[1:], APD_conductance[1:])]
+        if plot_compare:
+            EAD_marker = [1050 if (i >= 1000 or j >= 1000) else None for (i, j)
+                          in zip(APD_trapping[1:], APD_conductance[1:])]
+            filename = "APD90_compare_2pulses_hERG_" + drug + "_concs.pdf"
+        else:
+            EAD_marker = [1050 if i >= 1000 else None for i
+                          in APD_conductance[1:]]
+            filename = "APD90_" + drug + "_" + protocol_name + ".pdf"
 
         # Plot APD90
         plt.figure(figsize=(4, 3))
-        plt.plot(np.log(drug_conc[1:]), APD_trapping[1:],
-                 'o', color='orange', label='binding kinetics')
+        if plot_compare:
+            plt.plot(np.log(drug_conc[1:]), APD_trapping[1:],
+                     'o', color='orange', label='binding kinetics')
         plt.plot(np.log(drug_conc[1:]), APD_conductance[1:],
-                 'o', color='blue', label='conductance scaling')
+                 '^', color='blue', label='conductance scaling', alpha=0.8)
         plt.plot(np.log(drug_conc[1:]), EAD_marker, 'o',
                  color='k', marker=(5, 2))
         plt.xlabel('Drug concentration (log)')
         plt.ylabel(r'APD$_{90}$')
         plt.legend()
+        if not plot_compare:
+            plt.title(protocol_name + " protocol")
         plt.tight_layout()
-        plt.savefig(saved_fig_dir + "APD90_compare_2pulses_hERG_" + drug
-                    + "_concs.pdf")
+        plt.savefig(saved_fig_dir + filename)
         plt.close()
 
     else:
@@ -453,16 +474,21 @@ if plot_fig:
         for i in range(len(drug_conc)):
             for j in range(len(drug_conc)):
                 if i == j:
+                    APD_plot = [APD_trapping[j][ind] for ind in
+                                range(len(APD_trapping[j])) if ind % 2 == 0]
                     fig.axs[int(i / 4)][i % 4].plot(
-                        np.arange(save_signal), np.array(APD_trapping[j]),
+                        np.arange(save_signal / 2) * 2, np.array(APD_plot),
                         'o-', label='binding kinetics',
                         color='orange', zorder=5)
+                    APD_plot = [APD_conductance[j][ind] for ind in
+                                range(len(APD_conductance[j])) if ind % 2 == 0]
                     fig.axs[int(i / 4)][i % 4].plot(
-                        np.arange(save_signal),
-                        np.array(APD_conductance[j]), '^--',
+                        np.arange(save_signal / 2) * 2,
+                        np.array(APD_plot), '^--',
                         label='conductance scaling', color='blue', zorder=5)
             fig.axs[int(i / 4)][i % 4].set_title(str(drug_conc[i]) + 'nM')
 
+        fig.axs[0][1].plot(150, 1050, 'o', color='k', marker=(5, 2))
         handles, labels = fig.axs[0][0].get_legend_handles_labels()
         lgds = [(h, l) for i, (h, l) in enumerate(zip(handles, labels)) if
                 i <= 1]

@@ -43,7 +43,7 @@ class BindingKinetics(object):
             "gKr": self.model.get(self.current_head.var('gKr')).eval(), }
 
     def drug_simulation(self, drug, drug_conc, repeats,
-                        timestep=0.1, save_signal=1):
+                        timestep=0.1, save_signal=1, log_var=None):
         param_lib = modelling.BindingParameters()
 
         Vhalf = param_lib.binding_parameters[drug]['Vhalf']
@@ -71,7 +71,8 @@ class BindingKinetics(object):
                               self.original_constants["gKr"])
 
         self.sim.pre(t_max * (repeats - save_signal))
-        log = self.sim.run(t_max * save_signal, log_interval=timestep)
+        log = self.sim.run(t_max * save_signal, log=log_var,
+                           log_interval=timestep)
         d2 = log.npview()
         if save_signal > 1:
             d2 = d2.fold(t_max)

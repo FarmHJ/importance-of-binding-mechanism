@@ -1,6 +1,7 @@
 import matplotlib
 import matplotlib.pyplot as plt
 import matplotlib.ticker as ticker
+import numpy as np
 
 
 class FigureStructure(object):
@@ -8,10 +9,11 @@ class FigureStructure(object):
     Create structure of a figure with several reference structure
     """
     def __init__(self, figsize=(5, 4), gridspec=(1, 1),
-                 height_ratios=None, hspace=0.1, wspace=None):
+                 height_ratios=None, hspace=0.1, wspace=None,
+                 plot_in_subgrid=False):
         super(FigureStructure, self).__init__()
 
-        plt.rcParams.update({'font.size': 9})
+        plt.rcParams.update({'font.size': 8})
 
         self.fig = plt.figure(figsize=figsize)
         self.gridspec = gridspec
@@ -19,10 +21,22 @@ class FigureStructure(object):
         if height_ratios is None:
             height_ratios = [1] + [2] * (self.gridspec[0] - 1)
 
-        gs = self.fig.add_gridspec(*self.gridspec, height_ratios=height_ratios,
-                                   hspace=hspace, wspace=wspace)
-        self.axs = [[self.fig.add_subplot(gs[i, j]) for j in range(
-            self.gridspec[1])] for i in range(self.gridspec[0])]
+        self.gs = self.fig.add_gridspec(*self.gridspec,
+                                        height_ratios=height_ratios,
+                                        hspace=hspace, wspace=wspace)
+        if not plot_in_subgrid:
+            self.axs = [[self.fig.add_subplot(self.gs[i, j]) for j in range(
+                self.gridspec[1])] for i in range(self.gridspec[0])]
+
+    def subgrid(self, subgridspecs):
+
+        subgs = []
+        for i in range(self.gridspec[0] * self.gridspec[1]):
+            subgs.append(self.gs[i].subgridspec(*subgridspecs[i]))
+
+        self.axs = [[[self.fig.add_subplot(subgs[k][i, j]) for j in range(
+            subgridspecs[k][1])] for i in range(subgridspecs[k][0])] for k in
+            range(len(subgs))]
 
     def legend_without_duplicate_labels(self, ax):
         """
@@ -34,12 +48,17 @@ class FigureStructure(object):
 
         return unique
 
-    def sharex(self, xlabels, xlim=None):
+    def sharex(self, xlabels, xlim=None, axs=None, subgridspec=None):
         """
         Share x-axis for each column and add labels.
         """
-        col = self.gridspec[1]
-        row = self.gridspec[0]
+        if axs is None:
+            axs = self.axs
+            col = self.gridspec[1]
+            row = self.gridspec[0]
+        else:
+            col = subgridspec[1]
+            row = subgridspec[0]
 
         if len(xlabels) != col:
             raise ValueError(
@@ -50,20 +69,24 @@ class FigureStructure(object):
                 if len(xlim) != col:
                     raise ValueError(
                         'Number of limits must be equal to number of columns.')
-                self.axs[row - 1][j].set_xlim(xlim[j])
+                axs[row - 1][j].set_xlim(xlim[j])
 
             for i in range(row - 1):
-                self.axs[i][j].sharex(self.axs[row - 1][j])
-                self.axs[i][j].tick_params(labelbottom=False)
-            self.axs[row - 1][j].set_xlabel(xlabels[j])
+                axs[i][j].sharex(axs[row - 1][j])
+                axs[i][j].tick_params(labelbottom=False)
+            axs[row - 1][j].set_xlabel(xlabels[j])
 
-    def sharey(self, ylabels, ylim=None):
+    def sharey(self, ylabels, ylim=None, axs=None, subgridspec=None):
         """
         Share y-axis for each row and add labels
         """
-
-        col = self.gridspec[1]
-        row = self.gridspec[0]
+        if axs is None:
+            axs = self.axs
+            col = self.gridspec[1]
+            row = self.gridspec[0]
+        else:
+            col = subgridspec[1]
+            row = subgridspec[0]
 
         if len(ylabels) != row:
             raise ValueError(
@@ -74,12 +97,12 @@ class FigureStructure(object):
                 if len(ylim) != row:
                     raise ValueError(
                         'Number of limits must be equal to number of rows.')
-                self.axs[i][0].set_ylim(ylim[i])
+                axs[i][0].set_ylim(ylim[i])
 
             for j in range(col - 1):
-                self.axs[i][j + 1].sharey(self.axs[i][0])
-                self.axs[i][j + 1].tick_params(labelleft=False)
-            self.axs[i][0].set_ylabel(ylabels[i])
+                axs[i][j + 1].sharey(axs[i][0])
+                axs[i][j + 1].tick_params(labelleft=False)
+            axs[i][0].set_ylabel(ylabels[i])
 
     def adjust_ticks(self, ax, pulse_time):
         ax.xaxis.set_major_locator(ticker.MultipleLocator(pulse_time / 5))
@@ -90,7 +113,7 @@ class FigureStructure(object):
 
     def savefig(self, filename, format=None):
 
-        plt.subplots_adjust(hspace=0)
+        plt.subplots_adjust(hspace=0.05)
         self.fig.savefig(filename, bbox_inches='tight', format=format)
         plt.close()
 
@@ -150,7 +173,7 @@ class FigurePlot(object):
             end_pulse = len(num_keys)
 
         for pulse in range(end_pulse - start_pulse):
-            ax.plot(log.time() + pulse * max(log.time()), log[key,
+            ax.plot(np.array(log.time()) + pulse * max(log.time()), log[key,
                     start_pulse + pulse],
                     label=label, color=color, zorder=-10)
 

@@ -1,10 +1,11 @@
 # Introduces the idea of trapping and justifies the use of the Milnes protocol
 import myokit
 import numpy as np
+import pandas as pd
 
 import modelling
 
-steady_state = False
+steady_state = True
 hERG_model = True
 
 drugs = ['dofetilide', 'verapamil']
@@ -12,10 +13,13 @@ drug_concs = [30, 1000]  # nM
 # drug_label = ['drug free'] + [str(drug_concs[i]) + ' nM ' + drugs[i]
 #                               for i in range(len(drugs))]
 drug_label = ['drug free', 'trapped drug', 'nontrapped drug']
+short_label = ['drug_free', 'trapped', 'nontrapped']
 
 testing_fig_dir = '../../figures/testing/'
 final_fig_dir = '../../figures/background/trapping/'
-saved_fig_dir = testing_fig_dir
+saved_fig_dir = final_fig_dir
+
+saved_data_dir = '../../simulation_data/background/'
 
 if hERG_model:
     model = '../../model/ohara-cipa-v1-2017-IKr.mmt'
@@ -48,12 +52,18 @@ if steady_state and hERG_model:
     log_control = drug_model.drug_simulation(drugs[0], 0, repeats)
     log_all.append(log_control)
 
+    log_control.save_csv(
+        saved_data_dir + short_label[0] + '_current.csv')
+
     plot.add_single(fig.axs[0][0], log_control, 'membrane.V')
     plot.state_occupancy_plot(fig.axs[2][0], log_control, model)
 
     for d in range(len(drugs)):
         log = drug_model.drug_simulation(drugs[d], drug_concs[d], repeats)
         log_all.append(log)
+
+        log.save_csv(
+            saved_data_dir + short_label[d + 1] + '_current.csv')
 
         plot.add_single(fig.axs[0][d + 1], log, 'membrane.V')
         plot.state_occupancy_plot(fig.axs[2][d + 1], log, model, legend=False)
@@ -85,12 +95,18 @@ elif steady_state and not hERG_model:
     log_control = AP_model.drug_simulation(drugs[0], 0, repeats, timestep=0.1)
     log_all.append(log_control)
 
+    log_control.save_csv(
+        saved_data_dir + short_label[0] + '_AP.csv')
+
     plot.add_single(fig.axs[0][0], log_control, 'stimulus.i_stim')
     plot.state_occupancy_plot(fig.axs[3][0], log_control, APmodel)
 
     for d in range(len(drugs)):
         log = AP_model.drug_simulation(drugs[d], drug_concs[d], repeats)
         log_all.append(log)
+
+        log.save_csv(
+            saved_data_dir + short_label[d + 1] + '_AP.csv')
 
         plot.add_single(fig.axs[0][d + 1], log, 'stimulus.i_stim')
         plot.state_occupancy_plot(fig.axs[3][d + 1], log,
@@ -120,12 +136,17 @@ else:
     fig = modelling.figures.FigureStructure(figsize=(7, 4), gridspec=(3, 1))
     plot = modelling.figures.FigurePlot()
 
+    log_all = []
     for d in range(len(drugs)):
         log = drug_model.drug_simulation(drugs[d], drug_concs[d], repeats,
-                                         save_signal=repeats)
+                                         save_signal=repeats,
+                                         log_var=['engine.time', 'membrane.V',
+                                                  'ikr.IKr'])
         if d == 0:
             max_hERG = np.max(log['ikr.IKr', 0])
         plot.add_continuous(fig.axs[d + 1][0], log, 'ikr.IKr')
+        log.save_csv(
+            saved_data_dir + short_label[d + 1] + '_current_transient.csv')
 
     plot.add_continuous(fig.axs[0][0], log, 'membrane.V')
     fig.sharex(['Time (s)'], [(0, pulse_time * repeats)])

@@ -36,7 +36,8 @@ if len(sys.argv) - 1 >= 5:
 else:
     check_plot = False
 
-# To plot the comparison of APD90 between binding kinetics and conductance scaling
+# To plot the comparison of APD90 between binding kinetics and
+# conductance scaling
 # If False, then plot only the APD90 of conductance scaling
 plot_compare = False
 

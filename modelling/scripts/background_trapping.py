@@ -5,7 +5,7 @@ import pandas as pd
 
 import modelling
 
-steady_state = True
+steady_state = False
 hERG_model = True
 
 drugs = ['dofetilide', 'verapamil']
@@ -146,7 +146,8 @@ else:
             max_hERG = np.max(log['ikr.IKr', 0])
         plot.add_continuous(fig.axs[d + 1][0], log, 'ikr.IKr')
         log.save_csv(
-            saved_data_dir + short_label[d + 1] + '_current_transient.csv')
+            saved_data_dir + short_label[d + 1] + '_current_transient.csv',
+            precision=myokit.DOUBLE_PRECISION)
 
     plot.add_continuous(fig.axs[0][0], log, 'membrane.V')
     fig.sharex(['Time (s)'], [(0, pulse_time * repeats)])

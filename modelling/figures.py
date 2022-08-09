@@ -244,7 +244,7 @@ class FigurePlot(object):
             new_list = legend_names
 
         if legend:
-            ax.legend(ncol=2, handles=label_list[0], labels=new_list,
+            ax.legend(ncol=5, handles=label_list[0], labels=new_list,
                       loc="lower right", handlelength=1, columnspacing=1,
                       labelspacing=0.3)
         ax.set_rasterization_zorder(0)

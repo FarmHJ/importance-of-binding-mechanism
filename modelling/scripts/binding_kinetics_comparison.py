@@ -293,17 +293,18 @@ APD_trapping_df.to_csv(saved_data_dir + 'CiPA_APD_pulses' +
                        str(int(save_signal)) + '.csv')
 hERG_peak_trapping_df = pd.DataFrame(hERG_peak_trapping, columns=column_name)
 hERG_peak_trapping_df['drug concentration'] = drug_conc
-APD_trapping_df.to_csv(saved_data_dir + 'CiPA_hERGpeak_pulses' +
-                       str(int(save_signal)) + '.csv')
+hERG_peak_trapping_df.to_csv(saved_data_dir + 'CiPA_hERGpeak_pulses' +
+                             str(int(save_signal)) + '.csv')
 APD_conductance_df = pd.DataFrame(APD_conductance, columns=column_name)
 APD_conductance_df['drug concentration'] = drug_conc
-APD_trapping_df.to_csv(saved_data_dir + 'conductance_APD_pulses' +
-                       str(int(save_signal)) + '.csv')
+APD_conductance_df.to_csv(saved_data_dir + 'conductance_APD_pulses' +
+                          str(int(save_signal)) + '.csv')
 hERG_peak_conductance_df = pd.DataFrame(hERG_peak_conductance,
                                         columns=column_name)
 hERG_peak_conductance_df['drug concentration'] = drug_conc
-APD_trapping_df.to_csv(saved_data_dir + 'conductance_hERGpeak_pulses' +
-                       str(int(save_signal)) + '.csv')
+hERG_peak_conductance_df.to_csv(
+    saved_data_dir + 'conductance_hERGpeak_pulses' +
+    str(int(save_signal)) + '.csv')
 
 
 if plot_fig:

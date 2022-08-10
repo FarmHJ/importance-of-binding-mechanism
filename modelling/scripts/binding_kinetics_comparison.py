@@ -83,10 +83,14 @@ drug_model.protocol = protocol
 total_log = []
 peaks = []
 for i in range(len(drug_conc)):
-    log = drug_model.drug_simulation(drug, drug_conc[i], repeats)
+    log = drug_model.drug_simulation(
+        drug, drug_conc[i], repeats,
+        log_var=['engine.time', 'membrane.V', 'ikr.IKr'])
     peak, _ = drug_model.extract_peak(log, 'ikr.IKr')
     peaks.append(peak[-1])
     total_log.append(log)
+
+    log.save_csv(saved_data_dir + 'CiPA_hERG_' + str(drug_conc[i]) + '.csv')
 
 # Plot hERG currents for different drug concentrations
 if check_plot:
@@ -157,8 +161,13 @@ drug_model.current_head = drug_model.model.get('ikr')
 for i in range(len(drug_conc)):
 
     scale = conductance_scale_df.iloc[i][drug]
-    d2 = drug_model.conductance_simulation(conductance * scale, repeats)
+    d2 = drug_model.conductance_simulation(
+        conductance * scale, repeats,
+        log_var=['engine.time', 'membrane.V', 'ikr.IKr'])
     log_conductance.append(d2)
+
+    d2.save_csv(saved_data_dir + 'conductance_hERG_' +
+                str(drug_conc[i]) + '.csv')
 
     peak, _ = drug_model.extract_peak(d2, 'ikr.IKr')
     peaks_conductance.append(peak[-1])
@@ -240,7 +249,9 @@ hERG_peak_trapping = []
 for i in range(len(drug_conc)):
     print('simulating concentration: ' + str(drug_conc[i]))
     log = AP_model.drug_simulation(drug, drug_conc[i], repeats,  # + 1
-                                   timestep=0.1, save_signal=save_signal)
+                                   timestep=0.1, save_signal=save_signal,
+                                   log_var=['engine.time', 'membrane.V', 'ikr.IKr'])
+    log.save_csv(saved_data_dir + 'CiPA_AP_' + str(drug_conc[i]) + '.csv')
     APD_trapping_pulse = []
     hERG_trapping_pulse = []
     for pulse in range(save_signal):
@@ -252,12 +263,14 @@ for i in range(len(drug_conc)):
 
     AP_trapping.append(log)
     APD_trapping.append(APD_trapping_pulse)
-    # APD_trapping.append(max(APD_trapping_pulse))
     hERG_peak_trapping.append(hERG_trapping_pulse)
 
     scale = conductance_scale_df.iloc[i][drug]
-    d2 = AP_model.conductance_simulation(conductance * scale, repeats,
-                                         timestep=0.1, save_signal=save_signal)
+    d2 = AP_model.conductance_simulation(
+        conductance * scale, repeats, timestep=0.1, save_signal=save_signal,
+        log_var=['engine.time', 'membrane.V', 'ikr.IKr'])
+    d2.save_csv(saved_data_dir + 'conductance_AP_' +
+                str(drug_conc[i]) + '.csv')
     APD_conductance_pulse = []
     hERG_conductance_pulse = []
     for pulse in range(save_signal):
@@ -272,6 +285,26 @@ for i in range(len(drug_conc)):
     hERG_peak_conductance.append(hERG_conductance_pulse)
 
     print('done concentration: ' + str(drug_conc[i]))
+
+column_name = ['pulse ' + str(i) for i in range(save_signal)]
+APD_trapping_df = pd.DataFrame(APD_trapping, columns=column_name)
+APD_trapping_df['drug concentration'] = drug_conc
+APD_trapping_df.to_csv(saved_data_dir + 'CiPA_APD_pulses' +
+                       str(int(save_signal)) + '.csv')
+hERG_peak_trapping_df = pd.DataFrame(hERG_peak_trapping, columns=column_name)
+hERG_peak_trapping_df['drug concentration'] = drug_conc
+APD_trapping_df.to_csv(saved_data_dir + 'CiPA_hERGpeak_pulses' +
+                       str(int(save_signal)) + '.csv')
+APD_conductance_df = pd.DataFrame(APD_conductance, columns=column_name)
+APD_conductance_df['drug concentration'] = drug_conc
+APD_trapping_df.to_csv(saved_data_dir + 'conductance_APD_pulses' +
+                       str(int(save_signal)) + '.csv')
+hERG_peak_conductance_df = pd.DataFrame(hERG_peak_conductance,
+                                        columns=column_name)
+hERG_peak_conductance_df['drug concentration'] = drug_conc
+APD_trapping_df.to_csv(saved_data_dir + 'conductance_hERGpeak_pulses' +
+                       str(int(save_signal)) + '.csv')
+
 
 if plot_fig:
     if steady_state:

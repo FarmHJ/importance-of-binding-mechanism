@@ -82,7 +82,7 @@ class BindingKinetics(object):
         return d2
 
     def conductance_simulation(self, conductance, repeats,
-                               timestep=1, save_signal=1):
+                               timestep=1, save_signal=1, log_var=None):
         self.sim = myokit.Simulation(self.model, self.protocol)
         self.sim.reset()
 
@@ -102,7 +102,8 @@ class BindingKinetics(object):
         t_max = self.protocol.characteristic_time()
 
         self.sim.pre(t_max * (repeats - save_signal))
-        log = self.sim.run(t_max * save_signal, log_interval=timestep)
+        log = self.sim.run(t_max * save_signal, log=log_var,
+                           log_interval=timestep)
         d2 = log.npview()
         if save_signal > 1:
             d2 = d2.fold(t_max)

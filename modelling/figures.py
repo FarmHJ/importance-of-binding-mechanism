@@ -190,13 +190,15 @@ class FigurePlot(object):
         if labels is not None and cmap is not None:
             for pulse in range(end_pulse - start_pulse):
                 for i in range(len(log)):
-                    ax.plot(np.array(log[i].time()) + pulse * max(log[i].time()),
+                    ax.plot(np.array(log[i].time()) +
+                            pulse * max(log[i].time()),
                             log[i][key, pulse], label=str(labels[i]),
                             color=cmap(norm(i)), zorder=-10)
         elif cmap is not None:
             for pulse in range(end_pulse - start_pulse):
                 for i in range(len(log)):
-                    ax.plot(log[i].time() + pulse * max(log[i].time()),
+                    ax.plot(np.array(log[i].time()) + 
+                            pulse * max(log[i].time()),
                             log[i][key, pulse], color=cmap(norm(i)),
                             zorder=-10)
         elif labels is not None:

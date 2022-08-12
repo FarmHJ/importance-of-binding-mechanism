@@ -1,7 +1,6 @@
 # Introduces the idea of trapping and justifies the use of the Milnes protocol
 import myokit
 import numpy as np
-import pandas as pd
 
 import modelling
 

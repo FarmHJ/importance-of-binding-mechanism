@@ -232,7 +232,7 @@ if steady_state:
     if drug == 'verapamil' and protocol_name == 'P0':
         repeats = 83
     else:
-        repeats = 150
+        repeats = 300
     save_signal = 2
 else:
     repeats = 300
@@ -248,9 +248,9 @@ hERG_peak_trapping = []
 
 for i in range(len(drug_conc)):
     print('simulating concentration: ' + str(drug_conc[i]))
-    log = AP_model.drug_simulation(drug, drug_conc[i], repeats,  # + 1
-                                   timestep=0.1, save_signal=save_signal,
-                                   log_var=['engine.time', 'membrane.V', 'ikr.IKr'])
+    log = AP_model.drug_simulation(
+        drug, drug_conc[i], repeats, timestep=0.1, save_signal=save_signal,
+        log_var=['engine.time', 'membrane.V', 'ikr.IKr'])
     log.save_csv(saved_data_dir + 'CiPA_AP_' + str(drug_conc[i]) + '.csv')
     APD_trapping_pulse = []
     hERG_trapping_pulse = []

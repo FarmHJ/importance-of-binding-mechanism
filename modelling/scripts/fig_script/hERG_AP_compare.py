@@ -7,7 +7,7 @@ import os
 
 import modelling
 
-drug = 'dofetilide'
+drug = 'verapamil'
 protocol_name = 'Milnes'
 
 saved_data_dir = '../../simulation_data/binding_kinetics_comparison/' + \
@@ -53,7 +53,7 @@ conc_label = [conc_label[i] for i in sort_ind]
 
 CiPA_hERG_log = []
 conductance_hERG_log = []
-for i in range(len(trapping_data_files) - 2):
+for i in range(len(trapping_data_files)):
     CiPA_hERG_log.append(myokit.DataLog.load_csv(
         saved_data_dir + trapping_data_files[i]))
     conductance_hERG_log.append(myokit.DataLog.load_csv(
@@ -61,7 +61,7 @@ for i in range(len(trapping_data_files) - 2):
 
 # Initiate constants and variables
 labels = [i + ' nM' for i in conc_label]
-labels = labels[:-2]
+# labels = labels[:-2]
 pulse_time = 25e3
 cmap = matplotlib.cm.get_cmap('viridis')
 
@@ -155,4 +155,4 @@ fig.fig.set_size_inches(10, 5)
 fig.fig.text(0.075, 0.925, '(a)', fontsize=11)
 fig.fig.text(0.075, 0.525, '(b)', fontsize=11)
 
-fig.savefig(saved_fig_dir + "hERG_AP_compare.pdf")
+fig.savefig(saved_fig_dir + "hERG_AP_compare.svg", format='svg')

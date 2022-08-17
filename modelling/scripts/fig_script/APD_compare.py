@@ -82,4 +82,4 @@ fig.fig.set_size_inches(8, 3)
 fig.fig.text(0.075, 0.925, '(a)', fontsize=11)
 fig.fig.text(0.5, 0.925, '(b)', fontsize=11)
 
-fig.savefig(saved_fig_dir + 'APD_compare.pdf')
+fig.savefig(saved_fig_dir + 'APD_compare.svg', format='svg')

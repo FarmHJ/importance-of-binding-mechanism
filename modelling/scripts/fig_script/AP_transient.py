@@ -12,7 +12,7 @@ import modelling
 testing_fig_dir = '../../figures/testing/'
 final_fig_dir = '../../figures/binding_kinetics_comparison/'
 
-saved_fig_dir = testing_fig_dir
+saved_fig_dir = final_fig_dir
 
 # Set up figure's main grid
 fig = modelling.figures.FigureStructure(figsize=(10, 8),
@@ -258,4 +258,4 @@ fig.fig.text(0.535, 0.625, '(d)', fontsize=11)
 fig.fig.text(0.075, 0.325, '(e)', fontsize=11)
 fig.fig.text(0.535, 0.325, '(f)', fontsize=11)
 
-fig.savefig(saved_fig_dir + "test.pdf")
+fig.savefig(saved_fig_dir + "AP_transient.svg", format='svg')

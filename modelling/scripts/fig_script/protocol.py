@@ -4,20 +4,25 @@ import pandas as pd
 import modelling
 
 testing_fig_dir = '../../figures/testing/'
-final_fig_dir = \
-    '../../figures/binding_kinetics_comparison/OHaraCiPA_model/protocol/'
+# final_fig_dir = \
+#     '../../figures/binding_kinetics_comparison/OHaraCiPA_model/protocol/'
+final_fig_dir = '../../figures/conferences/'
 
 saved_fig_dir = final_fig_dir
 
 # Set up figure's main grid
-fig = modelling.figures.FigureStructure(figsize=(10, 6),
-                                        gridspec=(3, 1), hspace=0.6,
+# fig = modelling.figures.FigureStructure(figsize=(10, 6),
+#                                         gridspec=(3, 1), hspace=0.6,
+#                                         height_ratios=[1, 2, 2],
+#                                         plot_in_subgrid=True)
+fig = modelling.figures.FigureStructure(figsize=(10, 7.3),
+                                        gridspec=(3, 1), hspace=0.7,
                                         height_ratios=[1, 2, 2],
                                         plot_in_subgrid=True)
 plot = modelling.figures.FigurePlot()
 
 subgridspecs = [(1, 4), (1, 2), (1, 4)]
-wspaces = [0.5, 0.3, 0.1]
+wspaces = [0.55, 0.3, 0.1]
 subgs = []
 for i in range(3):
     subgs.append(fig.gs[i].subgridspec(*subgridspecs[i], wspace=wspaces[i]))
@@ -85,7 +90,7 @@ for i in range(len(drugs)):
     panel2[0][i].set_xscale("log", nonpositive='clip')
     panel2[0][i].set_title(drugs[i] + '-like drug')
     panel2[0][i].set_xlabel('Drug concentration (nM)')
-    panel2[0][i].set_ylabel('Normalised peak current')
+    panel2[0][i].set_ylabel('Normalised\npeak current')
     panel2[0][i].legend()
 
 # Bottom panel

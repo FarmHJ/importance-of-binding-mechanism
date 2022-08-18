@@ -19,7 +19,7 @@ final_fig_dir = '../../figures/binding_kinetics_comparison/' + drug + '/' + \
 
 saved_fig_dir = final_fig_dir
 
-fig = modelling.figures.FigureStructure(figsize=(12, 6), gridspec=(2, 1),
+fig = modelling.figures.FigureStructure(figsize=(10, 5), gridspec=(2, 1),
                                         height_ratios=[2, 3], hspace=0.5,
                                         plot_in_subgrid=True)
 plot = modelling.figures.FigurePlot()

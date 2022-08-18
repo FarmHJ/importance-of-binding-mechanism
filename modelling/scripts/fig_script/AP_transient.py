@@ -11,15 +11,21 @@ import modelling
 # Set up directory for figures
 testing_fig_dir = '../../figures/testing/'
 final_fig_dir = '../../figures/binding_kinetics_comparison/'
+# final_fig_dir = '../../figures/conferences/'
 
 saved_fig_dir = final_fig_dir
 
 # Set up figure's main grid
-fig = modelling.figures.FigureStructure(figsize=(10, 8),
-                                        gridspec=(3, 2), hspace=0.5,
-                                        wspace=0.45,
-                                        height_ratios=[1, 1, 1],
-                                        plot_in_subgrid=True)
+fig = modelling.figures.FigureStructure(
+    # specs for conference poster
+    # figsize=(10, 9),
+    # gridspec=(3, 2), hspace=0.6,
+    # wspace=0.55,
+    figsize=(10, 8),
+    gridspec=(3, 2), hspace=0.5,
+    wspace=0.45,
+    height_ratios=[1, 1, 1],
+    plot_in_subgrid=True)
 plot = modelling.figures.FigurePlot()
 
 subgridspecs = [(2, 1)] * 4 + [(1, 2)] * 2
@@ -73,10 +79,10 @@ plot.add_multiple_continuous(panel1[1][0], CiPA_AP_log, 'ikr.IKr',
 
 unique = fig.legend_without_duplicate_labels(panel1[1][0])
 panel1[1][0].legend(*zip(*unique), loc='lower left',
-                    bbox_to_anchor=(1.0, 0))
+                    bbox_to_anchor=(1.0, 0), handlelength=1)
 fig.sharex(['Time (s)'], [(0, plotting_pulse_time)],
            axs=panel1, subgridspec=subgridspecs[0])
-fig.sharey(['Voltage (mV)', 'hERG current'],
+fig.sharey(['Voltage\n(mV)', 'hERG current'],
            axs=panel1, subgridspec=subgridspecs[0])
 fig.adjust_ticks(panel1[1][0], plotting_pulse_time)
 panel1[0][0].set_title(drug + "-like drug, state dependent drug block")
@@ -90,10 +96,10 @@ plot.add_multiple_continuous(panel3[1][0], conductance_AP_log, 'ikr.IKr',
 
 unique = fig.legend_without_duplicate_labels(panel3[1][0])
 panel3[1][0].legend(*zip(*unique), loc='lower left',
-                    bbox_to_anchor=(1.0, 0))
+                    bbox_to_anchor=(1.0, 0), handlelength=1)
 fig.sharex(['Time (s)'], [(0, plotting_pulse_time)],
            axs=panel3, subgridspec=subgridspecs[2])
-fig.sharey(['Voltage (mV)', 'hERG current'],
+fig.sharey(['Voltage\n(mV)', 'hERG current'],
            axs=panel3, subgridspec=subgridspecs[2])
 fig.adjust_ticks(panel3[1][0], plotting_pulse_time)
 panel3[0][0].set_title(drug + "-like drug, conductance scaling")
@@ -185,10 +191,10 @@ plot.add_multiple_continuous(panel2[1][0], CiPA_AP_log, 'ikr.IKr',
 
 unique = fig.legend_without_duplicate_labels(panel2[1][0])
 panel2[1][0].legend(*zip(*unique), loc='lower left',
-                    bbox_to_anchor=(1.0, 0))
+                    bbox_to_anchor=(1.0, 0), handlelength=1)
 fig.sharex(['Time (s)'], [(0, plotting_pulse_time)],
            axs=panel2, subgridspec=subgridspecs[1])
-fig.sharey(['Voltage (mV)', 'hERG current'],
+fig.sharey(['Voltage\n(mV)', 'hERG current'],
            axs=panel2, subgridspec=subgridspecs[1])
 fig.adjust_ticks(panel2[1][0], plotting_pulse_time)
 panel2[0][0].set_title(drug + "-like drug, state dependent drug block")
@@ -202,10 +208,10 @@ plot.add_multiple_continuous(panel4[1][0], conductance_AP_log, 'ikr.IKr',
 
 unique = fig.legend_without_duplicate_labels(panel4[1][0])
 panel4[1][0].legend(*zip(*unique), loc='lower left',
-                    bbox_to_anchor=(1.0, 0))
+                    bbox_to_anchor=(1.0, 0), handlelength=1)
 fig.sharex(['Time (s)'], [(0, plotting_pulse_time)],
            axs=panel4, subgridspec=subgridspecs[3])
-fig.sharey(['Voltage (mV)', 'hERG current'],
+fig.sharey(['Voltage\n(mV)', 'hERG current'],
            axs=panel4, subgridspec=subgridspecs[3])
 fig.adjust_ticks(panel4[1][0], plotting_pulse_time)
 panel4[0][0].set_title(drug + "-like drug, conductance scaling")
@@ -236,21 +242,24 @@ panel6 = axs[5]
 for i in range(len(drug_conc)):
     APD_plot = [APD_trapping_concs[i][ind] for ind in
                 range(len(APD_trapping_concs[i])) if ind % 2 == 0]
-    panel6[0][i].plot(np.arange(saved_signal / 2) * 2, APD_plot,
+    panel6[0][i].plot(np.arange(saved_signal / 2) * 2, APD_plot, 'o', ms=0.9,
                       label='state dependent\ndrug block', color='orange')
-    panel6[0][i].plot(np.arange(saved_signal), APD_conductance_concs[i],
-                      label='conductance\nscaling', color='blue')
+    panel6[0][i].plot(np.arange(saved_signal), APD_conductance_concs[i], 'o',
+                      ms=0.9, label='conductance\nscaling', color='blue')
     panel6[0][i].set_title(str(drug_conc[i]) + ' nM')
 
 panel6[0][1].plot(150, 1050, 'o', color='k', marker=(5, 2),
                   label='EAD-like\nbehaviour')
-panel6[0][1].legend(loc='lower left', bbox_to_anchor=(1.0, 0),
-                    handlelength=1)
+lgnd = panel6[0][1].legend(loc='lower left', bbox_to_anchor=(1.0, 0),
+                           handlelength=1)
+for handle in lgnd.legendHandles:
+    handle.set_markersize(6)
 fig.sharex(['Sweeps'] * 2,
            axs=panel6, subgridspec=subgridspecs[5])
 fig.sharey([r"APD$_{90}$ (ms)"],
            axs=panel6, subgridspec=subgridspecs[5])
 
+fig.fig.set_size_inches(10, 8)
 fig.fig.text(0.075, 0.905, '(a)', fontsize=11)
 fig.fig.text(0.535, 0.905, '(b)', fontsize=11)
 fig.fig.text(0.075, 0.625, '(c)', fontsize=11)

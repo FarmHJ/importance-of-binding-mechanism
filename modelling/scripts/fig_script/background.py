@@ -11,7 +11,8 @@ drugs = ['dofetilide', 'verapamil']
 drug_label = ['drug free', 'trapped\ndrug', 'nontrapped\ndrug']
 
 testing_fig_dir = '../../figures/testing/'
-final_fig_dir = '../../figures/background/trapping/'
+# final_fig_dir = '../../figures/background/trapping/'
+final_fig_dir = '../../figures/conferences/'
 saved_fig_dir = final_fig_dir
 
 saved_data_dir = '../../simulation_data/background/'
@@ -146,7 +147,7 @@ for i in range(len(log_all)):
         else:
             plot.add_single(panel4[1][i], log_all[j], 'ikr.IKr',
                             color='grey', alpha=0.5)
-    panel4[1][i].text(24500, 0.73, drug_label[i], fontsize=8,
+    panel4[1][i].text(24500, 0.73, drug_label[i], fontsize=10.5,
                       ha='right', va='top')
 
 for col in range(3):
@@ -161,7 +162,8 @@ for i in range(len(log_all)):
     fig.adjust_ticks(panel4[2][i], pulse_time)
 
 # Add panel letter
-fig.fig.set_size_inches(10, 6.5)
+# fig.fig.set_size_inches(10, 6.5)
+fig.fig.set_size_inches(20, 8)
 fig.fig.text(0.075, 0.925, '(a)', fontsize=11)
 fig.fig.text(0.5, 0.925, '(b)', fontsize=11)
 fig.fig.text(0.075, 0.525, '(c)', fontsize=11)

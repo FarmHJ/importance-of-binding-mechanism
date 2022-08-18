@@ -6,7 +6,8 @@ import modelling
 
 # Set up directory for figures
 testing_fig_dir = '../../figures/testing/'
-final_fig_dir = '../../figures/binding_kinetics_comparison/'
+# final_fig_dir = '../../figures/binding_kinetics_comparison/'
+final_fig_dir = '../../figures/conferences/'
 
 saved_fig_dir = final_fig_dir
 
@@ -78,7 +79,7 @@ fig.axs[0][1].set_ylabel(r'APD$_{90}$ (ms)')
 fig.axs[0][1].set_title('verapamil-like drug')
 fig.axs[0][1].legend(handlelength=1)
 
-fig.fig.set_size_inches(8, 3)
+fig.fig.set_size_inches(10, 4)
 fig.fig.text(0.075, 0.925, '(a)', fontsize=11)
 fig.fig.text(0.5, 0.925, '(b)', fontsize=11)
 

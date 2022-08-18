@@ -105,10 +105,13 @@ class FigureStructure(object):
             axs[i][0].set_ylabel(ylabels[i])
 
     def adjust_ticks(self, ax, pulse_time):
-        ax.xaxis.set_major_locator(ticker.MultipleLocator(pulse_time / 5))
+        location = pulse_time // 1000 * 1000 / 5
+        ax.xaxis.set_major_locator(ticker.MultipleLocator(location))
         xaxis_label = list(ax.get_xticks())
+        # xticks = xaxis_label
         xaxis_label = ["%d" % (float(i) / 1000) for i in xaxis_label]
 
+        # ax.set_xticks(xticks, labels=xaxis_label)
         ax.set_xticklabels(xaxis_label)
 
     def savefig(self, filename, format=None):

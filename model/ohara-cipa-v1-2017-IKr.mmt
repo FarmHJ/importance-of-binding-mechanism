@@ -282,6 +282,8 @@ dot(Obound) = Kmax * Ku * exp(n * log(D)) / (exp(n * log(D)) + halfmax) * O - Ku
 fKr = piecewise(cell.mode == 0, 1, cell.mode == 1, 1.3, 0.8)
 # gKr =  4.65854545454545618e-2 [mS/uF]
 #     in [mS/uF]
+Kb = Kmax * Ku * exp(n * log(D)) / (exp(n * log(D)) + halfmax)
+Kn = Kt / (1 + exp(-(V - Vhalf) / 6.789 [mV]))
 gKr = 0.0418 [mS/uF]
     in [mS/uF]
 IKr = fKr * gKr * sqrt(extra.K_o / 5.4 [mM]) * O * (V - rev.EK)

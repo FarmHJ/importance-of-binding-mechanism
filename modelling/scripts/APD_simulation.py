@@ -90,7 +90,7 @@ APD_conductance = [max(i) for i in APD_conductance]
 
 APD_trapping_df = pd.DataFrame(np.array(APD_trapping), columns=['APD'])
 APD_trapping_df['drug concentration'] = drug_conc
-APD_trapping_df.to_csv(saved_data_dir + 'CiPA_APD_large.csv')
+APD_trapping_df.to_csv(saved_data_dir + 'CiPA_APD_fine.csv')
 APD_conductance_df = pd.DataFrame(np.array(APD_conductance), columns=['APD'])
 APD_conductance_df['drug concentration'] = drug_conc
-APD_conductance_df.to_csv(saved_data_dir + 'conductance_APD_large.csv')
+APD_conductance_df.to_csv(saved_data_dir + 'conductance_APD_fine.csv')

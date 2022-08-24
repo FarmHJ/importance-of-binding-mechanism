@@ -40,3 +40,10 @@ protocol_dependent:
 		python3 binding_kinetics_comparison.py $(DRUG) $$prot True; \
 		python3 binding_kinetics_comparison.py $(DRUG) $$prot False; \
 	done
+
+sensitivity_analysis:
+	cd modelling/scripts/;
+	for drug in DRUG_LIST; do \
+		python3 sensitivity_analysis.py $(DRUG); \
+		python3 fig_script/sensitivity_plot.py $(DRUG); \
+	done

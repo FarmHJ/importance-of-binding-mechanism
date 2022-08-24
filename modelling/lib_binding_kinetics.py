@@ -5,6 +5,8 @@
 # Kinetics and Multichannel Pharmacology. Circ Arrhythm Electrophysiol.
 # 2017 Feb;10(2):e004628. doi: 10.1161/CIRCEP.116.004628.
 
+import numpy as np
+
 import modelling
 
 
@@ -127,7 +129,7 @@ class BindingParameters(object):
 
 class ProtocolParameters(object):
     """
-    To create a library of all the parameters for different protocols, 
+    To create a library of all the parameters for different protocols,
     especially default pulse time and function name.
     """
 
@@ -155,5 +157,42 @@ class ProtocolParameters(object):
                 'pulse_time': 5400,
                 'function': modelling.ProtocolLibrary().P40(5400),
                 'voltage_points': [-80, -60, 40],
+            },
+        }
+
+
+class DrugConcentrations(object):
+    """
+    Create a library for default list of drug concentrations
+    """
+    def __init__(self):
+        super(DrugConcentrations, self).__init__()
+
+        self.drug_compounds = ['dofetilide', 'bepridil', 'terfenadine',
+                               'cisapride', 'verapamil', 'ranolazine']
+        self.drug_concentrations = {
+            'dofetilide': {
+                'coarse': [0, 0.1, 1, 10, 30, 100, 300, 500, 1000],
+                'fine': 10.0**np.linspace(-1, 2.5, 20),
+            },
+            'verapamil': {
+                'coarse': [0, 0.1, 1, 30, 300, 500, 1000, 10000, 1e5],
+                'fine': 10.0**np.linspace(-1, 5, 20)
+            },
+            'bepridil': {
+                'coarse': [0, 0.1, 1, 10, 30, 100, 300, 500, 1000, 10000],
+                'fine': 10.0**np.linspace(-1, 3.5, 20),
+            },
+            'terfenadine': {
+                'coarse': [0, 0.1, 1, 10, 30, 100, 300, 500, 1000, 10000],
+                'fine': 10.0**np.linspace(-1, 3.5, 20),
+            },
+            'cisapride': {
+                'coarse': [0, 0.1, 1, 10, 30, 100, 300, 500, 1000, 10000],
+                'fine': 10.0**np.linspace(-1, 3.5, 20),
+            },
+            'ranolazine': {
+                'coarse': [0, 1, 30, 300, 500, 1000, 10000, 1e5, 1e6],
+                'fine': 10.0**np.linspace(1, 6, 20)
             },
         }

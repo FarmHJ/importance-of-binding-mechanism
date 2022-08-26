@@ -42,8 +42,9 @@ protocol_dependent:
 	done
 
 sensitivity_analysis:
-	cd modelling/scripts/;
-	for drug in DRUG_LIST; do \
-		python3 sensitivity_analysis.py $(DRUG); \
-		python3 fig_script/sensitivity_plot.py $(DRUG); \
+	cd modelling/scripts/; \
+	for drug in $(DRUG_LIST); do \
+		echo $$drug; \
+		python3 sensitivity_analysis.py $$drug; \
+		python3 fig_script/sensitivity_plot.py $$drug; \
 	done

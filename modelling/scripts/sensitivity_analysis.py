@@ -148,15 +148,12 @@ offset = 50
 repeats = 1000
 save_signal = 2
 
-drug_conc = drug_conc[6:]
-print(drug_conc)
 ####################
 # Only for dofetilide
-if drug == 'dofetilide':
+if drug == 'dofetilide' or 'ranolazine' or 'cisapride':
     drug_conc = drug_conc[:-1]
 
 for i, conc in enumerate(drug_conc):
-    print(conc)
     log = AP_model.drug_simulation(
         drug, conc, repeats, timestep=0.1, save_signal=save_signal,
         log_var=['engine.time', 'membrane.V', 'ikr.IKr'])
@@ -166,10 +163,16 @@ for i, conc in enumerate(drug_conc):
 
     reduction_scale = Hill_model.simulate(Hill_eq, conc)
 
-    d2 = AP_model.conductance_simulation(
-        base_conductance * reduction_scale, repeats, timestep=0.1,
-        save_signal=save_signal,
-        log_var=['engine.time', 'membrane.V', 'ikr.IKr'])
+    if drug == 'ranolazine' and conc >= 1e6:
+        d2 = AP_model.conductance_simulation(
+            base_conductance * reduction_scale, repeats, timestep=0.1,
+            save_signal=save_signal, abs_tol=1e-6, rel_tol=1e-5,
+            log_var=['engine.time', 'membrane.V', 'ikr.IKr'])
+    else:
+        d2 = AP_model.conductance_simulation(
+            base_conductance * reduction_scale, repeats, timestep=0.1,
+            save_signal=save_signal,
+            log_var=['engine.time', 'membrane.V', 'ikr.IKr'])
 
     d2.save_csv(saved_data_dir + protocol_list[0] + '/conductance_AP_' +
                 str(drug_conc[i]) + '.csv')
@@ -178,10 +181,9 @@ save_signal = repeats
 APD_conductance = []
 APD_trapping = []
 # No need to run simulation when drug concentration is zero
-drug_conc = drug_conc[1:]
+drug_conc = drug_conc_lib.drug_concentrations[drug]['fine']
 
 for i, conc in enumerate(drug_conc):
-    print(conc)
     log = AP_model.drug_simulation(
         drug, conc, repeats, timestep=0.1, save_signal=save_signal,
         log_var=['engine.time', 'membrane.V'])

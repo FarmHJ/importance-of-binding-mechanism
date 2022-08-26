@@ -82,9 +82,11 @@ class BindingKinetics(object):
         return d2
 
     def conductance_simulation(self, conductance, repeats,
-                               timestep=1, save_signal=1, log_var=None):
+                               timestep=1, save_signal=1, log_var=None,
+                               abs_tol=1e-6, rel_tol=1e-4):
         self.sim = myokit.Simulation(self.model, self.protocol)
         self.sim.reset()
+        self.sim.set_tolerance(abs_tol=abs_tol, rel_tol=rel_tol)
 
         self.sim.set_constant(self.current_head.var('Vhalf'),
                               self.original_constants["Vhalf"])

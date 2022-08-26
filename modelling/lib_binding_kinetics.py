@@ -193,6 +193,6 @@ class DrugConcentrations(object):
             },
             'ranolazine': {
                 'coarse': [0, 1, 30, 300, 500, 1000, 10000, 1e5, 1e6],
-                'fine': 10.0**np.linspace(1, 6, 20)
+                'fine': 10.0**np.linspace(1, 5.5, 20)
             },
         }

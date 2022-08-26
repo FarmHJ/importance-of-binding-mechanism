@@ -51,7 +51,6 @@ class HillsModelOpt(object):
             inhibit_metric - metric_min) / (metric_max - metric_min)
 
         zero_drug_conc = drug_conc.index(0)
-        print(zero_drug_conc)
         drug_conc = np.delete(drug_conc, zero_drug_conc)
         inhibit_metric = np.delete(inhibit_metric, zero_drug_conc)
         # del drug_conc[zero_drug_conc], inhibit_metric[zero_drug_conc]

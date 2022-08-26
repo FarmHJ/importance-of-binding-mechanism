@@ -110,12 +110,12 @@ for i in range(len(trapping_data_files)):
     conductance_AP_log.append(myokit.DataLog.load_csv(
         saved_data_dir + conductance_data_files[i]))
 
-APD_trapping = pd.read_csv(saved_data_dir + 'CiPA_APD_pulses2.csv')
-APD_conductance = pd.read_csv(saved_data_dir + 'conductance_APD_pulses2.csv')
+APD_trapping = pd.read_csv(saved_data_dir + 'CiPA_APD_pulses1000.csv')
+APD_conductance = pd.read_csv(saved_data_dir + 'conductance_APD_pulses1000.csv')
 
-APD_trapping = [max(APD_trapping.loc[i].values.tolist()[1:-1]) for i in
+APD_trapping = [max(APD_trapping.loc[i].values.tolist()[(1 + 998):-1]) for i in
                 range(APD_trapping.shape[0])]
-APD_conductance = [max(APD_conductance.loc[i].values.tolist()[1:-1]) for i in
+APD_conductance = [max(APD_conductance.loc[i].values.tolist()[(1 + 998):-1]) for i in
                    range(APD_conductance.shape[0])]
 
 # Initiate constants and variables
@@ -163,13 +163,13 @@ for i in range(2):
 # Bottom left panel
 panel5 = axs[4]
 
-APD_trapping = pd.read_csv(saved_data_dir + 'CiPA_APD_fine.csv')
-APD_conductance = pd.read_csv(saved_data_dir + 'conductance_APD_fine.csv')
+APD_trapping = pd.read_csv(saved_data_dir + 'CiPA_APD_pulses1000.csv')
+APD_conductance = pd.read_csv(saved_data_dir + 'conductance_APD_pulses1000.csv')
 
 drug_conc = APD_trapping['drug concentration'].values.tolist()
-APD_trapping = [max(APD_trapping.loc[i].values.tolist()[1:-1]) for i in
+APD_trapping = [max(APD_trapping.loc[i].values.tolist()[1 + 998:-1]) for i in
                 range(APD_trapping.shape[0])]
-APD_conductance = [max(APD_conductance.loc[i].values.tolist()[1:-1])
+APD_conductance = [max(APD_conductance.loc[i].values.tolist()[1 + 998:-1])
                    for i in range(APD_conductance.shape[0])]
 EAD_marker = [1050 if (i >= 1000 or j >= 1000) else None for (i, j)
               in zip(APD_trapping[1:], APD_conductance[1:])]

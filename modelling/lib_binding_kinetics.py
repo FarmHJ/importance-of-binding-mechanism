@@ -189,7 +189,7 @@ class DrugConcentrations(object):
             },
             'cisapride': {
                 'coarse': [0, 0.1, 1, 10, 30, 100, 300, 500, 1000, 10000],
-                'fine': 10.0**np.linspace(-1, 3.5, 20),
+                'fine': 10.0**np.linspace(-1, 3, 20),
             },
             'ranolazine': {
                 'coarse': [0, 1, 30, 300, 500, 1000, 10000, 1e5, 1e6],

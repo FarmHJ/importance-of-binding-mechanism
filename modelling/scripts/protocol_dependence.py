@@ -161,7 +161,8 @@ for p in protocol_name:
 
         reduction_scale = Hill_model.simulate(Hill_eq, drug_conc[i])
         d2 = AP_model.conductance_simulation(
-            base_conductance * reduction_scale, repeats, timestep=0.1, save_signal=save_signal,
+            base_conductance * reduction_scale, repeats, timestep=0.1,
+            save_signal=save_signal,
             log_var=['engine.time', 'membrane.V'])
 
         APD_conductance_pulse = []

@@ -21,7 +21,9 @@ class BindingParameters(object):
         super(BindingParameters, self).__init__()
 
         self.drug_compounds = ['dofetilide', 'bepridil', 'terfenadine',
-                               'cisapride', 'verapamil', 'ranolazine']
+                               'cisapride', 'verapamil', 'ranolazine',
+                               'quinidine', 'sotalol', 'chlorpromazine',
+                               'ondansetron', 'diltiazem', 'mexiletine']
         self.binding_parameters = {
             'dofetilide': {
                 'Kmax': 1e8,
@@ -169,30 +171,68 @@ class DrugConcentrations(object):
         super(DrugConcentrations, self).__init__()
 
         self.drug_compounds = ['dofetilide', 'bepridil', 'terfenadine',
-                               'cisapride', 'verapamil', 'ranolazine']
+                               'cisapride', 'verapamil', 'ranolazine',
+                               'quinidine', 'sotalol', 'chlorpromazine',
+                               'ondansetron', 'diltiazem', 'mexiletine']
         self.drug_concentrations = {
             'dofetilide': {
                 'coarse': [0, 0.1, 1, 10, 30, 100, 300, 500, 1000],
                 'fine': 10.0**np.linspace(-1, 2.5, 20),
+                'lit_default': [1, 3, 10, 30]
             },
             'verapamil': {
                 'coarse': [0, 0.1, 1, 30, 300, 500, 1000, 10000, 1e5],
-                'fine': 10.0**np.linspace(-1, 5, 20)
+                'fine': 10.0**np.linspace(-1, 5, 20),
+                'lit_default': [30, 100, 300, 1000]
             },
             'bepridil': {
                 'coarse': [0, 0.1, 1, 10, 30, 100, 300, 500, 1000, 10000],
                 'fine': 10.0**np.linspace(-1, 3.5, 20),
+                'lit_default': [10, 30, 100, 300]
             },
             'terfenadine': {
                 'coarse': [0, 0.1, 1, 10, 30, 100, 300, 500, 1000, 10000],
                 'fine': 10.0**np.linspace(-1, 3.5, 20),
+                'lit_default': [3, 10, 30, 100]
             },
             'cisapride': {
                 'coarse': [0, 0.1, 1, 10, 30, 100, 300, 500, 1000, 10000],
                 'fine': 10.0**np.linspace(-1, 3.5, 20),
+                'lit_default': [1, 10, 100, 300]
             },
             'ranolazine': {
                 'coarse': [0, 1, 30, 300, 500, 1000, 10000, 1e5, 1e6],
-                'fine': 10.0**np.linspace(1, 5.5, 20)
+                'fine': 10.0**np.linspace(1, 5.5, 20),
+                'lit_default': [1000, 1e4, 3e4, 1e5]
+            },
+            'quinidine': {
+                'coarse': [0, 1, 30, 300, 500, 1000, 10000, 1e5, 1e6],
+                'fine': 10.0**np.linspace(-1, 5.5, 20),
+                'lit_default': [100, 300, 1000, 10000]
+            },
+            'sotalol': {
+                'coarse': [0, 1, 30, 300, 500, 1000, 10000, 1e5, 1e6],
+                'fine': 10.0**np.linspace(-1, 5.5, 20),
+                'lit_default': [1e4, 3e4, 1e5, 3e5]
+            },
+            'chlorpromazine': {
+                'coarse': [0, 1, 30, 300, 500, 1000, 3000, 10000, 1e5],
+                'fine': 10.0**np.linspace(-1, 4.5, 20),
+                'lit_default': [100, 300, 1000, 3000]
+            },
+            'ondansetron': {
+                'coarse': [0, 1, 30, 300, 500, 1000, 10000, 1e5, 1e6],
+                'fine': 10.0**np.linspace(-1, 5.5, 20),
+                'lit_default': [300, 1000, 3000, 1e4]
+            },
+            'diltiazem': {
+                'coarse': [0, 1, 30, 300, 500, 1000, 10000, 1e5, 1e6],
+                'fine': 10.0**np.linspace(-1, 5.5, 20),
+                'lit_default': [3000, 1e4, 3e4, 1e5]
+            },
+            'mexiletine': {
+                'coarse': [0, 1, 30, 300, 500, 1000, 10000, 1e5, 1e6],
+                'fine': 10.0**np.linspace(-1, 5.5, 20),
+                'lit_default': [1e4, 3e4, 1e5, 3e5]
             },
         }

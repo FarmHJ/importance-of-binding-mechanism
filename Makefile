@@ -48,3 +48,10 @@ sensitivity_analysis:
 		python3 sensitivity_analysis.py $$drug; \
 		python3 fig_script/sensitivity_plot.py $$drug; \
 	done
+
+sensitivity_analysis_plot:
+	cd modelling/scripts/; \
+	for drug in $(DRUG_LIST); do \
+		echo $$drug; \
+		python3 fig_script/sensitivity_plot.py $$drug; \
+	done

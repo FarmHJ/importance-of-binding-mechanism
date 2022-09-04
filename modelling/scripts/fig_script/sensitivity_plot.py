@@ -21,7 +21,7 @@ saved_fig_dir = final_fig_dir
 fig = modelling.figures.FigureStructure(
     figsize=(10, 8),
     gridspec=(3, 2), hspace=0.5,
-    wspace=0.45,
+    wspace=0.3,
     height_ratios=[1] * 3,
     plot_in_subgrid=True)
 plot = modelling.figures.FigurePlot()
@@ -96,11 +96,21 @@ panel3 = axs[2]
 panel4 = axs[3]
 
 trapping_data_files = [f for f in os.listdir(saved_data_dir) if
-                       f.startswith('CiPA_AP_')]
+                       f.startswith('CiPA_AP_') and not
+                       f.startswith('CiPA_AP_transient')]
 conductance_data_files = [f for f in os.listdir(saved_data_dir) if
-                          f.startswith('conductance_AP_')]
+                          f.startswith('conductance_AP_') and not
+                          f.startswith('conductance_AP_transient')]
+conc_label = [fname[8:-4] for fname in trapping_data_files]
+drug_conc = [float(fname[8:-4]) for fname in trapping_data_files]
+
+# Sort in increasing order of drug concentration
+sort_ind = [i[0] for i in sorted(enumerate(drug_conc), key=lambda x:x[1])]
+drug_conc = sorted(drug_conc)
 trapping_data_files = [trapping_data_files[i] for i in sort_ind]
 conductance_data_files = [conductance_data_files[i] for i in sort_ind]
+conc_label = [conc_label[i] for i in sort_ind]
+labels = [i + ' nM' for i in conc_label]
 
 CiPA_AP_log = []
 conductance_AP_log = []
@@ -261,15 +271,15 @@ for i in range(len(drug_conc)):
     fig.axs[int(i / 4)][i % 4].plot(np.arange(pulse_num), APD_plot, 'o',
                                     ms=0.9,
                                     label='state dependent\ndrug block',
-                                    color='orange')
+                                    color='orange', zorder=-10)
     # APD_plot = [APD_conductance_concs[i][ind] for ind in
     #             range(len(APD_conductance_concs[i])) if ind % 2 == 0]
     APD_plot = APD_conductance_concs[i]
     fig.axs[int(i / 4)][i % 4].plot(np.arange(pulse_num), APD_plot, 'o',
                                     ms=0.9, label='conductance\nscaling',
-                                    color='blue')
+                                    color='blue', zorder=-10)
     fig.axs[int(i / 4)][i % 4].set_title(str(drug_conc[i]) + 'nM')
-
+    fig.axs[int(i / 4)][i % 4].set_rasterization_zorder(0)
 
 lim_APD = []
 for r in range(nrow):

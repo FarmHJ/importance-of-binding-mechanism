@@ -122,6 +122,46 @@ class BindingParameters(object):
                 'Vhalf': -86.26,
                 'Cmax': 4129
             },
+            'quinidine': {
+                'Kmax': 5770,
+                'Ku': 1e-2,
+                'EC50': 1e6,
+                'N': 0.8311,
+                'Vhalf': -64.87,
+                'Cmax': 3237
+            },
+            'sotalol': {
+                'Kmax': 2403,
+                'Ku': 1.985e-2,
+                'EC50': 9.619e6,
+                'N': 0.7516,
+                'Vhalf': -55,
+                'Cmax': 14690
+            },
+            'chlorpromazine': {
+                'Kmax': 206000,
+                'Ku': 3.866e-2,
+                'EC50': 5.677e7,
+                'N': 0.8871,
+                'Vhalf': -14.57,
+                'Cmax': 38
+            },
+            'ondansetron': {
+                'Kmax': 33540,
+                'Ku': 2.325e-2,
+                'EC50': 9.95e6,
+                'N': 0.8874,
+                'Vhalf': -82.11,
+                'Cmax': 139
+            },
+            'diltiazem': {
+                'Kmax': 251,
+                'Ku': 2.816e-1,
+                'EC50': 1e6,
+                'N': 0.9485,
+                'Vhalf': -90.89,
+                'Cmax': 122
+            },
         }
         self.Hill_curve = {
             'dofetilide': {
@@ -197,7 +237,7 @@ class DrugConcentrations(object):
             },
             'cisapride': {
                 'coarse': [0, 0.1, 1, 10, 30, 100, 300, 500, 1000, 10000],
-                'fine': 10.0**np.linspace(-1, 3.5, 20),
+                'fine': 10.0**np.linspace(-1, 3, 20),
                 'lit_default': [1, 10, 100, 300]
             },
             'ranolazine': {

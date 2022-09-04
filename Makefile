@@ -3,6 +3,7 @@
 DRUG ?= $(shell bash -c 'read -p "Enter drug name:" drug; echo $$drug')
 PROTOCOL ?= $(shell bash -c 'read -p "Enter protocol name:" protocol; echo $$protocol')
 DRUG_LIST = dofetilide bepridil terfenadine cisapride verapamil ranolazine
+DRUG_LIST2 = quinidine sotalol chlorpromazine ondansetron diltiazem mexiletine
 
 # first run for optimisation
 # with check plot
@@ -43,7 +44,7 @@ protocol_dependent:
 
 sensitivity_analysis:
 	cd modelling/scripts/; \
-	for drug in $(DRUG_LIST); do \
+	for drug in $(DRUG_LIST2); do \
 		echo $$drug; \
 		python3 sensitivity_analysis.py $$drug; \
 		python3 fig_script/sensitivity_plot.py $$drug; \

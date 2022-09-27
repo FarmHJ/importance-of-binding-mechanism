@@ -251,7 +251,8 @@ class DrugConcentrations(object):
                 'lit_default': [100, 300, 1000, 10000]
             },
             'sotalol': {
-                'coarse': [0, 1, 30, 100, 300, 1000, 10000, 3e4, 1e5, 3e5, 1e6, 1e7],
+                'coarse': [0, 1, 30, 100, 300, 1000, 10000, 3e4, 1e5, 3e5,
+                           1e6, 1e7],
                 'fine': 10.0**np.linspace(-1, 7, 20),
                 'lit_default': [1e4, 3e4, 1e5, 3e5]
             },
@@ -266,12 +267,14 @@ class DrugConcentrations(object):
                 'lit_default': [300, 1000, 3000, 1e4]
             },
             'diltiazem': {
-                'coarse': [0, 1, 30, 100, 300, 1000, 3000, 10000, 3e4, 1e5, 1e6, 1e7],
+                'coarse': [0, 1, 30, 100, 300, 1000, 3000, 10000, 3e4, 1e5,
+                           1e6, 1e7],
                 'fine': 10.0**np.linspace(-1, 6, 20),
                 'lit_default': [3000, 1e4, 3e4, 1e5]
             },
             'mexiletine': {
-                'coarse': [0, 1, 30, 100, 300, 1000, 10000, 3e4, 1e5, 1e6, 1e7],
+                'coarse': [0, 1, 30, 100, 300, 1000, 10000, 3e4, 1e5, 1e6,
+                           1e7],
                 'fine': 10.0**np.linspace(-1, 7, 20),
                 'lit_default': [1e4, 3e4, 1e5, 3e5]
             },

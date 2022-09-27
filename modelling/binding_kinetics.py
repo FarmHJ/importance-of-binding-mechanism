@@ -81,8 +81,8 @@ class BindingKinetics(object):
 
         return d2
 
-    def CiPA_simulation(self, param_values, drug_conc, repeats,
-                        timestep=0.1, save_signal=1, log_var=None):
+    def custom_simulation(self, param_values, drug_conc, repeats,
+                          timestep=0.1, save_signal=1, log_var=None):
 
         t_max = self.protocol.characteristic_time()
 

@@ -1,4 +1,4 @@
-## Not complete
+# Not complete
 # Simple checking if simulated current matches literature
 # In particular, check if the input parameters are correct
 

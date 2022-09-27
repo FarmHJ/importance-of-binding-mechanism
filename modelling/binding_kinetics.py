@@ -81,6 +81,42 @@ class BindingKinetics(object):
 
         return d2
 
+    def CiPA_simulation(self, param_values, drug_conc, repeats,
+                        timestep=0.1, save_signal=1, log_var=None):
+
+        t_max = self.protocol.characteristic_time()
+
+        concentration = self.model.get('ikr.D')
+        concentration.set_state_value(drug_conc)
+
+        self.sim = myokit.Simulation(self.model, self.protocol)
+        self.sim.reset()
+
+        self.sim.set_constant(self.current_head.var('Vhalf'),
+                              param_values['Vhalf'].values[0])
+        self.sim.set_constant(self.current_head.var('Kmax'),
+                              param_values['Kmax'].values[0])
+        self.sim.set_constant(self.current_head.var('Ku'),
+                              param_values['Ku'].values[0])
+        self.sim.set_constant(self.current_head.var('n'),
+                              param_values['N'].values[0])
+        self.sim.set_constant(self.current_head.var('halfmax'),
+                              param_values['EC50'].values[0])
+        self.sim.set_constant(self.current_head.var('Kt'), 3.5e-5)
+        self.sim.set_constant(self.current_head.var('gKr'),
+                              self.original_constants["gKr"])
+
+        self.sim.pre(t_max * (repeats - save_signal))
+        log = self.sim.run(t_max * save_signal, log=log_var,
+                           log_interval=timestep)
+        d2 = log.npview()
+        if save_signal > 1:
+            d2 = d2.fold(t_max)
+
+        # self.sim.reset()
+
+        return d2
+
     def conductance_simulation(self, conductance, repeats,
                                timestep=1, save_signal=1, log_var=None,
                                abs_tol=1e-6, rel_tol=1e-4):

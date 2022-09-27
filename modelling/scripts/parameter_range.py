@@ -86,9 +86,10 @@ for i, param in enumerate(all_params):
 
 drug_conc = 10**np.linspace(-1, 1, 3)
 # drug_conc = 10**np.linspace(-1, 7, 20)
+APD_dict = {}
 
-for x in itertools.product(*category_means):
-    param_values = pd.DataFrame(x, index=labels)
+for num, param_comb in enumerate(itertools.product(*category_means)):
+    param_values = pd.DataFrame(param_comb, index=labels)
     param_values = param_values.T
 
     # Run simulations
@@ -106,4 +107,7 @@ for x in itertools.product(*category_means):
             APD_trapping_pulse.append(apd90)
         APD_trapping.append(APD_trapping_pulse)
     APD_trapping = [max(i) for i in APD_trapping]
-    print(APD_trapping)
+
+    APD_result = {'param_seq': labels, 'param_values': param_values.values[0],
+                  'drug_conc': drug_conc, 'APD_trapping': APD_trapping}
+    APD_dict[num] = APD_result

@@ -52,7 +52,22 @@ sensitivity_analysis:
 
 sensitivity_analysis_plot:
 	cd modelling/scripts/; \
-	for drug in $(DRUG_LIST); do \
+	for drug in $(DRUG_LIST2); do \
 		echo $$drug; \
 		python3 fig_script/sensitivity_plot.py $$drug; \
+	done
+
+sensitivity_analysis_plot_short:
+	cd modelling/scripts/; \
+	for drug in $(DRUG_LIST); do \
+		echo $$drug; \
+		python3 fig_script/sensitivity_plot.py $$drug True; \
+	done
+create_dir:
+	cd figures/binding_kinetics_comparison; \
+	for drug in $(DRUG_LIST2); do \
+		mkdir $$drug/; \
+		cd $$drug/; \
+		mkdir Milnes/; \
+		cd ..; \
 	done

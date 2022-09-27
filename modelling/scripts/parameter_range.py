@@ -134,7 +134,7 @@ for num, param_comb in enumerate(itertools.product(*category_means)):
     APD_conductance = []
     for i in range(len(drug_conc_AP)):
         # Run simulation for trapping model
-        log = AP_model.CiPA_simulation(
+        log = AP_model.custom_simulation(
             param_values, drug_conc_AP[i], repeats_AP, timestep=0.1,
             save_signal=save_signal,
             log_var=['engine.time', 'membrane.V'])

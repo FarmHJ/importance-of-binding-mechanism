@@ -3,6 +3,7 @@
 
 import csv
 import itertools
+import matplotlib.pyplot as plt
 import myokit
 import numpy as np
 import pandas as pd
@@ -13,9 +14,10 @@ saved_data_dir = '../../simulation_data/sensitivity_analysis/'
 
 testing_fig_dir = '../../figures/testing/'
 final_fig_dir = '../../figures/binding_kinetics_comparison/' + \
-    'OHaraCiPA_model/sensitivity_analysis'
+    'OHaraCiPA_model/sensitivity_analysis/'
 
-saved_fig_dir = testing_fig_dir
+check_plot = True
+saved_fig_dir = final_fig_dir
 
 param_lib = modelling.BindingParameters()
 drug_list = param_lib.drug_compounds
@@ -84,7 +86,7 @@ protocol = protocol_params.protocol_parameters['Milnes']['function']
 drug_model = modelling.BindingKinetics(model)
 drug_model.protocol = protocol
 
-drug_conc_Hill = 10**np.linspace(-1, 7, 12)
+drug_conc_Hill = list(np.append(0, 10**np.linspace(-1, 10, 12)))
 
 # Set AP model
 APmodel = '../../model/ohara-cipa-v1-2017.mmt'
@@ -105,7 +107,6 @@ drug_conc_AP = 10**np.linspace(-1, 1, 3)
 # drug_conc = 10**np.linspace(-1, 7, 20)
 
 # Run simulation
-peaks = []
 repeats = 1000
 APD_dict = {}
 
@@ -113,6 +114,7 @@ for num, param_comb in enumerate(itertools.product(*category_means)):
     param_values = pd.DataFrame(param_comb, index=labels)
     param_values = param_values.T
 
+    peaks = []
     for i in range(len(drug_conc_Hill)):
         log = drug_model.custom_simulation(
             param_values, drug_conc_Hill[i], repeats,
@@ -126,6 +128,19 @@ for num, param_comb in enumerate(itertools.product(*category_means)):
     Hill_model = modelling.HillsModel()
     optimiser = modelling.HillsModelOpt(Hill_model)
     Hill_curve, _ = optimiser.optimise(drug_conc_Hill, peaks)
+
+    if check_plot:
+        max_grid = np.ceil(np.log(drug_conc_Hill[-1]))
+        conc_grid = np.arange(-2, max_grid, 1)
+
+        plt.figure(figsize=(4, 3))
+        plt.plot(np.log(drug_conc_Hill[1:]), peaks[1:], 'o', label='peak current')
+        plt.plot(conc_grid, Hill_model.simulate(Hill_curve[:2], np.exp(conc_grid)),
+                'k', label='fitted Hill eq')
+        plt.xlabel('Drug concentration (log)')
+        plt.ylabel('Normalised peak current')
+        plt.tight_layout()
+        plt.savefig(saved_fig_dir + "Hill_curve_" + str(num) + ".pdf")
 
     data_dict = {'drug_conc_Hill': drug_conc_Hill, 'peak_current': peaks,
                  'Hill_curve': Hill_curve[:2]}
@@ -150,7 +165,7 @@ for num, param_comb in enumerate(itertools.product(*category_means)):
         reduction_scale = Hill_model.simulate(Hill_curve[:2], drug_conc_AP[i])
         d2 = AP_model.conductance_simulation(
             base_conductance * reduction_scale, repeats_AP, timestep=0.1,
-            save_signal=save_signal,
+            save_signal=save_signal, abs_tol=1e-6, rel_tol=1e-5,
             log_var=['engine.time', 'membrane.V'])
 
         # Compute APD90
@@ -175,6 +190,6 @@ for num, param_comb in enumerate(itertools.product(*category_means)):
 
     print(APD_dict)
 
-w = csv.writer(open('SA_param_categories.csv', 'w'))
+w = csv.writer(open(saved_data_dir + 'SA_param_categories.csv', 'w'))
 for key, val in APD_dict.items():
     w.writerow([key, val])

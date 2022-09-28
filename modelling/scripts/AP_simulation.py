@@ -1,6 +1,4 @@
 # Simulate action potentials at transient phase
-import matplotlib
-import matplotlib.pyplot as plt
 import myokit
 import numpy as np
 import pandas as pd

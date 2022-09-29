@@ -64,6 +64,7 @@ setup(
         'numpy>=1.8',
         'pandas',
         'pints',
+        'SALib'
     ],
     extras_require={
         'docs': [

@@ -1,11 +1,10 @@
 # To plot the range of parameter values
 # Drug binding-related parameters
 
-import csv
-import itertools
 import matplotlib.pyplot as plt
 import myokit
 import numpy as np
+import os
 import pandas as pd
 
 import modelling
@@ -22,32 +21,30 @@ saved_fig_dir = final_fig_dir
 param_lib = modelling.BindingParameters()
 drug_list = param_lib.drug_compounds
 
-Vhalf = []
-Kmax = []
-Ku = []
-N = []
-EC50 = []
+drug = 'cisapride'
+Vhalf = param_lib.binding_parameters[drug]['Vhalf']
+Kmax = param_lib.binding_parameters[drug]['Kmax']
+Ku = param_lib.binding_parameters[drug]['Ku']
+Hill_n = param_lib.binding_parameters[drug]['N']
+half_effect_conc = param_lib.binding_parameters[drug]['EC50']
 
-for drug in drug_list:
-    Vhalf.append(param_lib.binding_parameters[drug]['Vhalf'])
-    Kmax.append(param_lib.binding_parameters[drug]['Kmax'])
-    Ku.append(param_lib.binding_parameters[drug]['Ku'])
-    N.append(param_lib.binding_parameters[drug]['N'])
-    EC50.append(param_lib.binding_parameters[drug]['EC50'])
-
-all_params = [Vhalf, Kmax, Ku, N, EC50]
+all_params = [Vhalf, Kmax, Ku, Hill_n, half_effect_conc]
 labels = ['Vhalf', 'Kmax', 'Ku', 'N', 'EC50']
 
-# Simple SA - taking mean value of each category
-# Split parameter value ranges to three categories: low, medium and high
-category_means = []
-for i, param in enumerate(all_params):
-    low_cat = [k for k in param if k < param_ranges[i][0]]
-    med_cat = [k for k in param if k >= param_ranges[i][0]
-               and k <= param_ranges[i][1]]
-    high_cat = [k for k in param if k > param_ranges[i][1]]
-    category_means.append([np.mean(low_cat), np.mean(med_cat),
-                           np.mean(high_cat)])
+# Perturbing the parameters
+# perturbing Vhalf
+parameter_interest = 'Vhalf'
+small_range = np.linspace(-220, -180, 10)
+cat_range = np.linspace(-100, -50, 10)
+cat_range2 = np.linspace(-15, -1, 10)
+param_range = np.concatenate((small_range, cat_range, cat_range2))
+params_ranges = [param_range]
+# Kmax
+# small_range = np.linspace(-220, -180, 2)
+# cat_range = np.linspace(-100, -50, 2)
+# cat_range2 = np.linspace(-15, -1, 2)
+# param_range = np.concatenate((small_range, cat_range, cat_range2))
+
 
 # Load IKr model
 model = '../../model/ohara-cipa-v1-2017-IKr.mmt'
@@ -59,8 +56,6 @@ protocol = protocol_params.protocol_parameters['Milnes']['function']
 
 drug_model = modelling.BindingKinetics(model)
 drug_model.protocol = protocol
-
-drug_conc_Hill = list(np.append(0, 10**np.linspace(-1, 10, 12)))
 
 # Set AP model
 APmodel = '../../model/ohara-cipa-v1-2017.mmt'
@@ -76,17 +71,20 @@ base_conductance = APmodel.get('ikr.gKr').value()
 offset = 50
 repeats_AP = 800
 save_signal = 2
-
-drug_conc_AP = 10**np.linspace(-1, 1, 3)
-# drug_conc = 10**np.linspace(-1, 7, 20)
-
-# Run simulation
 repeats = 1000
-APD_dict = {}
 
-for num, param_comb in enumerate(itertools.product(*category_means)):
-    param_values = pd.DataFrame(param_comb, index=labels)
-    param_values = param_values.T
+param_values = pd.DataFrame(all_params, index=labels)
+param_values = param_values.T
+
+filename = 'SA_' + drug + '_' + parameter_interest + '.csv'
+if os.path.exists(saved_data_dir + filename):
+    os.remove(saved_data_dir + filename)
+
+# for num, param_comb in enumerate(itertools.product(*param_ranges)):
+for num, param in enumerate(param_range):
+
+    param_values[parameter_interest][0] = param
+    drug_conc_Hill = list(np.append(0, 10**np.linspace(-1, 5, 10)))
 
     peaks = []
     for i in range(len(drug_conc_Hill)):
@@ -96,31 +94,44 @@ for num, param_comb in enumerate(itertools.product(*category_means)):
         peak, _ = drug_model.extract_peak(log, 'ikr.IKr')
         peaks.append(peak[-1])
 
-    peaks = (peaks - min(peaks)) / (max(peaks) - min(peaks))
+    peaks_norm = (peaks - min(peaks)) / (max(peaks) - min(peaks))
 
-    # Fit Hill curve
+    # Make sure there are more data points for the tail of Hill curve
+    checker_threshold = 0.05
+    data_pt_checker = [True]
+    while sum(data_pt_checker) < 3:
+        drug_conc_Hill = drug_conc_Hill + [max(drug_conc_Hill) * np.sqrt(10)]
+        log = drug_model.custom_simulation(
+            param_values, drug_conc_Hill[-1], repeats,
+            log_var=['engine.time', 'ikr.IKr'])
+        peak, _ = drug_model.extract_peak(log, 'ikr.IKr')
+        peaks.append(peak[-1])
+        peaks_norm = (peaks - min(peaks)) / (max(peaks) - min(peaks))
+        data_pt_checker = [True if i < checker_threshold else False for i in
+                           peaks_norm]
+
+    # # Fit Hill curve
     Hill_model = modelling.HillsModel()
     optimiser = modelling.HillsModelOpt(Hill_model)
-    Hill_curve, _ = optimiser.optimise(drug_conc_Hill, peaks)
+    Hill_curve, _ = optimiser.optimise(drug_conc_Hill, peaks_norm)
 
     if check_plot:
         max_grid = np.ceil(np.log(drug_conc_Hill[-1]))
         conc_grid = np.arange(-2, max_grid, 1)
 
         plt.figure(figsize=(4, 3))
-        plt.plot(np.log(drug_conc_Hill[1:]), peaks[1:], 'o', label='peak current')
-        plt.plot(conc_grid, Hill_model.simulate(Hill_curve[:2], np.exp(conc_grid)),
-                'k', label='fitted Hill eq')
+        plt.plot(np.log(drug_conc_Hill[1:]), peaks_norm[1:], 'o',
+                 label='peak current')
+        plt.plot(conc_grid, Hill_model.simulate(Hill_curve[:2],
+                 np.exp(conc_grid)), 'k', label='fitted Hill eq')
         plt.xlabel('Drug concentration (log)')
         plt.ylabel('Normalised peak current')
         plt.tight_layout()
         plt.savefig(saved_fig_dir + "Hill_curve_" + str(num) + ".pdf")
 
-    data_dict = {'drug_conc_Hill': drug_conc_Hill, 'peak_current': peaks,
-                 'Hill_curve': Hill_curve[:2]}
-
     APD_trapping = []
     APD_conductance = []
+    drug_conc_AP = 10**np.linspace(-1, np.log10(max(drug_conc_Hill)), 20)
     for i in range(len(drug_conc_AP)):
         # Run simulation for trapping model
         log = AP_model.custom_simulation(
@@ -155,15 +166,31 @@ for num, param_comb in enumerate(itertools.product(*category_means)):
     MSError = np.sum((np.array(APD_trapping) - np.array(APD_conductance))**2) \
         / len(APD_trapping)
 
-    APD_result = {**data_dict, 'param_seq': labels,
-                  'param_values': param_values.values[0],
-                  'drug_conc_AP': drug_conc_AP, 'APD_trapping': APD_trapping,
-                  'APD_conductance': APD_conductance, 'MSE': MSError}
+    conc_Hill_ind = ['conc_' + str(i) for i, _ in enumerate(drug_conc_Hill)]
+    conc_AP_ind = ['conc_' + str(i) for i, _ in enumerate(drug_conc_AP)]
+    index_dict = {'drug_conc_Hill': conc_Hill_ind,
+                  'peak_current': conc_Hill_ind,
+                  'Hill_curve': ['Hill_coef', 'IC50'], 'param_values': labels,
+                  'drug_conc_AP': conc_AP_ind, 'APD_trapping': conc_AP_ind,
+                  'APD_conductance': conc_AP_ind, 'MSE': ['MSE']}
+    all_index = [(i, j) for i in index_dict.keys() for j in index_dict[i]]
+    index = pd.MultiIndex.from_tuples(all_index)
 
-    APD_dict[num] = APD_result
+    big_df = pd.DataFrame(drug_conc_Hill + list(peaks) + list(Hill_curve[:2]) +
+                          list(param_values.values[0]) + list(drug_conc_AP) +
+                          APD_trapping + APD_conductance + [MSError],
+                          index=index)
 
-    print(APD_dict)
+    if num != 0:
+        previous_df = pd.read_csv(saved_data_dir + filename,
+                                  header=[0, 1], index_col=[0],
+                                  skipinitialspace=True)
 
-w = csv.writer(open(saved_data_dir + 'SA_param_categories.csv', 'w'))
-for key, val in APD_dict.items():
-    w.writerow([key, val])
+        comb_df = pd.concat([previous_df, big_df.T])
+    else:
+        comb_df = big_df.T
+
+    comb_df.to_csv(saved_data_dir + filename)
+
+    os.system('cp ' + saved_data_dir + filename + ' ' +
+              saved_data_dir + filename[:-4] + '_copy.csv')

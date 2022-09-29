@@ -40,4 +40,5 @@ MSEs = df['MSE']['MSE'].values
 plt.figure()
 plt.plot(interest_param_values, MSEs, 'o-')
 plt.vlines(param_true, min(MSEs), max(MSEs), colors='red')
-plt.savefig(saved_fig_dir + 'MSE.pdf')
+# plt.xscale('log')
+plt.savefig(saved_fig_dir + 'cisapride_Vhalf_MSE.pdf')

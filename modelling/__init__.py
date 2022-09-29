@@ -17,3 +17,7 @@ from .Hills_model import (
     HillsModel,
     HillsModelOpt
 )
+
+from .model_comparison import (
+    ModelComparison
+)

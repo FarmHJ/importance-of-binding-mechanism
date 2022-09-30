@@ -53,32 +53,25 @@ class HillsModelOpt(object):
         zero_drug_conc = drug_conc.index(0)
         drug_conc = np.delete(drug_conc, zero_drug_conc)
         inhibit_metric = np.delete(inhibit_metric, zero_drug_conc)
-        # del drug_conc[zero_drug_conc], inhibit_metric[zero_drug_conc]
+
+        IC50_predict = drug_conc[min(range(len(inhibit_metric)),
+                                 key=lambda i: abs(inhibit_metric[i] - 0.5))]
 
         # optimisation
         problem = pints.SingleOutputProblem(self.model, drug_conc,
                                             inhibit_metric)
-        log_likelihood = pints.GaussianLogLikelihood(problem)
+        log_likelihood = pints.MeanSquaredError(problem)
 
-#         log_prior = pints.ComposedLogPrior(
-#                 pints.UniformLogPrior(0.5, 1),
-#                 pints.UniformLogPrior(5, 15),
-#                 pints.TruncatedGaussianLogPrior(0, 0.25, 0, np.inf))
-
-        transform = pints.LogTransformation(n_parameters=3)
-#         initial_parameters = log_prior.sample()
-        initial_parameters = [0.9, 10, 0.1]
+        transform = pints.LogTransformation(n_parameters=2)
+        initial_parameters = [0.9, IC50_predict]
         optimiser = pints.OptimisationController(
             function=log_likelihood,
             x0=initial_parameters,
             method=pints.CMAES,
             transformation=transform)
-        optimiser.set_parallel(True)
+        optimiser.set_parallel(False)
 
         optimiser.set_max_iterations(1000)
         param_best, score_best = optimiser.run()
 
         return param_best, score_best
-
-# class Metrics - create a class to extract all possible metrics,
-# e.g. avg normalised current, peak, max normalised peak(?)

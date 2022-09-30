@@ -5,6 +5,7 @@ import matplotlib.pyplot as plt
 import myokit
 import numpy as np
 import os
+import pints
 
 import modelling
 
@@ -47,28 +48,19 @@ AP_model.protocol = modelling.ProtocolLibrary().current_impulse(pulse_time)
 
 Hill_model = modelling.HillsModel()
 
-
+# TODO: Turn off parallelisation of PINTS default
 def model_comparison(param_values):
     orig_param_values = pd.DataFrame(param_values, index=param_names)
     orig_param_values = orig_param_values.T
 
+    # Log transformation
+    orig_param_values['Kmax'] = 10**orig_param_values['Kmax']
+    orig_param_values['Ku'] = 10**orig_param_values['Ku']
+    orig_param_values['EC50'] = 10**orig_param_values['EC50']
+
     ComparisonController = modelling.ModelComparison(orig_param_values)
-    Hill_curve_coefs, drug_conc_Hill, peaks_norm = \
+    Hill_curve_coefs, drug_conc_Hill, _ = \
         ComparisonController.compute_Hill(BKmodel)
-
-    max_grid = np.ceil(np.log(drug_conc_Hill[-1]))
-    min_grid = np.floor(np.log(drug_conc_Hill[1]))
-    conc_grid = np.linspace(min_grid, max_grid, 20)
-
-    plt.figure(figsize=(4, 3))
-    plt.plot(np.log(drug_conc_Hill[1:]), peaks_norm[1:], 'o',
-             label='peak current')
-    plt.plot(conc_grid, Hill_model.simulate(Hill_curve_coefs,
-             np.exp(conc_grid)), 'k', label='fitted Hill eq')
-    plt.xlabel('Drug concentration (log)')
-    plt.ylabel('Normalised peak current')
-    plt.tight_layout()
-    plt.savefig(os.path.join(saved_fig_filepath, "Hill_curve_check.pdf"))
 
     drug_conc_range = (np.log10(drug_conc_Hill[1]),
                        np.log10(drug_conc_Hill[-1]))
@@ -83,27 +75,27 @@ problem = {
     'num_vars': 5,
     'names': param_names,
     'bounds': [[-210, -0.1],
-               [1, 1e9],
-               [1e-5, 1],
+               [0, 9],
+               [-5, 0],
                [0.5, 1.5],
-               [1, 1e10]],
-    # 'bounds': [[-210, -0.1],
-    #            [0, 9],
-    #            [-5, 0],
-    #            [0.5, 1.5],
-    #            [0, 10]],
-    # 'dists': ['unif', 'lognorm', 'lognorm', 'unif', 'lognorm']
+               [0, 10]],
 }
 
+# TODO: Estimate time usage
 # Generate samples
-param_values = saltelli.sample(problem, 8)
+param_values = saltelli.sample(problem, 4)
 
 # Run model (example)
 Y = np.zeros([param_values.shape[0]])
 
+# TODO: parallelise
 for i, X in enumerate(param_values):
     print('evaluating...')
     Y[i] = model_comparison(X)
+    print(Y)
+
+# evaluator = pints.ParallelEvaluator(model_comparison)
+# Y = evaluator.evaluate(param_values)
 
 # Perform analysis
 Si = sobol.analyze(problem, Y, print_to_console=True, parallel=True,)

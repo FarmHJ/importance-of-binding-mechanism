@@ -120,5 +120,6 @@ class ModelComparison(object):
 
         MSError = np.sum((np.array(APD_trapping) -
                           np.array(APD_conductance))**2) / len(APD_trapping)
+        MSError = np.sqrt(MSError)
 
         return MSError, APD_trapping, APD_conductance

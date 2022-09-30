@@ -52,7 +52,7 @@ cat_range = 10**np.linspace(np.log10(50), np.log10(3e5), 10)
 cat_range2 = 10**np.linspace(6, 9, 10)
 param_range = np.concatenate((small_range, cat_range, cat_range2))
 # params_ranges.append(param_range)
-params_ranges = [param_range]
+params_ranges = [cat_range]
 
 # Load IKr model
 model = '../../model/ohara-cipa-v1-2017-IKr.mmt'
@@ -196,6 +196,7 @@ for k, parameter_interest in enumerate(interest_params):
 
         MSError = np.sum((np.array(APD_trapping) -
                           np.array(APD_conductance))**2) / len(APD_trapping)
+        MSError = np.sqrt(MSError)
 
         conc_Hill_ind = ['conc_' + str(i) for i, _ in
                          enumerate(drug_conc_Hill)]

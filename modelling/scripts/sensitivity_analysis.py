@@ -52,6 +52,7 @@ cat_range = 10**np.linspace(np.log10(50), np.log10(3e5), 10)
 cat_range2 = 10**np.linspace(6, 9, 10)
 param_range = np.concatenate((small_range, cat_range, cat_range2))
 # params_ranges.append(param_range)
+# params_ranges = [param_range]
 params_ranges = [cat_range]
 
 # Load IKr model
@@ -111,7 +112,7 @@ for k, parameter_interest in enumerate(interest_params):
         # Make sure there are enough data points for the head of Hill curve
         checker_threshold = 0.95
         data_pt_checker = [True]
-        while sum(data_pt_checker) < 3:
+        while sum(data_pt_checker) < 5:
             drug_conc_Hill.insert(1, drug_conc_Hill[1] / np.sqrt(10))
             log = drug_model.custom_simulation(
                 param_values, drug_conc_Hill[1], repeats,
@@ -142,6 +143,8 @@ for k, parameter_interest in enumerate(interest_params):
         optimiser = modelling.HillsModelOpt(Hill_model)
         Hill_curve, _ = optimiser.optimise(drug_conc_Hill, peaks_norm)
 
+        print(drug_conc_Hill)
+        print(peaks_norm)
         if check_plot:
             max_grid = np.ceil(np.log(drug_conc_Hill[-1]))
             min_grid = np.floor(np.log(drug_conc_Hill[1]))

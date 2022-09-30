@@ -16,7 +16,7 @@ saved_fig_dir = final_fig_dir
 
 saved_data_dir = '../../simulation_data/sensitivity_analysis/'
 
-df = pd.read_csv(saved_data_dir + 'SA_param_categories_copy.csv',
+df = pd.read_csv(saved_data_dir + 'SA_cisapride_Vhalf.csv',
                  header=[0, 1], index_col=[0],
                  skipinitialspace=True)
 # data included: drug_conc_Hill, peak_current, Hill_curve, param_values,
@@ -40,4 +40,5 @@ MSEs = df['MSE']['MSE'].values
 plt.figure()
 plt.plot(interest_param_values, MSEs, 'o-')
 plt.vlines(param_true, min(MSEs), max(MSEs), colors='red')
-plt.savefig(saved_fig_dir + 'MSE.pdf')
+# plt.xscale('log')
+plt.savefig(saved_fig_dir + 'cisapride_Vhalf_MSE.pdf')

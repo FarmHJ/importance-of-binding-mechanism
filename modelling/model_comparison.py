@@ -105,8 +105,8 @@ class ModelComparison(object):
                 Hill_curve_coefs, drug_conc[i])
             d2 = AP_model.conductance_simulation(
                 base_conductance * reduction_scale, steady_state_pulse,
-                timestep=0.1, save_signal=save_signal, abs_tol=1e-6,
-                rel_tol=1e-5, log_var=['engine.time', 'membrane.V'])
+                timestep=0.1, save_signal=save_signal, abs_tol=1e-8,
+                rel_tol=1e-7, log_var=['engine.time', 'membrane.V'])
 
             # Compute APD90
             APD_conductance_pulse = []

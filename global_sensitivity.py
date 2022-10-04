@@ -65,7 +65,7 @@ def model_comparison(param_values):
         RMSError, _, _ = ComparisonController.compute_RMSE(
             AP_model, Hill_curve_coefs, drug_conc=drug_conc_range)
     except:
-       RMSError = 0 #float("Nan")
+       RMSError = float("Nan")
 
     return RMSError
 
@@ -82,20 +82,20 @@ problem = {
 }
 
 # Generate samples
-samples_n = 2
+samples_n = 1024
 param_values = saltelli.sample(problem, samples_n)
 np.savetxt(os.path.join(saved_data_filepath, "param_value_samples.txt"), param_values)
 
 # Evaluate function
-evaluator = pints.ParallelEvaluator(model_comparison, n_numpy_threads=0)
+evaluator = pints.ParallelEvaluator(model_comparison)
 output = evaluator.evaluate(param_values)
 Y = np.array(output)
 
 np.savetxt(os.path.join(saved_data_filepath, "MSError_evaluations.txt"), Y)
 
 # Perform analysis
-Si = sobol.analyze(problem, Y, print_to_console=True, parallel=True,)
-#                    n_processors=)
+Si = sobol.analyze(problem, Y, print_to_console=True, parallel=True,
+                   n_processors=48)
 
 # Save data
 total_Si, first_Si, second_Si = Si.to_df()

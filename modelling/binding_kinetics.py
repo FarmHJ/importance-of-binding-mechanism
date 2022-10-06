@@ -82,7 +82,8 @@ class BindingKinetics(object):
         return d2
 
     def custom_simulation(self, param_values, drug_conc, repeats,
-                          timestep=0.1, save_signal=1, log_var=None):
+                          timestep=0.1, save_signal=1, log_var=None,
+                          abs_tol=1e-6, rel_tol=1e-4):
 
         t_max = self.protocol.characteristic_time()
 
@@ -91,6 +92,7 @@ class BindingKinetics(object):
 
         self.sim = myokit.Simulation(self.model, self.protocol)
         self.sim.reset()
+        self.sim.set_tolerance(abs_tol=abs_tol, rel_tol=rel_tol)
 
         self.sim.set_constant(self.current_head.var('Vhalf'),
                               param_values['Vhalf'].values[0])

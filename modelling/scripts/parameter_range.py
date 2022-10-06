@@ -60,6 +60,8 @@ fig = modelling.figures.FigureStructure(
     wspace=0.2,
     height_ratios=[1] * nrow)
 
+APD_diff = [0, 1, 2, 3, 1, 4, 2, 2, 2, 2, 2, 3]
+markers = ['*', 'o', 'X', '2', '^']
 for i, label in enumerate(labels):
     fig.axs[int(i / 3)][i % 3].axhline(
         param_ranges[i][0], xmin=0, xmax=len(all_params[i]),
@@ -67,19 +69,28 @@ for i, label in enumerate(labels):
     fig.axs[int(i / 3)][i % 3].axhline(
         param_ranges[i][1], xmin=0, xmax=len(all_params[i]),
         c='red')
-    fig.axs[int(i / 3)][i % 3].scatter(
-        np.arange(len(all_params[i])), all_params[i],
-        c=np.arange(len(drug_list)), cmap=repeating_cmap)
+    for j in range(len(drug_list)):
+        fig.axs[int(i / 3)][i % 3].scatter(
+            np.arange(len(all_params[i]))[j], all_params[i][j],
+            # c=np.arange(len(drug_list))[j], cmap=repeating_cmap[j],
+            marker=markers[APD_diff[j]])
     fig.axs[int(i / 3)][i % 3].set_title(label)
     fig.axs[int(i / 3)][i % 3].set_xticks(np.arange(12), labels=drug_list)
     plt.setp(fig.axs[int(i / 3)][i % 3].get_xticklabels(), rotation=45,
              ha='right', rotation_mode='anchor')
 
+fig.axs[0][2].axvline(2.5, ymin=1.5e-5, ymax=np.exp(0.3), ls='--')
+fig.axs[0][2].axvline(5.5, ymin=1.5e-5, ymax=np.exp(0.3), ls='--')
 fig.axs[0][1].set_yscale("log", nonpositive='clip')
 fig.axs[0][2].set_yscale("log", nonpositive='clip')
 fig.axs[1][1].set_yscale("log", nonpositive='clip')
 
 fig.savefig(saved_fig_dir + 'parameter_categorisation.svg', format='svg')
+
+# Plot transition rates against voltage and drug concentration
+# During Milnes protocol and action potential
+
+
 
 # Simple SA - taking mean value of each category
 # Split parameter value ranges to three categories: low, medium and high

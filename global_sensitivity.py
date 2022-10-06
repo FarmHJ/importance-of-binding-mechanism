@@ -1,28 +1,18 @@
 import pandas as pd
 from SALib.sample import saltelli
 from SALib.analyze import sobol
-import matplotlib.pyplot as plt
 import myokit
 import numpy as np
 import os
 import pints
+import time
 
 import modelling
 
 
 param_names = ['Vhalf', 'Kmax', 'Ku', 'N', 'EC50']
 
-data_dir = os.path.join(os.path.dirname(__file__), 'simulation_data')
-saved_data_filepath = os.path.join(data_dir, 'sensitivity_analysis')
-
-if not os.path.exists(saved_data_filepath):
-    os.makedirs(saved_data_filepath)
-
-fig_dir = os.path.join(os.path.dirname(__file__), 'figures')
-saved_fig_filepath = os.path.join(fig_dir, 'sensitivity_analysis')
-
-if not os.path.exists(saved_fig_filepath):
-    os.makedirs(saved_fig_filepath)
+saved_data_filepath = os.path.dirname(__file__)
 
 # Model directory
 model_dir = os.path.join(os.path.dirname(__file__), 'model')
@@ -35,7 +25,6 @@ AP_model_filepath = os.path.join(model_dir, AP_model_filename)
 model, _, x = myokit.load(current_model_filepath)
 
 protocol_params = modelling.ProtocolParameters()
-pulse_time = protocol_params.protocol_parameters['Milnes']['pulse_time']
 protocol = protocol_params.protocol_parameters['Milnes']['function']
 
 BKmodel = modelling.BindingKinetics(model)
@@ -48,8 +37,13 @@ AP_model.protocol = modelling.ProtocolLibrary().current_impulse(pulse_time)
 
 Hill_model = modelling.HillsModel()
 
-# TODO: Turn off parallelisation of PINTS default
+init_param_values = pd.DataFrame([0] * 5, index=param_names)
+init_param_values = init_param_values.T
+ComparisonController = modelling.ModelComparison(init_param_values)
+
+
 def model_comparison(param_values):
+
     orig_param_values = pd.DataFrame(param_values, index=param_names)
     orig_param_values = orig_param_values.T
 
@@ -58,16 +52,29 @@ def model_comparison(param_values):
     orig_param_values['Ku'] = 10**orig_param_values['Ku']
     orig_param_values['EC50'] = 10**orig_param_values['EC50']
 
-    ComparisonController = modelling.ModelComparison(orig_param_values)
+    start_time = time.time()
+    ComparisonController.drug_param_values = orig_param_values
     Hill_curve_coefs, drug_conc_Hill, _ = \
         ComparisonController.compute_Hill(BKmodel)
+    evaluation_Hill_time = time.time() - start_time
+
+    if isinstance(Hill_curve_coefs, str):
+        return float("nan"), np.inf, 0
 
     drug_conc_range = (np.log10(drug_conc_Hill[1]),
                        np.log10(drug_conc_Hill[-1]))
-    MSError, _, _ = ComparisonController.compute_MSE(
-        AP_model, Hill_curve_coefs, drug_conc=drug_conc_range)
+    start_time = time.time()
+    try:
+        RMSError = ComparisonController.compute_RMSE(
+            AP_model, Hill_curve_coefs, drug_conc=drug_conc_range)
+    except myokit.SimulationError:
+        RMSError = (float("Nan"), 0, 0)
+    evaluation_RMSE_time = time.time() - start_time
 
-    return MSError
+    if np.isnan(RMSError[0]):
+        return RMSError[0], evaluation_Hill_time, evaluation_RMSE_time
+    else:
+        return RMSError[0], evaluation_Hill_time, evaluation_RMSE_time
 
 
 # Define the model inputs
@@ -81,28 +88,35 @@ problem = {
                [0, 10]],
 }
 
-# TODO: Estimate time usage
 # Generate samples
-param_values = saltelli.sample(problem, 4)
+samples_n = 2
+param_values = saltelli.sample(problem, samples_n)
+np.savetxt(os.path.join(saved_data_filepath, "param_value_samples.txt"),
+           param_values)
 
-# Run model (example)
-Y = np.zeros([param_values.shape[0]])
+total_samples = param_values.shape[0]
+samples_per_save = 7
+samples_split_n = int(np.ceil(total_samples / samples_per_save))
+evaluator = pints.ParallelEvaluator(model_comparison)  # , n_workers=40)
 
-# TODO: parallelise
-for i, X in enumerate(param_values):
-    print('evaluating...')
-    Y[i] = model_comparison(X)
-    print(Y)
+# Evaluate function
+Y = []
+for i in range(samples_split_n):
+    subset_param_values = \
+        param_values[samples_per_save * i:samples_per_save * (i + 1)]
+    output = evaluator.evaluate(subset_param_values)
+    Y.append(output)
+    np.savetxt(os.path.join(
+        saved_data_filepath, "MSError_evaluations_" + str(i) + ".txt"),
+        np.array(output))
 
-# evaluator = pints.ParallelEvaluator(model_comparison)
-# Y = evaluator.evaluate(param_values)
-
+Y = np.array(Y)
 # Perform analysis
-Si = sobol.analyze(problem, Y, print_to_console=True, parallel=True,)
-#                    n_processors=)
+Si = sobol.analyze(problem, Y[:, 0], parallel=True, n_processors=35)
 
 # Save data
 total_Si, first_Si, second_Si = Si.to_df()
+
 total_Si.to_csv(os.path.join(saved_data_filepath, 'total_Si.csv'))
 first_Si.to_csv(os.path.join(saved_data_filepath, 'first_Si.csv'))
 second_Si.to_csv(os.path.join(saved_data_filepath, 'second_Si.csv'))

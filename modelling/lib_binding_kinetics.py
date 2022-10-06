@@ -279,3 +279,21 @@ class DrugConcentrations(object):
                 'lit_default': [1e4, 3e4, 1e5, 3e5]
             },
         }
+
+
+class ParameterCategory(object):
+    """
+    Create a library for each parameter's category ranges
+    """
+    def __init__(self):
+        super(ParameterCategory, self).__init__()
+
+        self.param_names = ['Vhalf', 'Kmax', 'Ku', 'N', 'EC50']
+
+        self.param_ranges = {
+            'Vhalf': (-150, -50),
+            'Kmax': (30, 1e6),
+            'Ku': (5e-3, 7e-2),
+            'N': (0.8, 1.2),
+            'EC50': (1e3, 1e8)
+        }

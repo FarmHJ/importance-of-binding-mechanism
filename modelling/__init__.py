@@ -3,7 +3,8 @@ from .binding_kinetics import BindingKinetics
 from .lib_binding_kinetics import (
     BindingParameters,
     ProtocolParameters,
-    DrugConcentrations
+    DrugConcentrations,
+    ParameterCategory
 )
 
 from . import figures
@@ -20,4 +21,8 @@ from .Hills_model import (
 
 from .model_comparison import (
     ModelComparison
+)
+
+from .sensitivity_analysis import (
+    SensitivityAnalysis
 )

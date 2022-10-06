@@ -11,8 +11,8 @@ drugs = ['dofetilide', 'verapamil']
 drug_label = ['drug free', 'trapped\ndrug', 'nontrapped\ndrug']
 
 testing_fig_dir = '../../figures/testing/'
-# final_fig_dir = '../../figures/background/trapping/'
-final_fig_dir = '../../figures/conferences/'
+final_fig_dir = '../../figures/background/trapping/'
+# final_fig_dir = '../../figures/conferences/'
 saved_fig_dir = final_fig_dir
 
 saved_data_dir = '../../simulation_data/background/'
@@ -22,12 +22,16 @@ fig = modelling.figures.FigureStructure(figsize=(12, 8), gridspec=(2, 2),
                                         wspace=0.3, plot_in_subgrid=True)
 plot = modelling.figures.FigurePlot()
 
-subgridspecs = [(1, 1), (3, 1), (4, 3), (3, 3)]
+subgridspecs = [(1, 1), (3, 1), (3, 3), (3, 3)]
 subgs = []
-for i in range(2 * 2):
+for i in range(3):
     height_ratio = [1] + [2] * (subgridspecs[i][0] - 1)
     subgs.append(fig.gs[i].subgridspec(*subgridspecs[i], wspace=0.1,
-                                       hspace=0.05, height_ratios=height_ratio))
+                                       hspace=0.05,
+                                       height_ratios=height_ratio))
+subgs.append(fig.gs[-1].subgridspec(*subgridspecs[-1], wspace=0.1,
+                                    hspace=0.05,
+                                    height_ratios=[1] * subgridspecs[-1][0]))
 axs = [[[fig.fig.add_subplot(subgs[k + 1][i, j]) for j in range(
     subgridspecs[k + 1][1])] for i in range(subgridspecs[k + 1][0])] for
     k in range(len(subgs) - 1)]
@@ -73,51 +77,6 @@ fig.sharey(['Voltage\n(mV)', 'Current\n(A/F)', 'Current\n(A/F)'],
            axs=panel2, subgridspec=(3, 1))
 fig.adjust_ticks(panel2[2][0], pulse_time * repeats)
 
-# Bottom left panel
-drug_free_log = myokit.DataLog.load_csv(
-    saved_data_dir + 'drug_free_AP.csv')
-trapped_log = myokit.DataLog.load_csv(
-    saved_data_dir + 'trapped_AP.csv')
-nontrapped_log = myokit.DataLog.load_csv(
-    saved_data_dir + 'nontrapped_AP.csv')
-log_all = [drug_free_log, trapped_log, nontrapped_log]
-
-APmodel = '../../model/ohara-cipa-v1-2017.mmt'
-APmodel, _, x = myokit.load(APmodel)
-pulse_time = 1000
-
-panel3 = axs[1]
-for d in range(len(drugs) + 1):
-    plot.add_single(panel3[0][d], log_all[d], 'stimulus.i_stim')
-    if d == 2:
-        plot.state_occupancy_plot(panel3[3][d], log_all[d], APmodel)
-    else:
-        plot.state_occupancy_plot(panel3[3][d], log_all[d],
-                                  APmodel, legend=False)
-
-for i in range(len(log_all)):
-    for j in range(len(log_all)):
-        if i == j:
-            plot.add_single(panel3[1][i], log_all[j], 'membrane.V')
-            plot.add_single(panel3[2][i], log_all[j], 'ikr.IKr')
-        else:
-            plot.add_single(panel3[1][i], log_all[j], 'membrane.V',
-                            color='grey', alpha=0.5)
-            plot.add_single(panel3[2][i], log_all[j], 'ikr.IKr',
-                            color='grey', alpha=0.5)
-    panel3[1][i].text(950, 45, drug_label[i], fontsize=8,
-                      ha='right', va='top')
-
-for col in range(3):
-    for tick in panel3[3][col].get_xticklabels():
-        tick.set_ha('right')
-fig.sharex(['Time (ms)'] * (len(drugs) + 1),
-            [(0, pulse_time)] * (len(drugs) + 1),
-            axs=panel3, subgridspec=subgridspecs[2])
-fig.sharey(['Current\nstimulus', 'Voltage\n(mV)',
-            'Current\n(A/F)', 'State\noccupancy'],
-            axs=panel3, subgridspec=subgridspecs[2])
-
 # Bottom right panel
 drug_free_log = myokit.DataLog.load_csv(
     saved_data_dir + 'drug_free_current.csv')
@@ -131,42 +90,85 @@ model = '../../model/ohara-cipa-v1-2017-IKr.mmt'
 model, _, x = myokit.load(model)
 pulse_time = 25e3
 
-panel4 = axs[2]
+panel3 = axs[1]
 for d in range(len(drugs) + 1):
-    plot.add_single(panel4[0][d], log_all[d], 'membrane.V')
-    if d == 0:
-        plot.state_occupancy_plot(panel4[2][d], log_all[d], model)
+    plot.add_single(panel3[0][d], log_all[d], 'membrane.V')
+    if d == 2:
+        plot.state_occupancy_plot(panel3[2][d], log_all[d], model)
     else:
-        plot.state_occupancy_plot(panel4[2][d], log_all[d],
+        plot.state_occupancy_plot(panel3[2][d], log_all[d],
                                   model, legend=False)
 
 for i in range(len(log_all)):
     for j in range(len(log_all)):
         if i == j:
+            plot.add_single(panel3[1][i], log_all[j], 'ikr.IKr')
+        else:
+            plot.add_single(panel3[1][i], log_all[j], 'ikr.IKr',
+                            color='grey', alpha=0.5)
+    panel3[1][i].text(24500, 0.73, drug_label[i], fontsize=8,
+                      ha='right', va='top')
+
+for col in range(3):
+    for tick in panel3[2][col].get_xticklabels():
+        tick.set_ha('right')
+fig.sharex(['Time (s)'] * (len(drugs) + 1),
+           [(0, pulse_time)] * (len(drugs) + 1),
+           axs=panel3, subgridspec=subgridspecs[3])
+fig.sharey(['Voltage\n(mV)', 'Current (A/F)', 'State\noccupancy'],
+           axs=panel3, subgridspec=subgridspecs[3])
+for i in range(len(log_all)):
+    fig.adjust_ticks(panel3[2][i], pulse_time)
+
+# Bottom left panel
+drug_free_log = myokit.DataLog.load_csv(
+    saved_data_dir + 'drug_free_AP.csv')
+trapped_log = myokit.DataLog.load_csv(
+    saved_data_dir + 'trapped_AP.csv')
+nontrapped_log = myokit.DataLog.load_csv(
+    saved_data_dir + 'nontrapped_AP.csv')
+log_all = [drug_free_log, trapped_log, nontrapped_log]
+
+APmodel = '../../model/ohara-cipa-v1-2017.mmt'
+APmodel, _, x = myokit.load(APmodel)
+pulse_time = 1000
+
+panel4 = axs[2]
+for d in range(len(drugs) + 1):
+    if d == 2:
+        plot.state_occupancy_plot(panel4[2][d], log_all[d], APmodel)
+    else:
+        plot.state_occupancy_plot(panel4[2][d], log_all[d],
+                                  APmodel, legend=False)
+
+for i in range(len(log_all)):
+    for j in range(len(log_all)):
+        if i == j:
+            plot.add_single(panel4[0][i], log_all[j], 'membrane.V')
             plot.add_single(panel4[1][i], log_all[j], 'ikr.IKr')
         else:
+            plot.add_single(panel4[0][i], log_all[j], 'membrane.V',
+                            color='grey', alpha=0.5)
             plot.add_single(panel4[1][i], log_all[j], 'ikr.IKr',
                             color='grey', alpha=0.5)
-    panel4[1][i].text(24500, 0.73, drug_label[i], fontsize=10.5,
+    panel4[0][i].text(950, 45, drug_label[i], fontsize=8,
                       ha='right', va='top')
 
 for col in range(3):
     for tick in panel4[2][col].get_xticklabels():
         tick.set_ha('right')
-fig.sharex(['Time (s)'] * (len(drugs) + 1),
+fig.sharex(['Time (ms)'] * (len(drugs) + 1),
            [(0, pulse_time)] * (len(drugs) + 1),
-           axs=panel4, subgridspec=subgridspecs[3])
-fig.sharey(['Voltage\n(mV)', 'Current (A/F)', 'State\noccupancy'],
-           axs=panel4, subgridspec=subgridspecs[3])
-for i in range(len(log_all)):
-    fig.adjust_ticks(panel4[2][i], pulse_time)
+           axs=panel4, subgridspec=subgridspecs[2])
+fig.sharey(['Voltage\n(mV)', 'Current\n(A/F)', 'State\noccupancy'],
+           axs=panel4, subgridspec=subgridspecs[2])
 
 # Add panel letter
-# fig.fig.set_size_inches(10, 6.5)
-fig.fig.set_size_inches(20, 8)
-fig.fig.text(0.075, 0.925, '(a)', fontsize=11)
-fig.fig.text(0.5, 0.925, '(b)', fontsize=11)
-fig.fig.text(0.075, 0.525, '(c)', fontsize=11)
-fig.fig.text(0.5, 0.525, '(d)', fontsize=11)
+fig.fig.set_size_inches(10, 6.5)
+# fig.fig.set_size_inches(20, 8)
+fig.fig.text(0.075, 0.925, '(A)', fontsize=11)
+fig.fig.text(0.5, 0.925, '(B)', fontsize=11)
+fig.fig.text(0.075, 0.525, '(C)', fontsize=11)
+fig.fig.text(0.5, 0.525, '(D)', fontsize=11)
 
 fig.savefig(saved_fig_dir + "background_compile.svg", format='svg')

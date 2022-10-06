@@ -43,6 +43,8 @@ conductance_data_files = [f for f in os.listdir(saved_data_dir) if
                           f.startswith('conductance_hERG_')]
 conc_label = [fname[10:-4] for fname in trapping_data_files]
 drug_conc = [float(fname[10:-4]) for fname in trapping_data_files]
+# for verapamil
+drug_conc.remove(500)
 
 # Sort in increasing order of drug concentration
 sort_ind = [i[0] for i in sorted(enumerate(drug_conc), key=lambda x:x[1])]
@@ -73,7 +75,8 @@ plot.add_single(panel1[0][1], conductance_hERG_log[0], 'membrane.V', color='k')
 plot.add_multiple(panel1[1][1], conductance_hERG_log, 'ikr.IKr', labels=labels,
                   color=cmap)
 
-# panel1[1][0].legend()
+panel1[1][1].legend()
+panel1[1][0].legend()
 panel1[0][0].set_title('State dependent drug block')
 panel1[0][1].set_title('Drug block by conductance scaling')
 fig.sharex(['Time (s)'] * 2, [(0, pulse_time)] * 2,
@@ -90,8 +93,11 @@ trapping_data_files = [f for f in os.listdir(saved_data_dir) if
                        f.startswith('CiPA_AP_')]
 conductance_data_files = [f for f in os.listdir(saved_data_dir) if
                           f.startswith('conductance_AP_')]
+print(trapping_data_files)
 trapping_data_files = [trapping_data_files[i] for i in sort_ind]
 conductance_data_files = [conductance_data_files[i] for i in sort_ind]
+print(trapping_data_files)
+print(conductance_data_files)
 
 CiPA_AP_log = []
 conductance_AP_log = []
@@ -152,7 +158,7 @@ fig.sharey(['Voltage (mV)', 'Current (A/F)'],
 
 # Add panel letter
 fig.fig.set_size_inches(10, 5)
-fig.fig.text(0.075, 0.925, '(a)', fontsize=11)
-fig.fig.text(0.075, 0.525, '(b)', fontsize=11)
+fig.fig.text(0.075, 0.925, '(A)', fontsize=11)
+fig.fig.text(0.075, 0.525, '(B)', fontsize=11)
 
-fig.savefig(saved_fig_dir + "hERG_AP_compare.svg", format='svg')
+fig.savefig(saved_fig_dir + "hERG_AP_compare.pdf")

@@ -43,9 +43,12 @@ class ModelComparison(object):
             peaks.append(peak[-1])
 
         peaks_norm = (peaks - min(peaks)) / (max(peaks) - min(peaks))
+        # print(drug_conc)
+        # print(peaks_norm)
 
         # Make sure there are enough data points for the head of Hill curve
-        data_pt_checker = [True]
+        data_pt_checker = [True if i > Hill_upper_thres else False
+                           for i in peaks_norm]
         while sum(data_pt_checker) < 3:
             drug_conc.insert(1, drug_conc[1] / np.sqrt(10))
             log = BKmodel.custom_simulation(
@@ -58,7 +61,8 @@ class ModelComparison(object):
                                for i in peaks_norm]
 
         # Make sure there are enough data points for the tail of Hill curve
-        data_pt_checker = [True]
+        data_pt_checker = [True if i < Hill_lower_thres else False
+                           for i in peaks_norm]
         while sum(data_pt_checker) < 3:
             drug_conc = drug_conc + [max(drug_conc) * np.sqrt(10)]
             log = BKmodel.custom_simulation(
@@ -75,16 +79,15 @@ class ModelComparison(object):
 
         return Hill_curve[:2], drug_conc, peaks_norm
 
-    def compute_MSE(self, AP_model, Hill_curve_coefs, drug_conc=None,
-                    steady_state_pulse=1000, save_signal=2, offset=50):
+    def APD_sim(self, AP_model, Hill_curve_coefs, drug_conc=None,
+                steady_state_pulse=1000, save_signal=2, offset=50,
+                data_points=20):
 
         base_conductance = AP_model.original_constants['gKr']
         APD_trapping = []
         APD_conductance = []
         if drug_conc is None:
-            drug_conc = 10**np.linspace(-1, 5, 20)
-        else:
-            drug_conc = 10**np.linspace(drug_conc[0], drug_conc[1], 20)
+            drug_conc = 10**np.linspace(-1, 5, data_points)
 
         for i in range(len(drug_conc)):
             # Run simulation for trapping model
@@ -105,8 +108,10 @@ class ModelComparison(object):
                 Hill_curve_coefs, drug_conc[i])
             d2 = AP_model.conductance_simulation(
                 base_conductance * reduction_scale, steady_state_pulse,
-                timestep=0.1, save_signal=save_signal, abs_tol=1e-8,
-                rel_tol=1e-7, log_var=['engine.time', 'membrane.V'])
+                timestep=0.1, save_signal=save_signal,
+                abs_tol=1e-8, rel_tol=1e-7,
+                # abs_tol=1e-6, rel_tol=1e-4,
+                log_var=['engine.time', 'membrane.V'])
 
             # Compute APD90
             APD_conductance_pulse = []
@@ -118,8 +123,19 @@ class ModelComparison(object):
         APD_trapping = [max(i) for i in APD_trapping]
         APD_conductance = [max(i) for i in APD_conductance]
 
-        MSError = np.sum((np.array(APD_trapping) -
-                          np.array(APD_conductance))**2) / len(APD_trapping)
-        MSError = np.sqrt(MSError)
+        return APD_trapping, APD_conductance
 
-        return MSError, APD_trapping, APD_conductance
+    def compute_RMSE(self, APD_trapping, APD_conductance):
+
+        RMSError = np.sum((np.array(APD_trapping) -
+                          np.array(APD_conductance))**2) / len(APD_trapping)
+        RMSError = np.sqrt(RMSError)
+
+        return RMSError
+
+    def compute_MAE(self, APD_trapping, APD_conductance):
+
+        MAError = np.sum(np.array(APD_trapping) - np.array(APD_conductance)) \
+            / len(APD_trapping)
+
+        return MAError

@@ -89,16 +89,28 @@ problem = {
 }
 
 # Generate samples
-samples_n = 1024
+samples_n = 2
 param_values = saltelli.sample(problem, samples_n)
-np.savetxt(os.path.join(saved_data_filepath, "param_value_samples.txt"), param_values)
+np.savetxt(os.path.join(saved_data_filepath, "param_value_samples.txt"),
+           param_values)
+
+total_samples = param_values.shape[0]
+samples_per_save = 7
+samples_split_n = int(np.ceil(total_samples / samples_per_save))
+evaluator = pints.ParallelEvaluator(model_comparison)  # , n_workers=40)
 
 # Evaluate function
-evaluator = pints.ParallelEvaluator(model_comparison, n_workers=35)
-output = evaluator.evaluate(param_values)
-Y = np.array(output)
-np.savetxt(os.path.join(saved_data_filepath, "MSError_evaluations.txt"), Y)
+Y = []
+for i in range(samples_split_n):
+    subset_param_values = \
+        param_values[samples_per_save * i:samples_per_save * (i + 1)]
+    output = evaluator.evaluate(subset_param_values)
+    Y.append(output)
+    np.savetxt(os.path.join(
+        saved_data_filepath, "MSError_evaluations_" + str(i) + ".txt"),
+        np.array(output))
 
+Y = np.array(Y)
 # Perform analysis
 Si = sobol.analyze(problem, Y[:, 0], parallel=True, n_processors=35)
 
@@ -108,4 +120,3 @@ total_Si, first_Si, second_Si = Si.to_df()
 total_Si.to_csv(os.path.join(saved_data_filepath, 'total_Si.csv'))
 first_Si.to_csv(os.path.join(saved_data_filepath, 'first_Si.csv'))
 second_Si.to_csv(os.path.join(saved_data_filepath, 'second_Si.csv'))
-

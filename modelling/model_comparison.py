@@ -1,6 +1,4 @@
-import matplotlib.pyplot as plt
 import numpy as np
-import time
 
 import modelling
 
@@ -45,7 +43,7 @@ class ModelComparison(object):
             peaks.append(peak[-1])
 
         peaks_norm = (peaks - min(peaks)) / (max(peaks) - min(peaks))
-        
+
         # Make sure there are enough data points for the head of Hill curve
         data_pt_checker = [True]
         counter = 0
@@ -60,7 +58,7 @@ class ModelComparison(object):
             data_pt_checker = [True if i > Hill_upper_thres else False
                                for i in peaks_norm]
             counter += 1
-        
+
         if counter == 20:
             return 'Hill curve did not form.', drug_conc, peaks_norm
 
@@ -78,17 +76,17 @@ class ModelComparison(object):
             data_pt_checker = [True if i < Hill_lower_thres else False
                                for i in peaks_norm]
             counter += 1
-        
+
         if counter == 20:
             return 'Hill curve did not form.', drug_conc, peaks_norm
-        
+
         # Fit Hill curve
         Hill_curve, _ = self.optimiser.optimise(drug_conc, peaks_norm)
 
         return Hill_curve[:2], drug_conc, peaks_norm
 
     def compute_RMSE(self, AP_model, Hill_curve_coefs, drug_conc=None,
-                    steady_state_pulse=1000, save_signal=2, offset=50):
+                     steady_state_pulse=1000, save_signal=2, offset=50):
 
         base_conductance = AP_model.original_constants['gKr']
         APD_trapping = []
@@ -135,4 +133,3 @@ class ModelComparison(object):
         RMSError = np.sqrt(RMSError)
 
         return RMSError, APD_trapping, APD_conductance
-    

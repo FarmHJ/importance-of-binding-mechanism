@@ -11,34 +11,91 @@ testing_fig_dir = '../../figures/testing/'
 final_fig_dir = '../../figures/binding_kinetics_comparison/' + \
     'OHaraCiPA_model/sensitivity_analysis/'
 
-check_plot = False
 saved_fig_dir = final_fig_dir
 
 saved_data_dir = '../../simulation_data/sensitivity_analysis/'
 
-df = pd.read_csv(saved_data_dir + 'SA_cisapride_Vhalf.csv',
-                 header=[0, 1], index_col=[0],
-                 skipinitialspace=True)
-# data included: drug_conc_Hill, peak_current, Hill_curve, param_values,
-# drug_conc_AP, APD_trapping, APD_conductance and MSE
+param_interest = 'EC50'
 
-param_lib = modelling.BindingParameters()
-drug = 'cisapride'
-param_true = param_lib.binding_parameters[drug]['Vhalf']
+# for drug in ['dofetilide', 'terfenadine', 'cisapride', 'bepridil']:
+for drug in ['terfenadine']:
 
-# Plot Hill curve
-if check_plot:
-    row_ind = 0
-    drug_conc_Hill = df.iloc[[row_ind]]['drug_conc_Hill'].values[0]
-    peak_current = df.iloc[[row_ind]]['peak_current'].values[0]
-    Hill_curve = df.iloc[[row_ind]]['Hill_curve'].values[0]
+    filename = 'SA_' + drug + '_' + param_interest + ' - Copy.csv'
+    filename2 = 'SA_' + drug + '_' + param_interest + '_check - Copy.csv'
+    df = pd.read_csv(saved_data_dir + filename,
+                    header=[0, 1], index_col=[0],
+                    skipinitialspace=True)
+    df_check = pd.read_csv(saved_data_dir + filename2,
+                        header=[0, 1], index_col=[0],
+                        skipinitialspace=True) 
+    # data included: drug_conc_Hill, peak_current, Hill_curve, param_values,
+    # drug_conc_AP, APD_trapping, APD_conductance and MSE
 
-runs = len(df.index)
-interest_param_values = df['param_values']['Vhalf'].values
-MSEs = df['MSE']['MSE'].values
+    param_lib = modelling.BindingParameters()
+    param_true = param_lib.binding_parameters[drug][param_interest]
 
-plt.figure()
-plt.plot(interest_param_values, MSEs, 'o-')
-plt.vlines(param_true, min(MSEs), max(MSEs), colors='red')
-# plt.xscale('log')
-plt.savefig(saved_fig_dir + 'cisapride_Vhalf_MSE.pdf')
+    # Plot Hill curve
+    for row_ind in range(len(df.index)):
+        # fig = modelling.figures.FigureStructure(
+        #     figsize=(10, 3),
+        #     gridspec=(1, 2),
+        #     wspace=0.2)
+
+        # figname = drug + '_' + param_interest + '_' + str(row_ind) + '_APD.pdf'
+        # EC50_value = df.iloc[[row_ind]]['param_values']['EC50'].values[0]
+        # drug_conc_AP = df.iloc[[row_ind]]['drug_conc_AP'].values[0]
+        # APD_trapping = df.iloc[[row_ind]]['APD_trapping'].values[0]
+        # APD_conductance = df.iloc[[row_ind]]['APD_conductance'].values[0]
+        # fig.axs[0][0].plot(drug_conc_AP, APD_trapping, 'o-', color='red')
+        # fig.axs[0][0].plot(drug_conc_AP, APD_conductance, '^-', color='red')
+
+        # drug_conc_AP_norm = df_check.iloc[[row_ind]]['drug_conc_AP'].values[0]
+        # APD_trapping_norm = df_check.iloc[[row_ind]]['APD_trapping'].values[0]
+        # APD_conductance_norm = df_check.iloc[[row_ind]]['APD_conductance'].values[0]
+
+        # fig.axs[0][1].plot(drug_conc_AP, APD_trapping, 'o-', color='#cccccc', alpha=0.9)
+        # fig.axs[0][1].plot(drug_conc_AP, APD_conductance, '^-', color='#cccccc', alpha=0.9)
+        # fig.axs[0][1].plot(drug_conc_AP_norm * EC50_value, APD_trapping_norm, 'o-', color='black')
+        # fig.axs[0][1].plot(drug_conc_AP_norm * EC50_value, APD_conductance_norm, '^-', color='black')
+
+        # fig.axs[0][1].set_xscale('log')
+        # fig.axs[0][0].set_xscale('log')
+        # plt.savefig(saved_fig_dir + figname)
+        # plt.close()
+
+        figname = drug + '_' + param_interest + '_' + str(row_ind) + '_drugconc.pdf'
+        EC50_value = df.iloc[[row_ind]]['param_values']['EC50'].values[0]
+        drug_conc_AP = df.iloc[[row_ind]]['drug_conc_Hill'].values[0]
+        drug_conc_AP_norm = df_check.iloc[[row_ind]]['drug_conc_Hill'].values[0]
+        plt.figure()
+        plt.plot(drug_conc_AP)
+        plt.plot(drug_conc_AP_norm * EC50_value)
+        plt.yscale('log')
+        plt.savefig(saved_fig_dir + figname)
+        plt.close()
+
+    # runs = len(df.index)
+    # interest_param_values = df['param_values'][param_interest].values
+    # RMSEs = df['RMSE']['RMSE'].values
+    # MAEs = df['MAE']['MAE'].values
+
+    # runs_check = len(df_check.index)
+    # interest_param_values2 = df_check['param_values'][param_interest].values
+    # RMSEs2 = df_check['RMSE']['RMSE'].values
+    # MAEs2 = df_check['MAE']['MAE'].values
+
+    # figname = drug + '_' + param_interest + '_RMSE.pdf'
+    # plt.figure()
+    # plt.plot(interest_param_values, RMSEs, 'o-')
+    # plt.plot(interest_param_values, RMSEs2, '^-')
+    # # plt.vlines(param_true, min(RMSEs), max(RMSEs), colors='red')
+    # plt.xscale('log')
+    # plt.savefig(saved_fig_dir + figname)
+
+    # figname = drug + '_' + param_interest + '_MAE.pdf'
+    # plt.figure()
+    # plt.plot(interest_param_values, MAEs, 'o-')
+    # plt.plot(interest_param_values, MAEs2, '^-')
+    # # plt.vlines(param_true, min(MAEs), max(MAEs), colors='red')
+    # plt.xscale('log')
+    # plt.savefig(saved_fig_dir + figname)

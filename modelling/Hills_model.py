@@ -60,16 +60,16 @@ class HillsModelOpt(object):
         # optimisation
         problem = pints.SingleOutputProblem(self.model, drug_conc,
                                             inhibit_metric)
-        log_likelihood = pints.MeanSquaredError(problem)
+        error_measure = pints.MeanSquaredError(problem)
 
         transform = pints.LogTransformation(n_parameters=2)
         initial_parameters = [0.9, IC50_predict]
         optimiser = pints.OptimisationController(
-            function=log_likelihood,
+            function=error_measure,
             x0=initial_parameters,
             method=pints.CMAES,
             transformation=transform)
-        optimiser.set_parallel(False)
+        optimiser.set_parallel(True)
 
         optimiser.set_max_iterations(1000)
         param_best, score_best = optimiser.run()

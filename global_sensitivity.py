@@ -46,7 +46,7 @@ def model_comparison(param_values):
 
     orig_param_values = pd.DataFrame(param_values, index=param_names)
     orig_param_values = orig_param_values.T
-    
+
     # Log transformation
     orig_param_values['Kmax'] = 10**orig_param_values['Kmax']
     orig_param_values['Ku'] = 10**orig_param_values['Ku']
@@ -54,7 +54,7 @@ def model_comparison(param_values):
 
     start_time = time.time()
     ComparisonController.drug_param_values = orig_param_values
-    Hill_curve_coefs, drug_conc_Hill, peak_norm = \
+    Hill_curve_coefs, drug_conc_Hill, _ = \
         ComparisonController.compute_Hill(BKmodel)
     evaluation_Hill_time = time.time() - start_time
 
@@ -76,6 +76,7 @@ def model_comparison(param_values):
     else:
         return RMSError[0], evaluation_Hill_time, evaluation_RMSE_time
 
+
 # Define the model inputs
 problem = {
     'num_vars': 5,
@@ -93,13 +94,13 @@ param_values = saltelli.sample(problem, samples_n)
 np.savetxt(os.path.join(saved_data_filepath, "param_value_samples.txt"), param_values)
 
 # Evaluate function
-evaluator = pints.ParallelEvaluator(model_comparison)
+evaluator = pints.ParallelEvaluator(model_comparison, n_workers=35)
 output = evaluator.evaluate(param_values)
 Y = np.array(output)
 np.savetxt(os.path.join(saved_data_filepath, "MSError_evaluations.txt"), Y)
 
 # Perform analysis
-Si = sobol.analyze(problem, Y[:, 0], parallel=True, n_processors=48)
+Si = sobol.analyze(problem, Y[:, 0], parallel=True, n_processors=35)
 
 # Save data
 total_Si, first_Si, second_Si = Si.to_df()

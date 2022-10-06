@@ -1,4 +1,6 @@
+import matplotlib.pyplot as plt
 import numpy as np
+import time
 
 import modelling
 
@@ -43,10 +45,11 @@ class ModelComparison(object):
             peaks.append(peak[-1])
 
         peaks_norm = (peaks - min(peaks)) / (max(peaks) - min(peaks))
-
+        
         # Make sure there are enough data points for the head of Hill curve
         data_pt_checker = [True]
-        while sum(data_pt_checker) < 3:
+        counter = 0
+        while sum(data_pt_checker) < 3 and counter < 20:
             drug_conc.insert(1, drug_conc[1] / np.sqrt(10))
             log = BKmodel.custom_simulation(
                 self.drug_param_values, drug_conc[1], steady_state_pulse,
@@ -56,10 +59,15 @@ class ModelComparison(object):
             peaks_norm = (peaks - min(peaks)) / (max(peaks) - min(peaks))
             data_pt_checker = [True if i > Hill_upper_thres else False
                                for i in peaks_norm]
+            counter += 1
+        
+        if counter == 20:
+            return 'Hill curve did not form.', drug_conc, peaks_norm
 
         # Make sure there are enough data points for the tail of Hill curve
         data_pt_checker = [True]
-        while sum(data_pt_checker) < 3:
+        counter = 0
+        while sum(data_pt_checker) < 3 and counter < 20:
             drug_conc = drug_conc + [max(drug_conc) * np.sqrt(10)]
             log = BKmodel.custom_simulation(
                 self.drug_param_values, drug_conc[-1], steady_state_pulse,
@@ -69,7 +77,11 @@ class ModelComparison(object):
             peaks_norm = (peaks - min(peaks)) / (max(peaks) - min(peaks))
             data_pt_checker = [True if i < Hill_lower_thres else False
                                for i in peaks_norm]
-
+            counter += 1
+        
+        if counter == 20:
+            return 'Hill curve did not form.', drug_conc, peaks_norm
+        
         # Fit Hill curve
         Hill_curve, _ = self.optimiser.optimise(drug_conc, peaks_norm)
 
@@ -123,3 +135,4 @@ class ModelComparison(object):
         RMSError = np.sqrt(RMSError)
 
         return RMSError, APD_trapping, APD_conductance
+    

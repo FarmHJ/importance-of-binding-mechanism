@@ -88,7 +88,7 @@ problem = {
 }
 
 # Generate samples
-samples_n = 2
+samples_n = 1024
 param_values = saltelli.sample(problem, samples_n)
 np.savetxt(os.path.join(saved_data_filepath, "param_value_samples.txt"), param_values)
 

@@ -43,8 +43,6 @@ class ModelComparison(object):
             peaks.append(peak[-1])
 
         peaks_norm = (peaks - min(peaks)) / (max(peaks) - min(peaks))
-        # print(drug_conc)
-        # print(peaks_norm)
 
         # Make sure there are enough data points for the head of Hill curve
         data_pt_checker = [True if i > Hill_upper_thres else False
@@ -84,6 +82,7 @@ class ModelComparison(object):
         if counter == 20:
             return 'Hill curve did not form.', drug_conc, peaks_norm
 
+        # return 0, drug_conc, peaks_norm
         # Fit Hill curve
         Hill_curve, _ = self.optimiser.optimise(drug_conc, peaks_norm)
 

@@ -47,13 +47,12 @@ APD_points = 20
 
 param_lib = modelling.BindingParameters()
 drug_list = param_lib.drug_compounds
-drug_list = ['terfenadine']
 
 SA_model = modelling.SensitivityAnalysis()
 param_names = SA_model.param_names
 param_range = 10**np.linspace(4, 9, 10)
 # parameter_interest = param_names[:3]
-parameter_interest = 'Vhalf'
+parameter_interest = 'N'
 
 for drug in drug_list:
     Vhalf = param_lib.binding_parameters[drug]['Vhalf']

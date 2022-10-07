@@ -21,7 +21,7 @@ saved_fig_dir = final_fig_dir
 param_lib = modelling.BindingParameters()
 drug_list = param_lib.drug_compounds
 
-drug = 'cisapride'
+drug = 'dofetilide'
 Vhalf = param_lib.binding_parameters[drug]['Vhalf']
 Kmax = param_lib.binding_parameters[drug]['Kmax']
 Ku = param_lib.binding_parameters[drug]['Ku']
@@ -62,8 +62,6 @@ APD_points = 20
 SA_model = modelling.SensitivityAnalysis()
 param_ranges = []
 param_names = SA_model.param_names
-for p in param_names:
-    param_ranges.append(SA_model.param_explore_drug(drug, p))
 
 orig_param_values = pd.DataFrame(all_params, index=param_names)
 orig_param_values = orig_param_values.T
@@ -74,7 +72,7 @@ for k, parameter_interest in enumerate(param_names):
     if os.path.exists(saved_data_dir + filename):
         os.remove(saved_data_dir + filename)
 
-    param_range = param_ranges[k]
+    param_range = SA_model.param_explore_drug(drug, parameter_interest)
     param_values = orig_param_values
 
     for num, param in enumerate(param_range):

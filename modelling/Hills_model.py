@@ -69,7 +69,7 @@ class HillsModelOpt(object):
             x0=initial_parameters,
             method=pints.CMAES,
             transformation=transform)
-        optimiser.set_parallel(True)
+        optimiser.set_parallel(False)
 
         optimiser.set_max_iterations(1000)
         param_best, score_best = optimiser.run()

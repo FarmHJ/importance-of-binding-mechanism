@@ -15,7 +15,7 @@ param_names = ['Vhalf', 'Kmax', 'Ku', 'N', 'EC50']
 saved_data_filepath = os.path.dirname(__file__)
 
 # Model directory
-model_dir = os.path.join(os.path.dirname(__file__), 'model')
+model_dir = os.path.join(saved_data_filepath, 'model')
 current_model_filename = 'ohara-cipa-v1-2017-IKr.mmt'
 current_model_filepath = os.path.join(model_dir, current_model_filename)
 AP_model_filename = 'ohara-cipa-v1-2017.mmt'
@@ -59,22 +59,26 @@ def model_comparison(param_values):
     evaluation_Hill_time = time.time() - start_time
 
     if isinstance(Hill_curve_coefs, str):
-        return float("nan"), np.inf, 0
+        return float("nan"), float("nan"), np.inf, 0
 
-    drug_conc_range = (np.log10(drug_conc_Hill[1]),
-                       np.log10(drug_conc_Hill[-1]))
+    drug_conc_AP = 10**np.linspace(np.log10(drug_conc_Hill[1]),
+                                   np.log10(max(drug_conc_Hill)),
+                                   20)
     start_time = time.time()
     try:
-        RMSError = ComparisonController.compute_RMSE(
-            AP_model, Hill_curve_coefs, drug_conc=drug_conc_range)
+        APD_trapping, APD_conductance = ComparisonController.APD_sim(
+            AP_model, Hill_curve_coefs, drug_conc=drug_conc_AP)
+        RMSError = ComparisonController.compute_RMSE(APD_trapping,
+                                                     APD_conductance)
+        MAError = ComparisonController.compute_MAE(APD_trapping,
+                                                   APD_conductance)
+
     except myokit.SimulationError:
-        RMSError = (float("Nan"), 0, 0)
+        RMSError = float("Nan")
+        MAError = float("nan")
     evaluation_RMSE_time = time.time() - start_time
 
-    if np.isnan(RMSError[0]):
-        return RMSError[0], evaluation_Hill_time, evaluation_RMSE_time
-    else:
-        return RMSError[0], evaluation_Hill_time, evaluation_RMSE_time
+    return RMSError, MAError, evaluation_Hill_time, evaluation_RMSE_time
 
 
 # Define the model inputs
@@ -89,34 +93,78 @@ problem = {
 }
 
 # Generate samples
-samples_n = 2
-param_values = saltelli.sample(problem, samples_n)
-np.savetxt(os.path.join(saved_data_filepath, "param_value_samples.txt"),
-           param_values)
+sample_filepath = os.path.join(saved_data_filepath, "param_value_samples.txt")
+if os.path.exists(sample_filepath):
+    param_values = np.loadtxt(sample_filepath)
+else:
+    samples_n = 2
+    param_values = saltelli.sample(problem, samples_n)
+    np.savetxt(os.path.join(saved_data_filepath, "param_value_samples.txt"),
+               param_values)
 
+# Set up frequency to save files
 total_samples = param_values.shape[0]
-samples_per_save = 7
+# samples_per_save = 1000
+samples_per_save = 8
 samples_split_n = int(np.ceil(total_samples / samples_per_save))
-evaluator = pints.ParallelEvaluator(model_comparison)  # , n_workers=40)
+
+# Find out completed and saved function evaluations
+data_dir = os.getcwd()
+evaluation_result_files = [f for f in os.listdir(data_dir) if
+                           f.startswith('MSError_evaluations_')]
+if len(evaluation_result_files) == 0:
+    saving_file_num = np.arange(samples_split_n)
+else:
+    result_files_num = [int(fname[20:-4]) for fname in
+                        evaluation_result_files]
+    if len(result_files_num) == max(result_files_num) + 1:
+        saving_file_num = np.arange(max(result_files_num) + 1, samples_split_n)
+    else:
+        missing_file_num = [x for x in range(result_files_num[-1] + 1)
+                            if x not in result_files_num]
+        saving_file_num = np.arange(max(result_files_num) + 1, samples_split_n)
+        saving_file_num = np.concatenate((np.array(missing_file_num),
+                                          saving_file_num))
+
+# Set up parallel evaluator
+# n_workers = 40
+n_workers = 4
+evaluator = pints.ParallelEvaluator(model_comparison, n_workers=n_workers)
 
 # Evaluate function
-Y = []
-for i in range(samples_split_n):
-    subset_param_values = \
-        param_values[samples_per_save * i:samples_per_save * (i + 1)]
-    output = evaluator.evaluate(subset_param_values)
-    Y.append(output)
+for i in saving_file_num:
+    print('Starting function evaluation for file number: ', i)
+    subset_param_values = param_values[
+        samples_per_save * i:samples_per_save * (i + 1)]
+    print(samples_per_save * i, 'to', samples_per_save * (i + 1) - 1)
+    Y = []
+    for log_num in range(int(samples_per_save / (n_workers * 1))):
+        # ind_multiplier = n_workers * 5
+        ind_multiplier = n_workers * 1
+
+        print('Running evaluation for sample number ',
+              ind_multiplier * log_num)
+        print(' to ',
+              ind_multiplier * (log_num + 1) - 1)
+
+        subsubset_param_values = subset_param_values[
+            ind_multiplier * log_num:ind_multiplier * (log_num + 1)]
+        output = evaluator.evaluate(subset_param_values)
+        Y += output
     np.savetxt(os.path.join(
         saved_data_filepath, "MSError_evaluations_" + str(i) + ".txt"),
-        np.array(output))
+        np.array(Y))
 
-Y = np.array(Y)
-# Perform analysis
-Si = sobol.analyze(problem, Y[:, 0], parallel=True, n_processors=35)
+# Load all function evaluations
 
-# Save data
-total_Si, first_Si, second_Si = Si.to_df()
 
-total_Si.to_csv(os.path.join(saved_data_filepath, 'total_Si.csv'))
-first_Si.to_csv(os.path.join(saved_data_filepath, 'first_Si.csv'))
-second_Si.to_csv(os.path.join(saved_data_filepath, 'second_Si.csv'))
+# Y = np.array(Y)
+# # Perform analysis
+# Si = sobol.analyze(problem, Y[:, 0], parallel=True)  # , n_processors=35)
+
+# # Save data
+# total_Si, first_Si, second_Si = Si.to_df()
+
+# total_Si.to_csv(os.path.join(saved_data_filepath, 'total_Si.csv'))
+# first_Si.to_csv(os.path.join(saved_data_filepath, 'first_Si.csv'))
+# second_Si.to_csv(os.path.join(saved_data_filepath, 'second_Si.csv'))

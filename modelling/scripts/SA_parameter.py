@@ -138,7 +138,10 @@ for drug in drug_list:
                   saved_data_dir + filename[:-4] + '_copy.csv')
 
     ####################
-        drug_conc_Hill_norm = [i / (np.power(param, Hill_n)) for i in drug_conc_Hill]
+        # drug_conc_Hill_norm = [i / (np.power(param, Hill_n))
+        #                        for i in drug_conc_Hill]
+        drug_conc_Hill_norm = [i / (np.power(param, 1 / Hill_n))
+                               for i in drug_conc_Hill]
 
         param_values[parameter_interest][0] = 1
         ComparisonController.drug_param_values = param_values

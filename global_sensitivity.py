@@ -136,35 +136,52 @@ for i in saving_file_num:
     print('Starting function evaluation for file number: ', i)
     subset_param_values = param_values[
         samples_per_save * i:samples_per_save * (i + 1)]
-    print(samples_per_save * i, 'to', samples_per_save * (i + 1) - 1)
+    print('Samples ', samples_per_save * i, 'to', samples_per_save * (i + 1) - 1)
     Y = []
     for log_num in range(int(samples_per_save / (n_workers * 1))):
         # ind_multiplier = n_workers * 5
         ind_multiplier = n_workers * 1
 
         print('Running evaluation for sample number ',
-              ind_multiplier * log_num)
-        print(' to ',
-              ind_multiplier * (log_num + 1) - 1)
+              ind_multiplier * log_num + samples_per_save * i, ' to ',
+              ind_multiplier * (log_num + 1) + samples_per_save * i - 1)
+        current_time = time.strftime("%H:%M:%S", time.localtime())
+        print('Starting time: ', current_time)
 
         subsubset_param_values = subset_param_values[
             ind_multiplier * log_num:ind_multiplier * (log_num + 1)]
-        output = evaluator.evaluate(subset_param_values)
+        output = evaluator.evaluate(subsubset_param_values)
         Y += output
     np.savetxt(os.path.join(
         saved_data_filepath, "MSError_evaluations_" + str(i) + ".txt"),
         np.array(Y))
 
+print('All function evaluations completed.')
+print('Loading all results of function evaluations.')
 # Load all function evaluations
+evaluation_result_files = [f for f in os.listdir(data_dir) if
+                           f.startswith('MSError_evaluations_')]
+result_files_num = [int(fname[20:-4]) for fname in evaluation_result_files]
+sort_ind = [i[0] for i in sorted(enumerate(result_files_num), key=lambda x:x[1])]
+sorted_result_files = [evaluation_result_files[i] for i in sort_ind]
 
+first_iter = True
+for result_file in sorted_result_files:
+    if first_iter:
+        Y = np.loadtxt(result_file)
+        first_iter = False
+    else:
+        loaded_result = np.loadtxt(result_file)
+        Y = np.concatenate((Y, loaded_result))
 
-# Y = np.array(Y)
-# # Perform analysis
-# Si = sobol.analyze(problem, Y[:, 0], parallel=True)  # , n_processors=35)
+print('Performing analysis.')
+# Perform analysis
+Si = sobol.analyze(problem, Y[:, 0], parallel=True)  # , n_processors=40)
 
-# # Save data
-# total_Si, first_Si, second_Si = Si.to_df()
+print('Saving data.')
+# Save data
+total_Si, first_Si, second_Si = Si.to_df()
 
-# total_Si.to_csv(os.path.join(saved_data_filepath, 'total_Si.csv'))
-# first_Si.to_csv(os.path.join(saved_data_filepath, 'first_Si.csv'))
-# second_Si.to_csv(os.path.join(saved_data_filepath, 'second_Si.csv'))
+total_Si.to_csv(os.path.join(saved_data_filepath, 'total_Si.csv'))
+first_Si.to_csv(os.path.join(saved_data_filepath, 'first_Si.csv'))
+second_Si.to_csv(os.path.join(saved_data_filepath, 'second_Si.csv'))

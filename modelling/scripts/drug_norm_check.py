@@ -4,7 +4,6 @@
 import matplotlib.pyplot as plt
 import myokit
 import numpy as np
-import os
 import pandas as pd
 
 import modelling
@@ -137,7 +136,7 @@ for drug in drug_list:
     fig.sharex(['Time (s)'], [(0, pulse_time)])
     fig.sharey(['Current (A/F)'] * 2)
     fig.adjust_ticks(fig.axs[1][0], pulse_time)
-    fig.savefig(saved_fig_dir + 'hERG_comparison' + drug + '.pdf')
+    fig.savefig(saved_fig_dir + 'hERG_comparison_' + drug + '.pdf')
 
     # Compare action potentials
     # Simulate AP with actual drug concentration
@@ -147,6 +146,7 @@ for drug in drug_list:
 
     AP_log = []
     APD_actual = []
+    orig_param_values[parameter_interest][0] = half_effect_conc
     for i in range(len(drug_conc_AP)):
         log = AP_model.custom_simulation(orig_param_values, drug_conc_AP[i],
                                          1000, save_signal=save_signal,
@@ -168,8 +168,9 @@ for drug in drug_list:
     # Simulate AP with normalised drug concentration
     AP_log_norm = []
     APD_normalised = []
+    param_values[parameter_interest][0] = 1
     for i in range(len(drug_conc_AP_norm)):
-        log = AP_model.custom_simulation(orig_param_values,
+        log = AP_model.custom_simulation(param_values,
                                          drug_conc_AP_norm[i],
                                          1000, save_signal=save_signal,
                                          log_var=['engine.time', 'membrane.V'])
@@ -193,16 +194,13 @@ for drug in drug_list:
                                             hspace=0.3,
                                             height_ratios=[1, 1])
     plot = modelling.figures.FigurePlot()
-    # cmap = matplotlib.cm.get_cmap('viridis')
 
     labels = [str(i) + ' nM' for i in drug_conc_AP]
     labels_norm = [str(i) for i in drug_conc_AP_norm]
     plot.add_multiple_continuous(fig.axs[0][0], AP_log,
-                                 'membrane.V',  # cmap=cmap,
-                                 labels=labels)
+                                 'membrane.V', labels=labels)
     plot.add_multiple_continuous(fig.axs[1][0], AP_log_norm,
-                                 'membrane.V',  # cmap=cmap,
-                                 labels=labels_norm)
+                                 'membrane.V', labels=labels_norm)
     fig.axs[0][0].set_title('Drug concentration', fontsize=8)
     fig.axs[1][0].set_title('Normalised drug concentration', fontsize=8)
 
@@ -214,7 +212,25 @@ for drug in drug_list:
     #                      bbox_to_anchor=(1.45, 0.6))
     fig.sharex(['Time (ms)'], [(0, plotting_AP_pulse_time)])
     fig.sharey(['Voltage (mV)', 'Voltage (mV)'])
-    fig.savefig(saved_fig_dir + 'AP_comparison' + drug + '.pdf')
+    fig.savefig(saved_fig_dir + 'AP_comparison_' + drug + '.pdf')
+
+    # Rescale normalised drug concentration for plotting purposes
+    drug_conc_AP_rescale = [i * (np.power(half_effect_conc, 1 / Hill_n))
+                            for i in drug_conc_AP_norm]
+
+    # Plot APD90 simulated with actual drug concentration and
+    # normalised drug concentration
+    plt.figure()
+    plt.plot(drug_conc_AP, APD_actual, 'o', color='b',
+             label='Actual drug concentration')
+    plt.plot(drug_conc_AP_rescale, APD_normalised, '^', color='r',
+             label='Normalised drug concentration (rescaled)')
+    plt.xscale('log')
+    plt.xlabel('Drug concentration')
+    plt.ylabel(r'APD$_{90}$ (ms)')
+    plt.legend()
+    plt.savefig(saved_fig_dir + 'APD_compare_' + drug + '.pdf')
+    plt.close()
 
     print(RMSError)
     print(MAError)

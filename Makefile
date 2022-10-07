@@ -63,6 +63,7 @@ sensitivity_analysis_plot_short:
 		echo $$drug; \
 		python3 fig_script/sensitivity_plot.py $$drug True; \
 	done
+
 create_dir:
 	cd figures/binding_kinetics_comparison; \
 	for drug in $(DRUG_LIST2); do \
@@ -71,3 +72,9 @@ create_dir:
 		mkdir Milnes/; \
 		cd ..; \
 	done
+
+scripts:
+	cd modelling/scripts/; \
+	python3 drug_norm_check.py; \
+	python3 SA_parameter.py; \
+	python3 SA_drug.py; \

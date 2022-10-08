@@ -15,19 +15,15 @@ saved_fig_dir = final_fig_dir
 
 saved_data_dir = '../../simulation_data/sensitivity_analysis/'
 
-param_interest = 'EC50'
+param_interest = 'Kmax'
 
 # for drug in ['dofetilide', 'terfenadine', 'cisapride', 'bepridil']:
-for drug in ['terfenadine']:
+for drug in ['cisapride']:
 
-    filename = 'SA_' + drug + '_' + param_interest + ' - Copy.csv'
-    filename2 = 'SA_' + drug + '_' + param_interest + '_check - Copy.csv'
+    filename = 'SA_' + drug + '_' + param_interest + '.csv'
     df = pd.read_csv(saved_data_dir + filename,
-                    header=[0, 1], index_col=[0],
-                    skipinitialspace=True)
-    df_check = pd.read_csv(saved_data_dir + filename2,
-                        header=[0, 1], index_col=[0],
-                        skipinitialspace=True) 
+                     header=[0, 1], index_col=[0],
+                     skipinitialspace=True) 
     # data included: drug_conc_Hill, peak_current, Hill_curve, param_values,
     # drug_conc_AP, APD_trapping, APD_conductance and MSE
 
@@ -35,6 +31,7 @@ for drug in ['terfenadine']:
     param_true = param_lib.binding_parameters[drug][param_interest]
 
     # Plot Hill curve
+    # Can plot the change in APD90 in jupyter notebook
     for row_ind in range(len(df.index)):
         # fig = modelling.figures.FigureStructure(
         #     figsize=(10, 3),
@@ -42,37 +39,16 @@ for drug in ['terfenadine']:
         #     wspace=0.2)
 
         # figname = drug + '_' + param_interest + '_' + str(row_ind) + '_APD.pdf'
-        # EC50_value = df.iloc[[row_ind]]['param_values']['EC50'].values[0]
-        # drug_conc_AP = df.iloc[[row_ind]]['drug_conc_AP'].values[0]
+
         # APD_trapping = df.iloc[[row_ind]]['APD_trapping'].values[0]
         # APD_conductance = df.iloc[[row_ind]]['APD_conductance'].values[0]
         # fig.axs[0][0].plot(drug_conc_AP, APD_trapping, 'o-', color='red')
         # fig.axs[0][0].plot(drug_conc_AP, APD_conductance, '^-', color='red')
 
-        # drug_conc_AP_norm = df_check.iloc[[row_ind]]['drug_conc_AP'].values[0]
-        # APD_trapping_norm = df_check.iloc[[row_ind]]['APD_trapping'].values[0]
-        # APD_conductance_norm = df_check.iloc[[row_ind]]['APD_conductance'].values[0]
-
-        # fig.axs[0][1].plot(drug_conc_AP, APD_trapping, 'o-', color='#cccccc', alpha=0.9)
-        # fig.axs[0][1].plot(drug_conc_AP, APD_conductance, '^-', color='#cccccc', alpha=0.9)
-        # fig.axs[0][1].plot(drug_conc_AP_norm * EC50_value, APD_trapping_norm, 'o-', color='black')
-        # fig.axs[0][1].plot(drug_conc_AP_norm * EC50_value, APD_conductance_norm, '^-', color='black')
-
         # fig.axs[0][1].set_xscale('log')
         # fig.axs[0][0].set_xscale('log')
         # plt.savefig(saved_fig_dir + figname)
         # plt.close()
-
-        figname = drug + '_' + param_interest + '_' + str(row_ind) + '_drugconc.pdf'
-        EC50_value = df.iloc[[row_ind]]['param_values']['EC50'].values[0]
-        drug_conc_AP = df.iloc[[row_ind]]['drug_conc_Hill'].values[0]
-        drug_conc_AP_norm = df_check.iloc[[row_ind]]['drug_conc_Hill'].values[0]
-        plt.figure()
-        plt.plot(drug_conc_AP)
-        plt.plot(drug_conc_AP_norm * EC50_value)
-        plt.yscale('log')
-        plt.savefig(saved_fig_dir + figname)
-        plt.close()
 
     # runs = len(df.index)
     # interest_param_values = df['param_values'][param_interest].values

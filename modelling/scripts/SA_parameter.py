@@ -10,13 +10,6 @@ import modelling
 
 saved_data_dir = '../../simulation_data/sensitivity_analysis/'
 
-testing_fig_dir = '../../figures/testing/'
-final_fig_dir = '../../figures/binding_kinetics_comparison/' + \
-    'OHaraCiPA_model/sensitivity_analysis/'
-
-check_plot = True
-saved_fig_dir = final_fig_dir
-
 # Load IKr model
 model = '../../model/ohara-cipa-v1-2017-IKr.mmt'
 model, _, x = myokit.load(model)
@@ -50,7 +43,6 @@ drug_list = param_lib.drug_compounds
 
 SA_model = modelling.SensitivityAnalysis()
 param_names = SA_model.param_names
-param_range = 10**np.linspace(4, 9, 10)
 # parameter_interest = param_names[:3]
 parameter_interest = 'N'
 
@@ -67,14 +59,21 @@ for drug in drug_list:
     orig_param_values = orig_param_values.T
     ComparisonController = modelling.ModelComparison(orig_param_values)
 
-    filename = 'SA_' + drug + '_' + parameter_interest + '.csv'
-    if os.path.exists(saved_data_dir + filename):
-        os.remove(saved_data_dir + filename)
-
     param_values = orig_param_values
     param_range = SA_model.param_explore_drug(drug, parameter_interest)
 
-    for num, param in enumerate(param_range):
+    filename = 'SA_' + drug + '_' + parameter_interest + '.csv'
+    if os.path.exists(saved_data_dir + filename):
+        saved_results_df = pd.read_csv(saved_data_dir + filename,
+                                       header=[0, 1], index_col=[0],
+                                       skipinitialspace=True)
+        ran_values = saved_results_df['param_values'][
+            parameter_interest].values
+    else:
+        ran_values = []
+
+    param_range = [i for i in param_range if i not in ran_values]
+    for param in param_range:
 
         param_values[parameter_interest][0] = param
         ComparisonController.drug_param_values = param_values
@@ -91,21 +90,28 @@ for drug in drug_list:
         drug_conc_AP = [i / (np.power(half_effect_conc, 1 / Hill_n))
                         for i in drug_conc_AP]
 
-        # Simulate action potentials
-        try:
-            APD_trapping, APD_conductance = ComparisonController.APD_sim(
-                AP_model, Hill_curve_coefs, drug_conc=drug_conc_AP,
-                data_points=APD_points)
-
-            RMSError = ComparisonController.compute_RMSE(APD_trapping,
-                                                         APD_conductance)
-            MAError = ComparisonController.compute_MAE(APD_trapping,
-                                                       APD_conductance)
-        except myokit.SimulationError:
+        if isinstance(Hill_curve_coefs, str):
+            Hill_curve_coefs = [float("nan")] * 2
             APD_trapping = [float("Nan")] * APD_points
             APD_conductance = [float("Nan")] * APD_points
             RMSError = float("Nan")
             MAError = float("Nan")
+        else:
+            # Simulate action potentials
+            try:
+                APD_trapping, APD_conductance = ComparisonController.APD_sim(
+                    AP_model, Hill_curve_coefs, drug_conc=drug_conc_AP,
+                    data_points=APD_points)
+
+                RMSError = ComparisonController.compute_RMSE(APD_trapping,
+                                                             APD_conductance)
+                MAError = ComparisonController.compute_MAE(APD_trapping,
+                                                           APD_conductance)
+            except myokit.SimulationError:
+                APD_trapping = [float("Nan")] * APD_points
+                APD_conductance = [float("Nan")] * APD_points
+                RMSError = float("Nan")
+                MAError = float("Nan")
 
         # Create dataframe to save results
         conc_Hill_ind = ['conc_' + str(i) for i, _ in
@@ -126,11 +132,8 @@ for drug in drug_list:
             list(param_values.values[0]) + list(drug_conc_AP) + APD_trapping +
             APD_conductance + [RMSError] + [MAError], index=index)
 
-        if num != 0:
-            previous_df = pd.read_csv(saved_data_dir + filename,
-                                      header=[0, 1], index_col=[0],
-                                      skipinitialspace=True)
-            comb_df = pd.concat([previous_df, big_df.T])
+        if os.path.exists(saved_data_dir + filename):
+            comb_df = pd.concat([saved_results_df, big_df.T])
         else:
             comb_df = big_df.T
 

@@ -4,6 +4,7 @@
 import matplotlib.pyplot as plt
 import myokit
 import numpy as np
+import os
 import pandas as pd
 
 import modelling
@@ -45,7 +46,6 @@ plotting_AP_pulse_time = pulse_time_AP * save_signal
 
 param_lib = modelling.BindingParameters()
 drug_list = param_lib.drug_compounds
-drug_list = ['dofetilide']
 
 SA_model = modelling.ParameterCategory()
 param_names = SA_model.param_names
@@ -150,6 +150,7 @@ for drug in drug_list:
     for i in range(len(drug_conc_AP)):
         log = AP_model.custom_simulation(orig_param_values, drug_conc_AP[i],
                                          1000, save_signal=save_signal,
+#                                          abs_tol=1e-7, rel_tol=1e-8,
                                          log_var=['engine.time', 'membrane.V'])
         AP_log.append(log)
 
@@ -234,3 +235,16 @@ for drug in drug_list:
 
     print(RMSError)
     print(MAError)
+
+    filename = 'error.csv'
+    error_df = pd.DataFrame([drug, RMSError, MAError], index=['drug', 'RMSError', 'MAError'])
+    error_df = error_df.T
+    if os.path.exists(saved_data_dir + filename):
+        previous_df = pd.read_csv(saved_data_dir + filename,
+                                  header=[0], index_col=[0],
+                                  skipinitialspace=True)
+        comb_df = pd.concat([previous_df, error_df])
+    else:
+        comb_df = error_df
+    comb_df.to_csv(saved_data_dir + filename)
+

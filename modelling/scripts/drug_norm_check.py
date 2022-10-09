@@ -1,4 +1,3 @@
-<<<<<<< HEAD
 # To make sure that the hERG current and action potential are not affected by
 # the normalisation
 

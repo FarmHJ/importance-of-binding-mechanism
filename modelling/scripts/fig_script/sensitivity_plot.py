@@ -1,4 +1,3 @@
-<<<<<<< HEAD
 # To plot the range of parameter values
 # Drug binding-related parameters
 

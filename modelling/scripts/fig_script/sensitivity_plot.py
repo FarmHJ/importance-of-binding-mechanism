@@ -15,15 +15,15 @@ saved_fig_dir = final_fig_dir
 
 saved_data_dir = '../../simulation_data/sensitivity_analysis/'
 
-param_interest = 'Kmax'
+param_interest = 'N'
 
 # for drug in ['dofetilide', 'terfenadine', 'cisapride', 'bepridil']:
-for drug in ['cisapride']:
+for drug in ['dofetilide']:
 
     filename = 'SA_' + drug + '_' + param_interest + '.csv'
     df = pd.read_csv(saved_data_dir + filename,
                      header=[0, 1], index_col=[0],
-                     skipinitialspace=True) 
+                     skipinitialspace=True)
     # data included: drug_conc_Hill, peak_current, Hill_curve, param_values,
     # drug_conc_AP, APD_trapping, APD_conductance and MSE
 

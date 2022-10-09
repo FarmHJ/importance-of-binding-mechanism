@@ -99,9 +99,9 @@ for drug in drug_list:
         else:
             # Simulate action potentials
             try:
-                APD_trapping, APD_conductance = ComparisonController.APD_sim(
-                    AP_model, Hill_curve_coefs, drug_conc=drug_conc_AP,
-                    data_points=APD_points)
+                APD_trapping, APD_conductance, drug_conc_AP = \
+                    ComparisonController.APD_sim(
+                        AP_model, Hill_curve_coefs, drug_conc=drug_conc_AP)
 
                 RMSError = ComparisonController.compute_RMSE(APD_trapping,
                                                              APD_conductance)

@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 # To plot the range of parameter values
 # Drug binding-related parameters
 
@@ -94,7 +95,6 @@ for drug in drug_list:
                         for i in drug_conc_AP]
 
         if isinstance(Hill_curve_coefs, str):
-            print(Hill_curve_coefs)
             Hill_curve_coefs = [float("nan")] * 2
             APD_trapping = [float("Nan")] * APD_points
             APD_conductance = [float("Nan")] * APD_points
@@ -103,9 +103,10 @@ for drug in drug_list:
         else:
             # Simulate action potentials
             try:
-                APD_trapping, APD_conductance = ComparisonController.APD_sim(
-                    AP_model, Hill_curve_coefs, drug_conc=drug_conc_AP,
-                    data_points=APD_points)
+                APD_trapping, APD_conductance, drug_conc_AP = \
+                    ComparisonController.APD_sim(
+                        AP_model, Hill_curve_coefs, drug_conc=drug_conc_AP,
+                        EAD=True)
 
                 RMSError = ComparisonController.compute_RMSE(APD_trapping,
                                                              APD_conductance)

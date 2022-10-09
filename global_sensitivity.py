@@ -134,7 +134,8 @@ for i in saving_file_num:
     print('Starting function evaluation for file number: ', i)
     subset_param_values = param_values[
         samples_per_save * i:samples_per_save * (i + 1)]
-    print('Samples ', samples_per_save * i, 'to', samples_per_save * (i + 1) - 1)
+    print('Samples ', samples_per_save * i, 'to',
+          samples_per_save * (i + 1) - 1)
     Y = []
     for log_num in range(int(samples_per_save / (n_workers * 5))):
         ind_multiplier = n_workers * 5
@@ -159,7 +160,8 @@ print('Loading all results of function evaluations.')
 evaluation_result_files = [f for f in os.listdir(data_dir) if
                            f.startswith('MSError_evaluations_')]
 result_files_num = [int(fname[20:-4]) for fname in evaluation_result_files]
-sort_ind = [i[0] for i in sorted(enumerate(result_files_num), key=lambda x:x[1])]
+sort_ind = [i[0] for i in sorted(enumerate(result_files_num),
+                                 key=lambda x:x[1])]
 sorted_result_files = [evaluation_result_files[i] for i in sort_ind]
 
 first_iter = True

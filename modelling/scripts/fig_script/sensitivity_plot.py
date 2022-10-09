@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 # To plot the range of parameter values
 # Drug binding-related parameters
 
@@ -81,3 +82,4 @@ for drug in ['dofetilide']:
     # # plt.vlines(param_true, min(MAEs), max(MAEs), colors='red')
     # plt.xscale('log')
     # plt.savefig(saved_fig_dir + figname)
+

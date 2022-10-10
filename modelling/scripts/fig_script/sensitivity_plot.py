@@ -15,6 +15,7 @@ saved_fig_dir = final_fig_dir
 
 saved_data_dir = '../../simulation_data/sensitivity_analysis/'
 
+SA_model = modelling.SensitivityAnalysis()
 param_interest = 'N'
 
 # for drug in ['dofetilide', 'terfenadine', 'cisapride', 'bepridil']:
@@ -23,16 +24,21 @@ for drug in ['dofetilide']:
     filename = 'SA_' + drug + '_' + param_interest + '.csv'
     df = pd.read_csv(saved_data_dir + filename,
                      header=[0, 1], index_col=[0],
-                     skipinitialspace=True)
+                     skipinitialspace=True) 
     # data included: drug_conc_Hill, peak_current, Hill_curve, param_values,
     # drug_conc_AP, APD_trapping, APD_conductance and MSE
 
+    ran_values = df['param_values'][param_interest].values
+    print(ran_values)
+    param_range = SA_model.param_explore_drug(drug, param_interest)
+    param_range = [i for i in param_range if i not in ran_values]
+    print(param_range)
     param_lib = modelling.BindingParameters()
     param_true = param_lib.binding_parameters[drug][param_interest]
 
     # Plot Hill curve
     # Can plot the change in APD90 in jupyter notebook
-    for row_ind in range(len(df.index)):
+    # for row_ind in range(len(df.index)):
         # fig = modelling.figures.FigureStructure(
         #     figsize=(10, 3),
         #     gridspec=(1, 2),
@@ -75,3 +81,4 @@ for drug in ['dofetilide']:
     # # plt.vlines(param_true, min(MAEs), max(MAEs), colors='red')
     # plt.xscale('log')
     # plt.savefig(saved_fig_dir + figname)
+

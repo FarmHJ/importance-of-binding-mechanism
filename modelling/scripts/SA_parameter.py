@@ -75,6 +75,9 @@ for drug in drug_list:
     param_range = [i for i in param_range if i not in ran_values]
     for param in param_range:
 
+        print('Running for drug: ', drug, ' and parameter value: ', param)
+        orig_half_effect_conc = param_values['EC50'][0]
+        print(orig_half_effect_conc)
         param_values[parameter_interest][0] = param
         ComparisonController.drug_param_values = param_values
 
@@ -103,7 +106,8 @@ for drug in drug_list:
             try:
                 APD_trapping, APD_conductance, drug_conc_AP = \
                     ComparisonController.APD_sim(
-                        AP_model, Hill_curve_coefs, drug_conc=drug_conc_AP)
+                        AP_model, Hill_curve_coefs, drug_conc=drug_conc_AP,
+                        EAD=True)
 
                 RMSError = ComparisonController.compute_RMSE(APD_trapping,
                                                              APD_conductance)
@@ -129,12 +133,16 @@ for drug in drug_list:
         all_index = [(i, j) for i in index_dict.keys() for j in index_dict[i]]
         index = pd.MultiIndex.from_tuples(all_index)
 
+        param_values['EC50'][0] = orig_half_effect_conc
         big_df = pd.DataFrame(
             drug_conc_Hill + list(peaks_norm) + list(Hill_curve_coefs) +
             list(param_values.values[0]) + list(drug_conc_AP) + APD_trapping +
             APD_conductance + [RMSError] + [MAError], index=index)
 
         if os.path.exists(saved_data_dir + filename):
+            saved_results_df = pd.read_csv(saved_data_dir + filename,
+                                           header=[0, 1], index_col=[0],
+                                           skipinitialspace=True)
             comb_df = pd.concat([saved_results_df, big_df.T])
         else:
             comb_df = big_df.T
@@ -143,3 +151,4 @@ for drug in drug_list:
 
         os.system('cp ' + saved_data_dir + filename + ' ' +
                   saved_data_dir + filename[:-4] + '_copy.csv')
+

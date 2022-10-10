@@ -66,7 +66,7 @@ def model_comparison(param_values):
                                    20)
     start_time = time.time()
     try:
-        APD_trapping, APD_conductance = ComparisonController.APD_sim(
+        APD_trapping, APD_conductance, _ = ComparisonController.APD_sim(
             AP_model, Hill_curve_coefs, drug_conc=drug_conc_AP)
         RMSError = ComparisonController.compute_RMSE(APD_trapping,
                                                      APD_conductance)

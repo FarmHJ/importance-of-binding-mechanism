@@ -51,6 +51,17 @@ SA_model = modelling.ParameterCategory()
 param_names = SA_model.param_names
 parameter_interest = 'EC50'
 
+filename = 'error.csv'
+if os.path.exists(saved_data_dir + filename):
+    previous_df = pd.read_csv(saved_data_dir + filename,
+                              header=[0], index_col=[0],
+                              skipinitialspace=True)
+    ran_drugs = previous_df['drug'].values
+else:
+    ran_drugs = []
+
+drug_list = [i for i in drug_list if i not in ran_drugs]
+
 for drug in drug_list:
     # Set up variables
     Vhalf = param_lib.binding_parameters[drug]['Vhalf']
@@ -150,7 +161,7 @@ for drug in drug_list:
     for i in range(len(drug_conc_AP)):
         log = AP_model.custom_simulation(orig_param_values, drug_conc_AP[i],
                                          1000, save_signal=save_signal,
-#                                          abs_tol=1e-7, rel_tol=1e-8,
+                                         abs_tol=1e-7, rel_tol=1e-8,
                                          log_var=['engine.time', 'membrane.V'])
         AP_log.append(log)
 

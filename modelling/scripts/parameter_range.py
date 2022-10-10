@@ -50,7 +50,9 @@ param_cat_df = pd.DataFrame(data=d, index=['low_border', 'high_border'])
 # Plot of categorisation of parameters
 # Set up colormap
 cmap = matplotlib.cm.get_cmap('Set1')
-color_list = [cmap(i) for i in range(9)] + [cmap(i) for i in range(3)]
+# color_list = [cmap(i) for i in range(9)] + [cmap(i) for i in range(3)]
+color_list = [cmap(i) for i in range(9)] + \
+    ['darkturquoise', 'darkgreen', 'magenta']
 repeating_cmap = matplotlib.colors.ListedColormap(color_list)
 
 nrow = 2
@@ -62,8 +64,9 @@ nrow = 2
 
 APD_diff = [0, 1, 2, 3, 1, 4, 2, 2, 2, 2, 2, 3]
 markers = ['*', 'o', 'X', '2', '^']
-APD_rough_diff = [1, 2, 2, 3, 2, 1, 2, 2, 2, 2, 2, 3]
+APD_rough_diff = [0, 1, 1, 2, 1, 0, 1, 1, 1, 1, 1, 2]
 discrete_colors = ['red', 'blue', 'black', 'purple', 'olive']
+APD_rough_diff_label = ['similar', 'SD higher', 'CS higher']
 # for i, label in enumerate(labels):
 #     fig.axs[int(i / 3)][i % 3].axhline(
 #         param_ranges[i][0], xmin=0, xmax=len(all_params[i]),
@@ -91,67 +94,75 @@ discrete_colors = ['red', 'blue', 'black', 'purple', 'olive']
 
 # Plot the color-coded APD90 changes in a 3-dimensional plot of the 3
 # interested parameters, i.e. Vhalf, Kmax and Ku
-# fig = plt.figure()
-# ax = fig.add_subplot(projection='3d')
-# for j in range(len(drug_list)):
-#     ax.scatter(Vhalf[j], np.log(Kmax[j]), np.log(Ku[j]),
-#                c=discrete_colors[APD_rough_diff[j]], s=100)
-#             #    marker=markers[APD_diff[j]], s=100)
-# ax.set_xlabel('Vhalf')
-# ax.set_ylabel('Kmax')
-# ax.set_zlabel('Ku')
-# plt.show()
+fig = plt.figure()
+ax = fig.add_subplot(projection='3d')
+for j in range(len(drug_list)):
+    ax.scatter(Vhalf[j], np.log(Kmax[j]), np.log(Ku[j]),
+            #    c=color_list[j], label=str(drug_list[j]),
+               c=discrete_colors[APD_rough_diff[j]], s=100,
+               label=APD_rough_diff_label[APD_rough_diff[j]])
+            #    marker=markers[APD_diff[j]], s=100)
 
-# Plot transition rates against voltage and drug concentration
-# During Milnes protocol and action potential
+handles, labels = ax.get_legend_handles_labels()
+unique = [(h, l) for i, (h, l) in enumerate(zip(handles, labels)) if
+            l not in labels[:i]]
+ax.legend(*zip(*unique), loc='upper left', bbox_to_anchor=(1.0, 1.0))
+# ax.set_facecolor('silver')
+ax.set_xlabel('Vhalf')
+ax.set_ylabel('Kmax')
+ax.set_zlabel('Ku')
+plt.show()
 
-
-def Kb_fn(drug_conc_norm, Kmax, n, Ku):
-    Kb = np.divide(Ku * Kmax * drug_conc_norm**n, (1 + drug_conc_norm**n))
-
-    return Kb
-
-
-def Kn_fn(V, Vhalf):
-    Kt = 3.5e-5
-    Kn = Kt / (1 + np.exp((Vhalf - V) / 6.789))
-
-    return Kn
+# # Plot transition rates against voltage and drug concentration
+# # During Milnes protocol and action potential
 
 
-drug_conc_norm = 10**np.linspace(-11, 2, 28)
-voltage_arr = np.arange(-150, 50, 10)
-Kb_drugs = []
-Kn_drugs = []
-for i, drug in enumerate(drug_list):
-    Kb = Kb_fn(drug_conc_norm, Kmax[i], N[i], Ku[i])
-    Kb_drugs.append(Kb)
+# def Kb_fn(drug_conc_norm, Kmax, n, Ku):
+#     Kb = np.divide(Ku * Kmax * drug_conc_norm**n, (1 + drug_conc_norm**n))
 
-    Kn = Kn_fn(voltage_arr, Vhalf[i])
-    Kn_drugs.append(Kn)
+#     return Kb
 
-fig = modelling.figures.FigureStructure(
-    figsize=(10, 3),
-    gridspec=(1, 3), wspace=0.2)
 
-for i in range(len(drug_list)):
-    fig.axs[0][0].plot(drug_conc_norm, Kb_drugs[i], c=repeating_cmap(i))
-    fig.axs[0][1].hlines(Ku[i], 0, 100, colors=repeating_cmap(i))
-    fig.axs[0][2].plot(voltage_arr, Kn_drugs[i], c=repeating_cmap(i),
-                       label=drug_list[i])
+# def Kn_fn(V, Vhalf):
+#     Kt = 3.5e-5
+#     Kn = Kt / (1 + np.exp((Vhalf - V) / 6.789))
 
-fig.axs[0][0].set_title('Kb')
-fig.axs[0][0].set_yscale('log')
-fig.axs[0][0].set_xscale('log')
-fig.axs[0][0].set_xlabel('Normalised drug concentration')
+#     return Kn
 
-fig.axs[0][1].set_title('Ku')
-fig.axs[0][1].set_xlabel('Normalised drug concentration')
 
-fig.axs[0][2].set_title('Kn')
-fig.axs[0][2].set_xlabel('Voltage')
-fig.axs[0][2].legend(loc='lower left', bbox_to_anchor=(1.0, 0))
-fig.savefig(saved_fig_dir + 'transition_rates.pdf')
+# drug_conc_norm = 10**np.linspace(-11, 2, 28)
+# voltage_arr = np.arange(-150, 50, 10)
+# Kb_drugs = []
+# Kn_drugs = []
+# for i, drug in enumerate(drug_list):
+#     Kb = Kb_fn(drug_conc_norm, Kmax[i], N[i], Ku[i])
+#     Kb_drugs.append(Kb)
+
+#     Kn = Kn_fn(voltage_arr, Vhalf[i])
+#     Kn_drugs.append(Kn)
+
+# fig = modelling.figures.FigureStructure(
+#     figsize=(10, 3),
+#     gridspec=(1, 3), wspace=0.2)
+
+# for i in range(len(drug_list)):
+#     fig.axs[0][0].plot(drug_conc_norm, Kb_drugs[i], c=repeating_cmap(i))
+#     fig.axs[0][1].hlines(Ku[i], 0, 100, colors=repeating_cmap(i))
+#     fig.axs[0][2].plot(voltage_arr, Kn_drugs[i], c=repeating_cmap(i),
+#                        label=drug_list[i])
+
+# fig.axs[0][0].set_title('Kb')
+# fig.axs[0][0].set_yscale('log')
+# fig.axs[0][0].set_xscale('log')
+# fig.axs[0][0].set_xlabel('Normalised drug concentration')
+
+# fig.axs[0][1].set_title('Ku')
+# fig.axs[0][1].set_xlabel('Normalised drug concentration')
+
+# fig.axs[0][2].set_title('Kn')
+# fig.axs[0][2].set_xlabel('Voltage')
+# fig.axs[0][2].legend(loc='lower left', bbox_to_anchor=(1.0, 0))
+# fig.savefig(saved_fig_dir + 'transition_rates.pdf')
 
 # # Simple SA - taking mean value of each category
 # # Split parameter value ranges to three categories: low, medium and high

@@ -77,7 +77,6 @@ for drug in drug_list:
 
         print('Running for drug: ', drug, ' and parameter value: ', param)
         orig_half_effect_conc = param_values['EC50'][0]
-        print(orig_half_effect_conc)
         param_values[parameter_interest][0] = param
         ComparisonController.drug_param_values = param_values
 

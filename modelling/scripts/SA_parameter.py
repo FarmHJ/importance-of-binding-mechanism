@@ -151,4 +151,3 @@ for drug in drug_list:
 
         os.system('cp ' + saved_data_dir + filename + ' ' +
                   saved_data_dir + filename[:-4] + '_copy.csv')
-

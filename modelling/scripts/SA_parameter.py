@@ -90,6 +90,8 @@ for drug in drug_list:
         drug_conc_AP = 10**np.linspace(np.log10(drug_conc_Hill[1]),
                                        np.log10(max(drug_conc_Hill)),
                                        APD_points)
+
+        Hill_n = param_values['N'][0]
         drug_conc_AP = [i / (np.power(half_effect_conc, 1 / Hill_n))
                         for i in drug_conc_AP]
 
@@ -149,4 +151,3 @@ for drug in drug_list:
 
         os.system('cp ' + saved_data_dir + filename + ' ' +
                   saved_data_dir + filename[:-4] + '_copy.csv')
-

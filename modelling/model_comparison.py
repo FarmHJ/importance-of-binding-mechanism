@@ -92,7 +92,7 @@ class ModelComparison(object):
 
     def APD_sim(self, AP_model, Hill_curve_coefs, drug_conc=None,
                 steady_state_pulse=1000, save_signal=2, offset=50,
-                data_points=20, EAD=False):
+                data_points=20, EAD=False, norm_constant=1):
 
         base_conductance = AP_model.original_constants['gKr']
         APD_trapping = []
@@ -117,7 +117,7 @@ class ModelComparison(object):
 
             # Run simulation for conductance model
             reduction_scale = self.Hill_model.simulate(
-                Hill_curve_coefs, drug_conc[i])
+                Hill_curve_coefs, drug_conc[i] * norm_constant)
             d2 = AP_model.conductance_simulation(
                 base_conductance * reduction_scale, steady_state_pulse,
                 timestep=0.1, save_signal=save_signal, abs_tol=1e-7,

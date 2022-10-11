@@ -45,7 +45,7 @@ drug_list = param_lib.drug_compounds
 SA_model = modelling.SensitivityAnalysis()
 param_names = SA_model.param_names
 # parameter_interest = param_names[:3]
-parameter_interest = 'N'
+parameter_interest = 'Vhalf'
 
 
 def param_evaluation(param, drug, param_values):
@@ -119,7 +119,7 @@ def param_evaluation(param, drug, param_values):
     return big_df
 
 
-for drug in drug_list[3:]:
+for drug in drug_list:
     print(drug)
     Vhalf = param_lib.binding_parameters[drug]['Vhalf']
     Kmax = param_lib.binding_parameters[drug]['Kmax']

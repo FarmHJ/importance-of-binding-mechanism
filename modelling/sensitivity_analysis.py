@@ -68,6 +68,51 @@ class SensitivityAnalysis(object):
 
         return param_range
 
+    def param_explore(self, param, res_points=10):
+
+        param_lib = modelling.BindingParameters()
+
+        interest_param_list = []
+        for i in param_lib.drug_compounds:
+            interest_param_list.append(param_lib.binding_parameters[i][param])
+
+        low_group, high_group = \
+            modelling.ParameterCategory().param_ranges[param]
+        mid_range = [i for i in interest_param_list if i > low_group and
+                     i < high_group]
+        mid_range_minmax = (min(mid_range), max(mid_range))
+
+        low_range = [i for i in interest_param_list if i <= low_group]
+        if len(low_range) > 1 and param != 'Kmax':
+            low_range_minmax = (min(low_range), max(low_range))
+        elif param == 'Kmax':
+            low_range_minmax = (1, 30)
+        else:
+            low_range_minmax = (0.9 * low_range[0], 1.1 * low_range[0])
+
+        high_range = [i for i in interest_param_list if i >= high_group]
+        if len(high_range) > 1:
+            high_range_minmax = (min(high_range), max(high_range))
+        else:
+            high_range_minmax = (0.9 * high_range[0], 1.1 * high_range[0])
+
+        if param in ['Kmax', 'Ku', 'EC50']:
+            param_range = np.concatenate((
+                np.linspace(np.log10(low_range_minmax[0]),
+                            np.log10(low_range_minmax[1]), res_points),
+                np.linspace(np.log10(mid_range_minmax[0]),
+                            np.log10(mid_range_minmax[1]), res_points),
+                np.linspace(np.log10(high_range_minmax[0]),
+                            np.log10(high_range_minmax[1]), res_points)))
+            param_range = 10**param_range
+        else:
+            param_range = np.concatenate(
+                (np.linspace(*low_range_minmax, res_points),
+                 np.linspace(*mid_range_minmax, res_points),
+                 np.linspace(*high_range_minmax, res_points)))
+
+        return param_range
+
     def comparison_evaluation(self, param_values, hERG_model, AP_model,
                               log_transform=True, APD_points=20):
 

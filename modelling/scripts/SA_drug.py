@@ -1,6 +1,7 @@
 # To plot the range of parameter values
 # Drug binding-related parameters
 
+import itertools
 import myokit
 import numpy as np
 import os
@@ -31,7 +32,6 @@ APmodel, _, x = myokit.load(APmodel)
 AP_model = modelling.BindingKinetics(APmodel, current_head='ikr')
 pulse_time = 1000
 AP_model.protocol = modelling.ProtocolLibrary().current_impulse(pulse_time)
-base_conductance = APmodel.get('ikr.gKr').value()
 
 offset = 50
 repeats_AP = 800
@@ -44,32 +44,30 @@ drug_list = param_lib.drug_compounds
 
 SA_model = modelling.SensitivityAnalysis()
 param_names = SA_model.param_names
-parameter_interest = param_names[:3]
+res = 5
+Vhalf_range = SA_model.param_explore('Vhalf', res)
+Ku_range = SA_model.param_explore('Ku', res)
+Kmax_range = SA_model.param_explore('Kmax', res)
+
+starting_param_df = pd.DataFrame([1] * 5, index=param_names).T
+ComparisonController = modelling.ModelComparison(starting_param_df)
 
 
-def param_evaluation(param, drug, param_values):
+def param_evaluation(param_values):
 
-    Hill_n = param_lib.binding_parameters[drug]['N']
-    half_effect_conc = param_lib.binding_parameters[drug]['EC50']
+    param_id = param_values['param_id'][0]
+    param_values = param_values.drop(columns=['param_id'])
 
-    print('Running for drug: ', drug, ' and parameter value: ', param)
-    orig_half_effect_conc = param_values['EC50'][0]
-    param_values[parameter_interest][0] = param
     ComparisonController.drug_param_values = param_values
 
     Hill_curve_coefs, drug_conc_Hill, peaks_norm = \
-        ComparisonController.compute_Hill(drug_model, parallel=False)
+        ComparisonController.compute_Hill(drug_model,
+                                          parallel=False)
+    # parameters of Hill's curve are based on normalised drug concentration
 
-    # Normalise drug concentration against EC50
-    param_values['EC50'][0] = 1
-    ComparisonController.drug_param_values = param_values
     drug_conc_AP = 10**np.linspace(np.log10(drug_conc_Hill[1]),
                                    np.log10(max(drug_conc_Hill)),
                                    APD_points)
-
-    Hill_n = param_values['N'][0]
-    drug_conc_AP = [i / (np.power(half_effect_conc, 1 / Hill_n))
-                    for i in drug_conc_AP]
 
     if isinstance(Hill_curve_coefs, str):
         Hill_curve_coefs = [float("nan")] * 2
@@ -99,7 +97,8 @@ def param_evaluation(param, drug, param_values):
     conc_Hill_ind = ['conc_' + str(i) for i, _ in
                      enumerate(drug_conc_Hill)]
     conc_AP_ind = ['conc_' + str(i) for i, _ in enumerate(drug_conc_AP)]
-    index_dict = {'drug_conc_Hill': conc_Hill_ind,
+    index_dict = {'param_id': ['param_id'],
+                  'drug_conc_Hill': conc_Hill_ind,
                   'peak_current': conc_Hill_ind,
                   'Hill_curve': ['Hill_coef', 'IC50'],
                   'param_values': param_names, 'drug_conc_AP': conc_AP_ind,
@@ -109,48 +108,102 @@ def param_evaluation(param, drug, param_values):
     all_index = [(i, j) for i in index_dict.keys() for j in index_dict[i]]
     index = pd.MultiIndex.from_tuples(all_index)
 
-    param_values['EC50'][0] = orig_half_effect_conc
     big_df = pd.DataFrame(
-        drug_conc_Hill + list(peaks_norm) + list(Hill_curve_coefs) +
-        list(param_values.values[0]) + list(drug_conc_AP) + APD_trapping +
-        APD_conductance + [RMSError] + [MAError], index=index)
+        [param_id] + drug_conc_Hill + list(peaks_norm) +
+        list(Hill_curve_coefs) + list(param_values.values[0]) +
+        list(drug_conc_AP) + APD_trapping + APD_conductance +
+        [RMSError] + [MAError], index=index)
 
     return big_df
 
-filename = 'SA_all.csv'
-if os.path.exists(saved_data_dir + filename):
-    saved_results_df = pd.read_csv(saved_data_dir + filename,
-                                    header=[0, 1], index_col=[0],
-                                    skipinitialspace=True)
-    ran_values = saved_results_df['param_values'][
-        parameter_interest].values
+# Assuming drug concentration are all normalised, the EC50 value in the model
+# becomes 1.
+# Since Hill's coefficient, N, does not affect APD difference behaviour, it
+# can be fixed at any value.
+# For simplicity, let N = 1.
+
+
+sample_filepath = saved_data_dir + 'parameter_space_res5.csv'
+param_space = []
+if os.path.exists(sample_filepath):
+    param_values_df = pd.read_csv(sample_filepath,
+                                  header=[0], index_col=[0],
+                                  skipinitialspace=True)
+    for i in range(len(param_values_df.index)):
+        param_space.append(param_values_df.iloc[[i]])
 else:
-    ran_values = []
+    counter = 0
+    param_values_df = pd.DataFrame(columns=param_names)
+    for Vhalf, Kmax, Ku in itertools.product(Vhalf_range, Kmax_range, Ku_range):
+        param_values = pd.DataFrame([counter, Vhalf, Kmax, Ku, 1, 1],
+                                    index=['param_id'] + param_names)
+        param_values = param_values.T
+        param_space.append(param_values)
+        param_values_df = pd.concat([param_values_df, param_values])
+        counter += 1
+    param_values_df.to_csv(saved_data_dir + 'parameter_space_res5.csv')
 
+total_samples = len(param_space)
+samples_per_save = 1000
+samples_split_n = int(np.ceil(total_samples / samples_per_save))
+total_saving_file_num = np.arange(samples_split_n)
 
-    Hill_n = param_lib.binding_parameters[drug]['N']
-    half_effect_conc = param_lib.binding_parameters[drug]['EC50']
+file_prefix = 'SA_allparam_'
+evaluation_result_files = [f for f in os.listdir(saved_data_dir) if
+                           f.startswith(file_prefix)]
+if len(evaluation_result_files) == 0:
+    file_id_dict = {}
+    for i in range(samples_split_n):
+        file_id_dict[i] = param_values_df['param_id'].values[
+            i * samples_per_save: (i + 1) * samples_per_save]
+    saving_file_dict = {'file_num': total_saving_file_num,
+                        'sample_id_each_file': file_id_dict}
+else:
+    ## to include missing file
+    result_files_num = [int(fname[len(file_prefix):-4]) for fname in
+                        evaluation_result_files]
+    file_num_to_run = []
+    file_id_dict = {}
+    missing_file = [i for i in total_saving_file_num if i not in result_files_num]
+    for i in missing_file:
+        file_id_dict[i] = param_values_df['param_id'].values[
+            i * samples_per_save: (i + 1) * samples_per_save]
+        file_num_to_run.append(i)
+    for file in evaluation_result_files:
+        file_num = int(file[len(file_prefix):-4])
+        saved_results_df = pd.read_csv(saved_data_dir + file,
+                                       header=[0, 1], index_col=[0],
+                                       skipinitialspace=True)
+        ran_values = saved_results_df['param_id']['param_id'].values
+        expected_ids = param_values_df['param_id'].values[
+            file_num * samples_per_save: (file_num + 1) * samples_per_save]
+        param_space_id = [i for i in expected_ids if i not in ran_values]
+        if len(param_space) != 0:
+            file_num_to_run.append(file_num)
+            file_id_dict[file_num] = param_space_id
+    saving_file_dict = {'file_num': file_num_to_run,
+                        'sample_id_each_file': file_id_dict}
 
-    all_params = [Vhalf, Kmax, Ku, Hill_n, half_effect_conc]
+n_workers = 2
+evaluator = pints.ParallelEvaluator(param_evaluation,
+                                    n_workers=n_workers)
+for file_num in saving_file_dict['file_num']:
+    print('Starting function evaluation for file number: ', file_num)
+    samples_to_run = saving_file_dict['sample_id_each_file'][file_num]
+    samples_num = len(samples_to_run)
+    filename = file_prefix + str(file_num) + '.csv'
 
-    orig_param_values = pd.DataFrame(all_params, index=param_names)
-    orig_param_values = orig_param_values.T
-    ComparisonController = modelling.ModelComparison(orig_param_values)
+    for i in range(int(np.ceil(samples_num / n_workers))):
+        subset_samples_to_run = samples_to_run[
+            n_workers * i:n_workers * (i + 1)]
+        print('Running samples: ', subset_samples_to_run)
+        subset_param_space = param_values_df.loc[
+            param_values_df['param_id'].isin(subset_samples_to_run)]
+        param_space = []
+        for i in range(len(subset_param_space.index)):
+            param_space.append(subset_param_space.iloc[[i]])
 
-    param_values = orig_param_values
-    param_range = SA_model.param_explore_drug(drug, parameter_interest)
-
-
-    param_range = [i for i in param_range if i not in ran_values]
-    n_workers = 7
-    evaluator = pints.ParallelEvaluator(param_evaluation,
-                                        n_workers=n_workers,
-                                        args=[drug, param_values])
-    for i in range(int(np.ceil(len(param_range) / n_workers))):
-        print('Running samples ', n_workers * i, 'to',
-              n_workers * (i + 1) - 1)
-        big_df = evaluator.evaluate(
-            param_range[i * n_workers: (i + 1) * n_workers])
+        big_df = evaluator.evaluate(param_space)
 
         if os.path.exists(saved_data_dir + filename):
             combined_df = pd.read_csv(saved_data_dir + filename,
@@ -164,6 +217,3 @@ else:
                 combined_df = pd.concat([combined_df, big_df[i].T])
 
         combined_df.to_csv(saved_data_dir + filename)
-
-        os.system('cp ' + saved_data_dir + filename + ' ' +
-                  saved_data_dir + filename[:-4] + '_copy.csv')

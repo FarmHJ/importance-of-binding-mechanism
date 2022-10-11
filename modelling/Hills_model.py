@@ -39,7 +39,7 @@ class HillsModelOpt(object):
 
         self.model = model
 
-    def optimise(self, drug_conc, inhibit_metric):
+    def optimise(self, drug_conc, inhibit_metric, parallel=True):
 
         if not any([i == 0 for i in drug_conc]):
             raise ValueError("Must have drug concentration = 0")
@@ -69,7 +69,7 @@ class HillsModelOpt(object):
             x0=initial_parameters,
             method=pints.CMAES,
             transformation=transform)
-        optimiser.set_parallel(False)
+        optimiser.set_parallel(parallel)
 
         optimiser.set_max_iterations(1000)
         param_best, score_best = optimiser.run()

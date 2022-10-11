@@ -29,7 +29,8 @@ class ModelComparison(object):
         self.optimiser = modelling.HillsModelOpt(self.Hill_model)
 
     def compute_Hill(self, BKmodel, drug_conc=None, steady_state_pulse=1000,
-                     Hill_upper_thres=0.9, Hill_lower_thres=0.05):
+                     Hill_upper_thres=0.9, Hill_lower_thres=0.05,
+                     parallel=True):
 
         if drug_conc is None:
             drug_conc = list(np.append(0, 10**np.linspace(-1, 1, 5)))
@@ -84,7 +85,8 @@ class ModelComparison(object):
 
         # return 0, drug_conc, peaks_norm
         # Fit Hill curve
-        Hill_curve, _ = self.optimiser.optimise(drug_conc, peaks_norm)
+        Hill_curve, _ = self.optimiser.optimise(drug_conc, peaks_norm,
+                                                parallel=parallel)
 
         return Hill_curve[:2], drug_conc, peaks_norm
 

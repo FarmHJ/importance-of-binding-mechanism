@@ -46,7 +46,7 @@ drug_list = ['dofetilide', 'verapamil', 'terfenadine',
 
 SA_model = modelling.SensitivityAnalysis()
 param_names = SA_model.param_names
-parameter_interest = 'Vhalf'
+parameter_interest = 'N'
 
 
 def param_evaluation(param, param_values):
@@ -64,6 +64,8 @@ def param_evaluation(param, param_values):
         ComparisonController.compute_Hill(drug_model,
                                           norm_constant=norm_constant,
                                           parallel=False)
+    # The parameters of Hill's curve are based on the normalised drug concentration
+    # Hill's coefficient remains the same but IC50 -> IC50/EC50
 
     drug_conc_AP = 10**np.linspace(np.log10(drug_conc_Hill[1]),
                                    np.log10(max(drug_conc_Hill)),

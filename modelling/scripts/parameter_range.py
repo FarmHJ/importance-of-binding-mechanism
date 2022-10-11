@@ -105,7 +105,7 @@ for j in range(len(drug_list)):
 
 handles, labels = ax.get_legend_handles_labels()
 unique = [(h, l) for i, (h, l) in enumerate(zip(handles, labels)) if
-            l not in labels[:i]]
+          l not in labels[:i]]
 ax.legend(*zip(*unique), loc='upper left', bbox_to_anchor=(1.0, 1.0))
 # ax.set_facecolor('silver')
 ax.set_xlabel('Vhalf')

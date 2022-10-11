@@ -5,6 +5,7 @@ import myokit
 import numpy as np
 import os
 import pandas as pd
+import pints
 
 import modelling
 
@@ -46,7 +47,80 @@ param_names = SA_model.param_names
 # parameter_interest = param_names[:3]
 parameter_interest = 'N'
 
-for drug in drug_list:
+
+def param_evaluation(param, drug, param_values):
+
+    Hill_n = param_lib.binding_parameters[drug]['N']
+    half_effect_conc = param_lib.binding_parameters[drug]['EC50']
+
+    print('Running for drug: ', drug, ' and parameter value: ', param)
+    orig_half_effect_conc = param_values['EC50'][0]
+    param_values[parameter_interest][0] = param
+    ComparisonController.drug_param_values = param_values
+
+    Hill_curve_coefs, drug_conc_Hill, peaks_norm = \
+        ComparisonController.compute_Hill(drug_model, parallel=False)
+
+    # Normalise drug concentration against EC50
+    param_values['EC50'][0] = 1
+    ComparisonController.drug_param_values = param_values
+    drug_conc_AP = 10**np.linspace(np.log10(drug_conc_Hill[1]),
+                                   np.log10(max(drug_conc_Hill)),
+                                   APD_points)
+
+    Hill_n = param_values['N'][0]
+    drug_conc_AP = [i / (np.power(half_effect_conc, 1 / Hill_n))
+                    for i in drug_conc_AP]
+
+    if isinstance(Hill_curve_coefs, str):
+        Hill_curve_coefs = [float("nan")] * 2
+        APD_trapping = [float("Nan")] * APD_points
+        APD_conductance = [float("Nan")] * APD_points
+        RMSError = float("Nan")
+        MAError = float("Nan")
+    else:
+        # Simulate action potentials
+        try:
+            APD_trapping, APD_conductance, drug_conc_AP = \
+                ComparisonController.APD_sim(
+                    AP_model, Hill_curve_coefs, drug_conc=drug_conc_AP,
+                    EAD=True)
+
+            RMSError = ComparisonController.compute_RMSE(APD_trapping,
+                                                         APD_conductance)
+            MAError = ComparisonController.compute_MAE(APD_trapping,
+                                                       APD_conductance)
+        except myokit.SimulationError:
+            APD_trapping = [float("Nan")] * APD_points
+            APD_conductance = [float("Nan")] * APD_points
+            RMSError = float("Nan")
+            MAError = float("Nan")
+
+    # Create dataframe to save results
+    conc_Hill_ind = ['conc_' + str(i) for i, _ in
+                     enumerate(drug_conc_Hill)]
+    conc_AP_ind = ['conc_' + str(i) for i, _ in enumerate(drug_conc_AP)]
+    index_dict = {'drug_conc_Hill': conc_Hill_ind,
+                  'peak_current': conc_Hill_ind,
+                  'Hill_curve': ['Hill_coef', 'IC50'],
+                  'param_values': param_names, 'drug_conc_AP': conc_AP_ind,
+                  'APD_trapping': conc_AP_ind,
+                  'APD_conductance': conc_AP_ind, 'RMSE': ['RMSE'],
+                  'MAE': ['MAE']}
+    all_index = [(i, j) for i in index_dict.keys() for j in index_dict[i]]
+    index = pd.MultiIndex.from_tuples(all_index)
+
+    param_values['EC50'][0] = orig_half_effect_conc
+    big_df = pd.DataFrame(
+        drug_conc_Hill + list(peaks_norm) + list(Hill_curve_coefs) +
+        list(param_values.values[0]) + list(drug_conc_AP) + APD_trapping +
+        APD_conductance + [RMSError] + [MAError], index=index)
+
+    return big_df
+
+
+for drug in drug_list[3:]:
+    print(drug)
     Vhalf = param_lib.binding_parameters[drug]['Vhalf']
     Kmax = param_lib.binding_parameters[drug]['Kmax']
     Ku = param_lib.binding_parameters[drug]['Ku']
@@ -73,80 +147,28 @@ for drug in drug_list:
         ran_values = []
 
     param_range = [i for i in param_range if i not in ran_values]
-    for param in param_range:
-
-        print('Running for drug: ', drug, ' and parameter value: ', param)
-        orig_half_effect_conc = param_values['EC50'][0]
-        param_values[parameter_interest][0] = param
-        ComparisonController.drug_param_values = param_values
-
-        Hill_curve_coefs, drug_conc_Hill, peaks_norm = \
-            ComparisonController.compute_Hill(drug_model)
-
-        # Normalise drug concentration against EC50
-        param_values['EC50'][0] = 1
-        ComparisonController.drug_param_values = param_values
-        drug_conc_AP = 10**np.linspace(np.log10(drug_conc_Hill[1]),
-                                       np.log10(max(drug_conc_Hill)),
-                                       APD_points)
-
-        Hill_n = param_values['N'][0]
-        drug_conc_AP = [i / (np.power(half_effect_conc, 1 / Hill_n))
-                        for i in drug_conc_AP]
-
-        if isinstance(Hill_curve_coefs, str):
-            Hill_curve_coefs = [float("nan")] * 2
-            APD_trapping = [float("Nan")] * APD_points
-            APD_conductance = [float("Nan")] * APD_points
-            RMSError = float("Nan")
-            MAError = float("Nan")
-        else:
-            # Simulate action potentials
-            try:
-                APD_trapping, APD_conductance, drug_conc_AP = \
-                    ComparisonController.APD_sim(
-                        AP_model, Hill_curve_coefs, drug_conc=drug_conc_AP,
-                        EAD=True)
-
-                RMSError = ComparisonController.compute_RMSE(APD_trapping,
-                                                             APD_conductance)
-                MAError = ComparisonController.compute_MAE(APD_trapping,
-                                                           APD_conductance)
-            except myokit.SimulationError:
-                APD_trapping = [float("Nan")] * APD_points
-                APD_conductance = [float("Nan")] * APD_points
-                RMSError = float("Nan")
-                MAError = float("Nan")
-
-        # Create dataframe to save results
-        conc_Hill_ind = ['conc_' + str(i) for i, _ in
-                         enumerate(drug_conc_Hill)]
-        conc_AP_ind = ['conc_' + str(i) for i, _ in enumerate(drug_conc_AP)]
-        index_dict = {'drug_conc_Hill': conc_Hill_ind,
-                      'peak_current': conc_Hill_ind,
-                      'Hill_curve': ['Hill_coef', 'IC50'],
-                      'param_values': param_names, 'drug_conc_AP': conc_AP_ind,
-                      'APD_trapping': conc_AP_ind,
-                      'APD_conductance': conc_AP_ind, 'RMSE': ['RMSE'],
-                      'MAE': ['MAE']}
-        all_index = [(i, j) for i in index_dict.keys() for j in index_dict[i]]
-        index = pd.MultiIndex.from_tuples(all_index)
-
-        param_values['EC50'][0] = orig_half_effect_conc
-        big_df = pd.DataFrame(
-            drug_conc_Hill + list(peaks_norm) + list(Hill_curve_coefs) +
-            list(param_values.values[0]) + list(drug_conc_AP) + APD_trapping +
-            APD_conductance + [RMSError] + [MAError], index=index)
+    n_workers = 7
+    evaluator = pints.ParallelEvaluator(param_evaluation,
+                                        n_workers=n_workers,
+                                        args=[drug, param_values])
+    for i in range(int(np.ceil(len(param_range) / n_workers))):
+        print('Running samples ', n_workers * i, 'to',
+              n_workers * (i + 1) - 1)
+        big_df = evaluator.evaluate(
+            param_range[i * n_workers: (i + 1) * n_workers])
 
         if os.path.exists(saved_data_dir + filename):
-            saved_results_df = pd.read_csv(saved_data_dir + filename,
-                                           header=[0, 1], index_col=[0],
-                                           skipinitialspace=True)
-            comb_df = pd.concat([saved_results_df, big_df.T])
+            combined_df = pd.read_csv(saved_data_dir + filename,
+                                      header=[0, 1], index_col=[0],
+                                      skipinitialspace=True)
+            for i in range(len(big_df)):
+                combined_df = pd.concat([combined_df, big_df[i].T])
         else:
-            comb_df = big_df.T
+            combined_df = big_df[0].T
+            for i in range(1, len(big_df)):
+                combined_df = pd.concat([combined_df, big_df[i].T])
 
-        comb_df.to_csv(saved_data_dir + filename)
+        combined_df.to_csv(saved_data_dir + filename)
 
         os.system('cp ' + saved_data_dir + filename + ' ' +
                   saved_data_dir + filename[:-4] + '_copy.csv')

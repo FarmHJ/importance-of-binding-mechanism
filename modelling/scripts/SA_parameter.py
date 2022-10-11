@@ -41,36 +41,33 @@ APD_points = 20
 
 param_lib = modelling.BindingParameters()
 drug_list = param_lib.drug_compounds
+drug_list = ['dofetilide', 'verapamil', 'terfenadine',
+             'cisapride', 'quinidine', 'sotalol']
 
 SA_model = modelling.SensitivityAnalysis()
 param_names = SA_model.param_names
-# parameter_interest = param_names[:3]
 parameter_interest = 'Vhalf'
 
 
-def param_evaluation(param, drug, param_values):
+def param_evaluation(param, param_values):
 
-    Hill_n = param_lib.binding_parameters[drug]['N']
-    half_effect_conc = param_lib.binding_parameters[drug]['EC50']
-
-    print('Running for drug: ', drug, ' and parameter value: ', param)
+    print('Running for parameter value: ', param)
     orig_half_effect_conc = param_values['EC50'][0]
     param_values[parameter_interest][0] = param
-    ComparisonController.drug_param_values = param_values
-
-    Hill_curve_coefs, drug_conc_Hill, peaks_norm = \
-        ComparisonController.compute_Hill(drug_model, parallel=False)
-
-    # Normalise drug concentration against EC50
     param_values['EC50'][0] = 1
     ComparisonController.drug_param_values = param_values
+
+    Hill_n = param_values['N'][0]
+    norm_constant = np.power(orig_half_effect_conc, 1 / Hill_n)
+
+    Hill_curve_coefs, drug_conc_Hill, peaks_norm = \
+        ComparisonController.compute_Hill(drug_model,
+                                          norm_constant=norm_constant,
+                                          parallel=False)
+
     drug_conc_AP = 10**np.linspace(np.log10(drug_conc_Hill[1]),
                                    np.log10(max(drug_conc_Hill)),
                                    APD_points)
-
-    Hill_n = param_values['N'][0]
-    drug_conc_AP = [i / (np.power(half_effect_conc, 1 / Hill_n))
-                    for i in drug_conc_AP]
 
     if isinstance(Hill_curve_coefs, str):
         Hill_curve_coefs = [float("nan")] * 2
@@ -150,7 +147,7 @@ for drug in drug_list:
     n_workers = 7
     evaluator = pints.ParallelEvaluator(param_evaluation,
                                         n_workers=n_workers,
-                                        args=[drug, param_values])
+                                        args=[param_values])
     for i in range(int(np.ceil(len(param_range) / n_workers))):
         print('Running samples ', n_workers * i, 'to',
               n_workers * (i + 1) - 1)

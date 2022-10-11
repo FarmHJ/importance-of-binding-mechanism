@@ -30,11 +30,14 @@ class ModelComparison(object):
 
     def compute_Hill(self, BKmodel, drug_conc=None, steady_state_pulse=1000,
                      Hill_upper_thres=0.9, Hill_lower_thres=0.05,
-                     parallel=True):
+                     norm_constant=1, parallel=True):
 
         if drug_conc is None:
             drug_conc = list(np.append(0, 10**np.linspace(-1, 1, 5)))
 
+        drug_conc = [i / norm_constant for i in drug_conc]
+        ################
+        ## Might need extra data points that are normalised
         peaks = []
         for i in range(len(drug_conc)):
             log = BKmodel.custom_simulation(

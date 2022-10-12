@@ -40,10 +40,10 @@ repeats = 1000
 APD_points = 20
 
 param_lib = modelling.BindingParameters()
-drug_list = param_lib.drug_compounds
-drug_list = ['dofetilide', 'verapamil', 'terfenadine',
-             'cisapride', 'quinidine', 'sotalol']
-
+# drug_list = param_lib.drug_compounds
+# drug_list = ['dofetilide', 'verapamil', 'terfenadine',
+#              'cisapride', 'quinidine', 'sotalol']
+drug_list = ['cisapride', 'quinidine', 'sotalol']
 SA_model = modelling.SensitivityAnalysis()
 param_names = SA_model.param_names
 parameter_interest = 'N'
@@ -146,7 +146,7 @@ for drug in drug_list:
         ran_values = []
 
     param_range = [i for i in param_range if i not in ran_values]
-    n_workers = 7
+    n_workers = 8
     evaluator = pints.ParallelEvaluator(param_evaluation,
                                         n_workers=n_workers,
                                         args=[param_values])

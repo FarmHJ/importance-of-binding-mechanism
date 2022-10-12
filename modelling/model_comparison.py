@@ -187,15 +187,33 @@ class ModelComparison(object):
 
     def compute_RMSE(self, APD_trapping, APD_conductance):
 
-        RMSError = np.sum((np.array(APD_trapping) -
-                          np.array(APD_conductance))**2) / len(APD_trapping)
-        RMSError = np.sqrt(RMSError)
+        square_sum = 0
+        count = 0
+        for i in range(len(APD_trapping)):
+            if APD_trapping[i] < 1000 and APD_conductance[i] < 1000:
+                square_sum += (APD_trapping[i] - APD_conductance[i])**2
+                count += 1
+
+        if count != 0:
+            RMSError = square_sum / count
+            RMSError = np.sqrt(RMSError)
+        else:
+            RMSError = float('nan')
 
         return RMSError
 
     def compute_MAE(self, APD_trapping, APD_conductance):
 
-        MAError = np.sum(np.array(APD_trapping) - np.array(APD_conductance)) \
-            / len(APD_trapping)
+        diff_sum = 0
+        count = 0
+        for i in range(len(APD_trapping)):
+            if APD_trapping[i] < 1000 and APD_conductance[i] < 1000:
+                diff_sum += (APD_trapping[i] - APD_conductance[i])
+                count += 1
+
+        if count != 0:
+            MAError = diff_sum / count
+        else:
+            MAError = float('nan')
 
         return MAError

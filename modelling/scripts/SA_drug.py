@@ -181,7 +181,7 @@ else:
         if len(param_space) != 0:
             file_num_to_run.append(file_num)
             file_id_dict[file_num] = param_space_id
-    saving_file_dict = {'file_num': file_num_to_run,
+    saving_file_dict = {'file_num': sorted(file_num_to_run),
                         'sample_id_each_file': file_id_dict}
 
 n_workers = 8

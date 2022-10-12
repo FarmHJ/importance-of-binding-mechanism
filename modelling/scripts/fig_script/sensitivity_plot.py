@@ -133,37 +133,37 @@ for drug in drug_list:
                label=APD_diff_label[color_code], marker='^',
                zorder=-10)
 
-saved_data_dir = '../../simulation_data/sensitivity_analysis/'
-filename = 'SA_allparam_0_copy.csv'
-df = pd.read_csv(saved_data_dir + filename,
-                 header=[0, 1], index_col=[0],
-                 skipinitialspace=True)
+# saved_data_dir = '../../simulation_data/sensitivity_analysis/'
+# filename = 'SA_allparam_0_copy.csv'
+# df = pd.read_csv(saved_data_dir + filename,
+#                  header=[0, 1], index_col=[0],
+#                  skipinitialspace=True)
 
-# Exploring the space
-Vhalf_range = df['param_values']['Vhalf'].values
-Kmax_range = df['param_values']['Kmax'].values
-Ku_range = df['param_values']['Ku'].values
+# # Exploring the space
+# Vhalf_range = df['param_values']['Vhalf'].values
+# Kmax_range = df['param_values']['Kmax'].values
+# Ku_range = df['param_values']['Ku'].values
 
-RMSError = df['RMSE']['RMSE'].values
-MAError = df['MAE']['MAE'].values
+# RMSError = df['RMSE']['RMSE'].values
+# MAError = df['MAE']['MAE'].values
 
-param_id = df['param_id']['param_id'].values
-color_code_list = []
-for i in range(len(param_id)):
-    if RMSError[i] < 100:
-        color_code = 0
-    elif MAError[i] > 0:
-        color_code = 1  # SD higher
-    else:
-        color_code = 2  # CS higher
-    color_code_list.append(color_code)
+# param_id = df['param_id']['param_id'].values
+# color_code_list = []
+# for i in range(len(param_id)):
+#     if RMSError[i] < 100:
+#         color_code = 0
+#     elif MAError[i] > 0:
+#         color_code = 1  # SD higher
+#     else:
+#         color_code = 2  # CS higher
+#     color_code_list.append(color_code)
 
 
-for j in range(len(param_id)):
-    ax.scatter(Vhalf_range[j], np.log(Kmax_range[j]), np.log(Ku_range[j]),
-               c=discrete_colors[color_code_list[j]], s=50,
-               label=APD_diff_label[color_code_list[j]], alpha=0.5,
-               zorder=-10)
+# for j in range(len(param_id)):
+#     ax.scatter(Vhalf_range[j], np.log(Kmax_range[j]), np.log(Ku_range[j]),
+#                c=discrete_colors[color_code_list[j]], s=50,
+#                label=APD_diff_label[color_code_list[j]], alpha=0.5,
+#                zorder=-10)
 
 handles, labels = ax.get_legend_handles_labels()
 unique = [(h, l) for i, (h, l) in enumerate(zip(handles, labels)) if

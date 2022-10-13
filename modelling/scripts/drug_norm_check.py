@@ -44,6 +44,8 @@ save_signal = 2
 APD_points = 20
 plotting_AP_pulse_time = pulse_time_AP * save_signal
 
+Hill_model = modelling.HillsModel()
+
 param_lib = modelling.BindingParameters()
 drug_list = param_lib.drug_compounds
 
@@ -156,7 +158,9 @@ for drug in drug_list:
                                    APD_points)
 
     AP_log = []
+    AP_conductance = []
     APD_actual = []
+    APD_conductance = []
     orig_param_values[parameter_interest][0] = half_effect_conc
     for i in range(len(drug_conc_AP)):
         log = AP_model.custom_simulation(orig_param_values, drug_conc_AP[i],
@@ -171,7 +175,25 @@ for drug in drug_list:
             apd90 = AP_model.APD90(log['membrane.V', pulse], offset, 0.1)
             APD_pulse.append(apd90)
         APD_actual.append(APD_pulse)
+
+        # Run simulation for conductance model
+        reduction_scale = Hill_model.simulate(
+            Hill_curve_coefs, drug_conc_AP[i])
+        d2 = AP_model.conductance_simulation(
+            base_conductance * reduction_scale, 1000,
+            timestep=0.1, save_signal=save_signal, abs_tol=1e-7,
+            rel_tol=1e-8, log_var=['engine.time', 'membrane.V'])
+        AP_conductance.append(d2)
+
+        # Compute APD90
+        APD_conductance_pulse = []
+        for pulse in range(save_signal):
+            apd90 = AP_model.APD90(d2['membrane.V', pulse], offset, 0.1)
+            APD_conductance_pulse.append(apd90)
+        APD_conductance.append(APD_conductance_pulse)
+
     APD_actual = [max(i) for i in APD_actual]
+    APD_conductance = [max(i) for i in APD_conductance]
 
     # Normalise drug concentration
     drug_conc_AP_norm = [i / (np.power(half_effect_conc, 1 / Hill_n))
@@ -179,7 +201,9 @@ for drug in drug_list:
 
     # Simulate AP with normalised drug concentration
     AP_log_norm = []
+    AP_conductance_norm = []
     APD_normalised = []
+    APD_conductance_norm = []
     param_values[parameter_interest][0] = 1
     for i in range(len(drug_conc_AP_norm)):
         log = AP_model.custom_simulation(param_values,
@@ -194,12 +218,34 @@ for drug in drug_list:
             apd90 = AP_model.APD90(log['membrane.V', pulse], offset, 0.1)
             APD_pulse.append(apd90)
         APD_normalised.append(APD_pulse)
-    APD_normalised = [max(i) for i in APD_normalised]
 
-    RMSError = ComparisonController.compute_RMSE(APD_actual,
-                                                 APD_normalised)
-    MAError = ComparisonController.compute_MAE(APD_actual,
-                                               APD_normalised)
+        # Run simulation for conductance model
+        reduction_scale = Hill_model.simulate(
+            Hill_curve_coefs_norm, drug_conc_AP_norm[i])
+        d2 = AP_model.conductance_simulation(
+            base_conductance * reduction_scale, 1000,
+            timestep=0.1, save_signal=save_signal, abs_tol=1e-7,
+            rel_tol=1e-8, log_var=['engine.time', 'membrane.V'])
+        AP_conductance_norm.append(d2)
+
+        # Compute APD90
+        APD_conductance_pulse = []
+        for pulse in range(save_signal):
+            apd90 = AP_model.APD90(d2['membrane.V', pulse], offset, 0.1)
+            APD_conductance_pulse.append(apd90)
+        APD_conductance_norm.append(APD_conductance_pulse)
+
+    APD_normalised = [max(i) for i in APD_normalised]
+    APD_conductance_norm = [max(i) for i in APD_conductance_norm]
+
+    RMSError_trap = ComparisonController.compute_RMSE(
+        APD_actual, APD_normalised)
+    MAError_trap = ComparisonController.compute_MAE(
+        APD_actual, APD_normalised)
+    RMSError_trap = ComparisonController.compute_RMSE(
+        APD_conductance, APD_conductance_norm)
+    MAError_trap = ComparisonController.compute_MAE(
+        APD_conductance, APD_conductance_norm)
 
     fig = modelling.figures.FigureStructure(figsize=(5, 3),
                                             gridspec=(2, 1),

@@ -24,6 +24,7 @@ protocol = protocol_params.protocol_parameters[protocol_name]['function']
 
 drug_model = modelling.BindingKinetics(model)
 drug_model.protocol = protocol
+hERG_base_conductance = drug_model.original_constants['gKr']
 
 repeats = 1000
 
@@ -91,6 +92,15 @@ for drug in drug_list:
             log_var=['engine.time', 'ikr.IKr'])
         total_log.append(log)
 
+    log_conductance = []
+    for i in range(len(drug_conc_Hill)):
+        reduction_scale = Hill_model.simulate(
+            Hill_curve_coefs, drug_conc_Hill[i])
+        log = drug_model.conductance_simulation(
+            hERG_base_conductance * reduction_scale, drug_conc_Hill[i], 1000,
+            log_var=['engine.time', 'ikr.IKr'])
+        log_conductance.append(log)
+
     # Normalise drug concentration
     drug_conc_Hill_norm = [i / (np.power(half_effect_conc, 1 / Hill_n))
                            for i in drug_conc_Hill]
@@ -112,6 +122,15 @@ for drug in drug_list:
             log_var=['engine.time', 'ikr.IKr'])
         log_norm.append(log)
 
+    log_conductance_norm = []
+    for i in range(len(drug_conc_Hill_norm)):
+        reduction_scale = Hill_model.simulate(
+            Hill_curve_coefs_norm, drug_conc_Hill_norm[i])
+        log = drug_model.conductance_simulation(
+            hERG_base_conductance * reduction_scale, drug_conc_Hill_norm[i],
+            1000, log_var=['engine.time', 'ikr.IKr'])
+        log_conductance_norm.append(log)
+
     # Rescale normalised drug concentration for plotting purposes
     drug_conc_Hill_rescale = [i * (np.power(half_effect_conc, 1 / Hill_n))
                               for i in drug_conc_Hill_norm]
@@ -132,8 +151,8 @@ for drug in drug_list:
 
     # Plot hERG current simulated with actual drug concentration and
     # normalised drug concentration (same color scale)
-    fig = modelling.figures.FigureStructure(figsize=(5, 3),
-                                            gridspec=(2, 1),
+    fig = modelling.figures.FigureStructure(figsize=(10, 3),
+                                            gridspec=(2, 2),
                                             hspace=0.3,
                                             height_ratios=[1, 1])
     plot = modelling.figures.FigurePlot()
@@ -143,10 +162,15 @@ for drug in drug_list:
     plot.add_multiple(fig.axs[0][0], total_log, 'ikr.IKr', labels=labels)
     plot.add_multiple(fig.axs[1][0], log_norm, 'ikr.IKr',
                       labels=labels_norm)
+    plot.add_multiple(fig.axs[0][1], log_conductance, 'ikr.IKr', labels=labels)
+    plot.add_multiple(fig.axs[1][1], log_conductance_norm, 'ikr.IKr',
+                      labels=labels_norm)
 
-    fig.axs[0][0].set_title('Drug concentration')
-    fig.axs[1][0].set_title('Normalised drug concentration')
-    fig.sharex(['Time (s)'], [(0, pulse_time)])
+    fig.axs[0][0].set_title('Drug concentration - SD model')
+    fig.axs[1][0].set_title('Normalised drug concentration - SD model')
+    fig.axs[0][1].set_title('Drug concentration - CS model')
+    fig.axs[1][1].set_title('Normalised drug concentration - CS model')
+    fig.sharex(['Time (s)'] * 2, [(0, pulse_time)] * 2)
     fig.sharey(['Current (A/F)'] * 2)
     fig.adjust_ticks(fig.axs[1][0], pulse_time)
     fig.savefig(saved_fig_dir + 'hERG_comparison_' + drug + '.pdf')
@@ -242,13 +266,13 @@ for drug in drug_list:
         APD_actual, APD_normalised)
     MAError_trap = ComparisonController.compute_MAE(
         APD_actual, APD_normalised)
-    RMSError_trap = ComparisonController.compute_RMSE(
+    RMSError_conductance = ComparisonController.compute_RMSE(
         APD_conductance, APD_conductance_norm)
-    MAError_trap = ComparisonController.compute_MAE(
+    MAError_conductance = ComparisonController.compute_MAE(
         APD_conductance, APD_conductance_norm)
 
-    fig = modelling.figures.FigureStructure(figsize=(5, 3),
-                                            gridspec=(2, 1),
+    fig = modelling.figures.FigureStructure(figsize=(10, 3),
+                                            gridspec=(2, 2),
                                             hspace=0.3,
                                             height_ratios=[1, 1])
     plot = modelling.figures.FigurePlot()
@@ -259,8 +283,17 @@ for drug in drug_list:
                                  'membrane.V', labels=labels)
     plot.add_multiple_continuous(fig.axs[1][0], AP_log_norm,
                                  'membrane.V', labels=labels_norm)
-    fig.axs[0][0].set_title('Drug concentration', fontsize=8)
-    fig.axs[1][0].set_title('Normalised drug concentration', fontsize=8)
+    plot.add_multiple_continuous(fig.axs[0][1], AP_conductance,
+                                 'membrane.V', labels=labels)
+    plot.add_multiple_continuous(fig.axs[1][1], AP_conductance_norm,
+                                 'membrane.V', labels=labels_norm)
+
+    fig.axs[0][0].set_title('Drug concentration - SD model', fontsize=8)
+    fig.axs[1][0].set_title('Normalised drug concentration - SD model',
+                            fontsize=8)
+    fig.axs[0][1].set_title('Drug concentration - CS model', fontsize=8)
+    fig.axs[1][1].set_title('Normalised drug concentration - CS model',
+                            fontsize=8)
 
     # unique = fig.legend_without_duplicate_labels(fig.axs[0][0])
     # fig.axs[0][0].legend(*zip(*unique), loc='right',
@@ -268,7 +301,7 @@ for drug in drug_list:
     # unique = fig.legend_without_duplicate_labels(fig.axs[1][0])
     # fig.axs[1][0].legend(*zip(*unique), loc='right',
     #                      bbox_to_anchor=(1.45, 0.6))
-    fig.sharex(['Time (ms)'], [(0, plotting_AP_pulse_time)])
+    fig.sharex(['Time (ms)'] * 2, [(0, plotting_AP_pulse_time)] * 2)
     fig.sharey(['Voltage (mV)', 'Voltage (mV)'])
     fig.savefig(saved_fig_dir + 'AP_comparison_' + drug + '.pdf')
 
@@ -278,23 +311,34 @@ for drug in drug_list:
 
     # Plot APD90 simulated with actual drug concentration and
     # normalised drug concentration
-    plt.figure()
-    plt.plot(drug_conc_AP, APD_actual, 'o', color='b',
-             label='Actual drug concentration')
-    plt.plot(drug_conc_AP_rescale, APD_normalised, '^', color='r',
-             label='Normalised drug concentration (rescaled)')
-    plt.xscale('log')
-    plt.xlabel('Drug concentration')
-    plt.ylabel(r'APD$_{90}$ (ms)')
-    plt.legend()
-    plt.savefig(saved_fig_dir + 'APD_compare_' + drug + '.pdf')
+    fig = modelling.figures.FigureStructure(figsize=(10, 2),
+                                            gridspec=(1, 2),
+                                            hspace=0.3,
+                                            height_ratios=[1, 1])
+    plot = modelling.figures.FigurePlot()
+
+    fig.axs[0][0].plot(drug_conc_AP, APD_actual, 'o', color='b',
+                       label='Actual drug conc')
+    fig.axs[0][0].plot(drug_conc_AP_rescale, APD_normalised, '^', color='r',
+                       label='Norm drug conc (rescaled)')
+    fig.axs[0][1].plot(drug_conc_AP, APD_conductance, 'o', color='b',
+                       label='Actual drug conc')
+    fig.axs[0][1].plot(drug_conc_AP_rescale, APD_conductance_norm, '^',
+                       color='r', label='Norm drug conc (rescaled)')
+    for i in range(2):
+        fig.axs[0][i].xscale('log')
+        fig.axs[0][i].xlabel('Drug concentration')
+        fig.axs[0][i].ylabel(r'APD$_{90}$ (ms)')
+        fig.axs[0][i].legend()
+    fig.savefig(saved_fig_dir + 'APD_compare_' + drug + '.pdf')
     plt.close()
 
-    print(RMSError)
-    print(MAError)
-
     filename = 'error.csv'
-    error_df = pd.DataFrame([drug, RMSError, MAError], index=['drug', 'RMSError', 'MAError'])
+    error_df = pd.DataFrame([drug, RMSError_trap, MAError_trap,
+                             RMSError_conductance, MAError_conductance],
+                            index=['drug', 'RMSError_trap', 'MAError_trap',
+                                   'RMSError_conductance',
+                                   'MAError_conductance'])
     error_df = error_df.T
     if os.path.exists(saved_data_dir + filename):
         previous_df = pd.read_csv(saved_data_dir + filename,
@@ -304,4 +348,3 @@ for drug in drug_list:
     else:
         comb_df = error_df
     comb_df.to_csv(saved_data_dir + filename)
-

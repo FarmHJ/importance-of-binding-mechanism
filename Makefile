@@ -75,5 +75,5 @@ create_dir:
 
 scripts:
 	cd modelling/scripts/; \
-	python3 SA_parameter.py; \
-	python3 SA_drug.py; \
+	python3 SA_drug_combine.py; \
+	python3 drug_norm_check.py; \

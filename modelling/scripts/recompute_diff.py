@@ -11,7 +11,7 @@ starting_param_df = pd.DataFrame([1] * 5, index=param_names).T
 ComparisonController = modelling.ModelComparison(starting_param_df)
 
 # Get all data
-file_prefix = 'SA_allparam_0_copy'
+file_prefix = 'copy_SA_allparam_'
 result_files = [f for f in os.listdir(saved_data_dir) if
                 f.startswith(file_prefix)]
 for file in result_files:

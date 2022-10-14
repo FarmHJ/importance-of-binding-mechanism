@@ -120,6 +120,7 @@ else:
     ran_drugs = []
 
 drug_list = [i for i in drug_list if i not in ran_drugs]
+print(drug_list)
 # first_iter = True
 for drug in drug_list:
     print(drug)

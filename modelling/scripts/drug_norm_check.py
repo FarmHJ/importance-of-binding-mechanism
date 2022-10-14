@@ -97,7 +97,7 @@ for drug in drug_list:
         reduction_scale = Hill_model.simulate(
             Hill_curve_coefs, drug_conc_Hill[i])
         log = drug_model.conductance_simulation(
-            hERG_base_conductance * reduction_scale, drug_conc_Hill[i], 1000,
+            hERG_base_conductance * reduction_scale, 1000,
             log_var=['engine.time', 'ikr.IKr'])
         log_conductance.append(log)
 
@@ -127,7 +127,7 @@ for drug in drug_list:
         reduction_scale = Hill_model.simulate(
             Hill_curve_coefs_norm, drug_conc_Hill_norm[i])
         log = drug_model.conductance_simulation(
-            hERG_base_conductance * reduction_scale, drug_conc_Hill_norm[i],
+            hERG_base_conductance * reduction_scale,
             1000, log_var=['engine.time', 'ikr.IKr'])
         log_conductance_norm.append(log)
 

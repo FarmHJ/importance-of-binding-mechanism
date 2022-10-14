@@ -37,7 +37,7 @@ class ModelComparison(object):
 
         drug_conc = [i / norm_constant for i in drug_conc]
         ################
-        ## Might need extra data points that are normalised
+        # Might need extra data points that are normalised
         peaks = []
         for i in range(len(drug_conc)):
             log = BKmodel.custom_simulation(

@@ -10,29 +10,34 @@ import pints
 
 import modelling
 
-saved_data_dir = '../../simulation_data/sensitivity_analysis/'
+main_filepath = os.path.dirname(__file__)
+saved_data_filepath = os.path.join(main_filepath, 'simulation_results')
+if not os.path.exists(saved_data_filepath):
+    os.makedirs(saved_data_filepath)
 
-# Load IKr model
-model = '../../model/ohara-cipa-v1-2017-IKr.mmt'
-model, _, x = myokit.load(model)
+# Model directory
+model_dir = os.path.join(saved_data_filepath, 'model')
+current_model_filename = 'ohara-cipa-v1-2017-IKr.mmt'
+current_model_filepath = os.path.join(model_dir, current_model_filename)
+AP_model_filename = 'ohara-cipa-v1-2017.mmt'
+AP_model_filepath = os.path.join(model_dir, AP_model_filename)
+
+# Load hERG model
+model, _, x = myokit.load(current_model_filepath)
 
 protocol_params = modelling.ProtocolParameters()
-pulse_time = protocol_params.protocol_parameters['Milnes']['pulse_time']
 protocol = protocol_params.protocol_parameters['Milnes']['function']
 
 drug_model = modelling.BindingKinetics(model)
 drug_model.protocol = protocol
 
-# Set AP model
-APmodel = '../../model/ohara-cipa-v1-2017.mmt'
-
-# Load model
-APmodel, _, x = myokit.load(APmodel)
-
+# Load AP model
+APmodel, _, x = myokit.load(AP_model_filepath)
 AP_model = modelling.BindingKinetics(APmodel, current_head='ikr')
 pulse_time = 1000
 AP_model.protocol = modelling.ProtocolLibrary().current_impulse(pulse_time)
 
+# Parameters used in simulations
 offset = 50
 repeats_AP = 800
 save_signal = 2
@@ -44,6 +49,8 @@ drug_list = param_lib.drug_compounds
 
 SA_model = modelling.SensitivityAnalysis()
 param_names = SA_model.param_names
+######################
+# needs to change
 res = 5
 Vhalf_range = SA_model.param_explore('Vhalf', res)
 Ku_range = SA_model.param_explore('Ku', res)
@@ -116,14 +123,13 @@ def param_evaluation(param_values):
 
     return big_df
 
+
 # Assuming drug concentration are all normalised, the EC50 value in the model
 # becomes 1.
 # Since Hill's coefficient, N, does not affect APD difference behaviour, it
 # can be fixed at any value.
 # For simplicity, let N = 1.
-
-
-sample_filepath = saved_data_dir + 'parameter_space_res5.csv'
+sample_filepath = os.path.join(saved_data_filepath, 'parameter_space_gaps_res5.csv')
 param_space = []
 if os.path.exists(sample_filepath):
     param_values_df = pd.read_csv(sample_filepath,
@@ -132,7 +138,7 @@ if os.path.exists(sample_filepath):
     for i in range(len(param_values_df.index)):
         param_space.append(param_values_df.iloc[[i]])
 else:
-    counter = 0
+    counter = 5000
     param_values_df = pd.DataFrame(columns=param_names)
     for Vhalf, Kmax, Ku in itertools.product(Vhalf_range, Kmax_range, Ku_range):
         param_values = pd.DataFrame([counter, Vhalf, Kmax, Ku, 1, 1],
@@ -141,15 +147,16 @@ else:
         param_space.append(param_values)
         param_values_df = pd.concat([param_values_df, param_values])
         counter += 1
-    param_values_df.to_csv(saved_data_dir + 'parameter_space_res5.csv')
+    param_values_df.to_csv(sample_filepath)
 
 total_samples = len(param_space)
 samples_per_save = 1000
 samples_split_n = int(np.ceil(total_samples / samples_per_save))
 total_saving_file_num = np.arange(samples_split_n)
 
-file_prefix = 'SA_allparam_'
-evaluation_result_files = [f for f in os.listdir(saved_data_dir) if
+file_prefix = 'SA_allparam_gaps_'
+saved_data_dir = os.getcwd() + 'simulation_results/'
+evaluation_result_files = [f for f in os.listdir(saved_data_filepath) if
                            f.startswith(file_prefix)]
 if len(evaluation_result_files) == 0:
     file_id_dict = {}
@@ -159,7 +166,6 @@ if len(evaluation_result_files) == 0:
     saving_file_dict = {'file_num': total_saving_file_num,
                         'sample_id_each_file': file_id_dict}
 else:
-    ## to include missing file
     result_files_num = [int(fname[len(file_prefix):-4]) for fname in
                         evaluation_result_files]
     file_num_to_run = []

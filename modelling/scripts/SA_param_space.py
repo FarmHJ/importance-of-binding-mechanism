@@ -7,6 +7,7 @@ import numpy as np
 import os
 import pandas as pd
 import pints
+import time
 
 import modelling
 
@@ -200,6 +201,8 @@ for file_num in saving_file_dict['file_num']:
         subset_samples_to_run = samples_to_run[
             n_workers * i:n_workers * (i + 1)]
         print('Running samples: ', subset_samples_to_run)
+        current_time = time.strftime("%H:%M:%S", time.localtime())
+        print('Starting time: ', current_time)
         subset_param_space = param_values_df.loc[
             param_values_df['param_id'].isin(subset_samples_to_run)]
         param_space = []

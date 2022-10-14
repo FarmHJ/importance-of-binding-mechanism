@@ -113,6 +113,43 @@ class SensitivityAnalysis(object):
 
         return param_range
 
+    def param_explore_gaps(self, param_range, category_num, param):
+
+        res_points = int(len(param_range) / category_num)
+
+        param_range = sorted(param_range)
+
+        if param in ['Kmax', 'Ku']:
+            param_range = np.log10(param_range)
+
+        for i in range(category_num - 1):
+            gap_start = param_range[res_points * (i + 1) - 1]
+            gap_end = param_range[res_points * (i + 1)]
+
+            # Fill in the gaps with an average difference
+            delta_previous = np.abs(
+                param_range[res_points * (i + 1) - 2] - gap_start)
+            delta_after = np.abs(
+                gap_end - param_range[res_points * (i + 1) + 1])
+            # delta_mean = (delta_after + delta_previous) / 2
+            # gap_arr = np.arange(gap_start, gap_end, delta_mean)
+            delta_max = (delta_after + delta_previous) / 2
+            gap_arr = np.arange(gap_start, gap_end, delta_max)
+            param_range = np.concatenate((
+                param_range, gap_arr[1:]))
+
+        # Specific to solve the wide gaps from res_points=5
+        if param == 'Kmax':
+            wide_gap = param_range[res_points: res_points * 2]
+            for i in range(len(wide_gap) - 1):
+                fill_in_pt = (wide_gap[i] + wide_gap[i + 1]) / 2
+                param_range = np.append(param_range, fill_in_pt)
+
+        if param in ['Kmax', 'Ku']:
+            param_range = 10**param_range
+
+        return param_range
+
     def comparison_evaluation(self, param_values, hERG_model, AP_model,
                               log_transform=True, APD_points=20):
 

@@ -16,7 +16,7 @@ if not os.path.exists(saved_data_filepath):
     os.makedirs(saved_data_filepath)
 
 # Model directory
-model_dir = os.path.join(saved_data_filepath, 'model')
+model_dir = os.path.join(main_filepath, 'model')
 current_model_filename = 'ohara-cipa-v1-2017-IKr.mmt'
 current_model_filepath = os.path.join(model_dir, current_model_filename)
 AP_model_filename = 'ohara-cipa-v1-2017.mmt'
@@ -49,12 +49,15 @@ drug_list = param_lib.drug_compounds
 
 SA_model = modelling.SensitivityAnalysis()
 param_names = SA_model.param_names
-######################
-# needs to change
 res = 5
 Vhalf_range = SA_model.param_explore('Vhalf', res)
-Ku_range = SA_model.param_explore('Ku', res)
 Kmax_range = SA_model.param_explore('Kmax', res)
+Ku_range = SA_model.param_explore('Ku', res)
+
+# Filling in gaps
+Vhalf_fullrange = SA_model.param_explore_gaps(Vhalf_range, 3, 'Vhalf')
+Kmax_fullrange = SA_model.param_explore_gaps(Kmax_range, 3, 'Kmax')
+Ku_fullrange = SA_model.param_explore_gaps(Ku_range, 3, 'Ku')
 
 starting_param_df = pd.DataFrame([1] * 5, index=param_names).T
 ComparisonController = modelling.ModelComparison(starting_param_df)
@@ -140,22 +143,27 @@ if os.path.exists(sample_filepath):
 else:
     counter = 5000
     param_values_df = pd.DataFrame(columns=param_names)
-    for Vhalf, Kmax, Ku in itertools.product(Vhalf_range, Kmax_range, Ku_range):
-        param_values = pd.DataFrame([counter, Vhalf, Kmax, Ku, 1, 1],
-                                    index=['param_id'] + param_names)
-        param_values = param_values.T
-        param_space.append(param_values)
-        param_values_df = pd.concat([param_values_df, param_values])
-        counter += 1
+    for Vhalf, Kmax, Ku in itertools.product(
+            Vhalf_fullrange, Kmax_fullrange, Ku_fullrange):
+
+        if not (Vhalf in Vhalf_range and Kmax in Kmax_range and
+                Ku in Ku_range):
+
+            param_values = pd.DataFrame([counter, Vhalf, Kmax, Ku, 1, 1],
+                                        index=['param_id'] + param_names)
+            param_values = param_values.T
+            param_space.append(param_values)
+            param_values_df = pd.concat([param_values_df, param_values])
+            counter += 1
     param_values_df.to_csv(sample_filepath)
 
 total_samples = len(param_space)
-samples_per_save = 1000
+samples_per_save = 16
 samples_split_n = int(np.ceil(total_samples / samples_per_save))
 total_saving_file_num = np.arange(samples_split_n)
 
 file_prefix = 'SA_allparam_gaps_'
-saved_data_dir = os.getcwd() + 'simulation_results/'
+saved_data_dir = os.getcwd() + '/simulation_results/'
 evaluation_result_files = [f for f in os.listdir(saved_data_filepath) if
                            f.startswith(file_prefix)]
 if len(evaluation_result_files) == 0:
@@ -170,7 +178,8 @@ else:
                         evaluation_result_files]
     file_num_to_run = []
     file_id_dict = {}
-    missing_file = [i for i in total_saving_file_num if i not in result_files_num]
+    missing_file = [i for i in total_saving_file_num
+                    if i not in result_files_num]
     for i in missing_file:
         file_id_dict[i] = param_values_df['param_id'].values[
             i * samples_per_save: (i + 1) * samples_per_save]

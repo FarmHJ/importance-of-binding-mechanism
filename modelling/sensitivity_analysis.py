@@ -131,10 +131,13 @@ class SensitivityAnalysis(object):
                 param_range[res_points * (i + 1) - 2] - gap_start)
             delta_after = np.abs(
                 gap_end - param_range[res_points * (i + 1) + 1])
-            # delta_mean = (delta_after + delta_previous) / 2
-            # gap_arr = np.arange(gap_start, gap_end, delta_mean)
-            delta_max = (delta_after + delta_previous) / 2
-            gap_arr = np.arange(gap_start, gap_end, delta_max)
+            if param == 'Kmax':
+                delta_mean = (delta_after + delta_previous) / 2
+                gap_arr = np.arange(gap_start, gap_end, delta_mean)
+            else:
+                delta_max = max(delta_after, delta_previous)
+                gap_arr = np.arange(gap_start, gap_end, delta_max)
+
             param_range = np.concatenate((
                 param_range, gap_arr[1:]))
 

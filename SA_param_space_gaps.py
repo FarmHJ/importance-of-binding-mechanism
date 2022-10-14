@@ -132,7 +132,8 @@ def param_evaluation(param_values):
 # Since Hill's coefficient, N, does not affect APD difference behaviour, it
 # can be fixed at any value.
 # For simplicity, let N = 1.
-sample_filepath = os.path.join(saved_data_filepath, 'parameter_space_gaps_res5.csv')
+sample_filepath = os.path.join(saved_data_filepath,
+                               'parameter_space_gaps_res5.csv')
 param_space = []
 if os.path.exists(sample_filepath):
     param_values_df = pd.read_csv(sample_filepath,

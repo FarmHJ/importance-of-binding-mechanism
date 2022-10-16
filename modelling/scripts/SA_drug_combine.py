@@ -55,7 +55,8 @@ def param_evaluation(param_values, drug):
         ComparisonController.compute_Hill(drug_model,
                                           norm_constant=norm_constant,
                                           parallel=False)
-    # The parameters of Hill's curve are based on the normalised drug concentration
+    # The parameters of Hill's curve are based on the normalised
+    # drug concentration.
     # Hill's coefficient remains the same but IC50 -> IC50/EC50
 
     drug_conc_AP = 10**np.linspace(np.log10(drug_conc_Hill[1]),

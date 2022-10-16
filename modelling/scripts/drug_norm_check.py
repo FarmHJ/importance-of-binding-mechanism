@@ -64,7 +64,7 @@ else:
     ran_drugs = []
 
 drug_list = [i for i in drug_list if i not in ran_drugs]
-
+print(drug_list)
 for drug in drug_list:
     # Set up variables
     Vhalf = param_lib.binding_parameters[drug]['Vhalf']
@@ -205,8 +205,9 @@ for drug in drug_list:
             Hill_curve_coefs, drug_conc_AP[i])
         d2 = AP_model.conductance_simulation(
             base_conductance * reduction_scale, 1000,
-            timestep=0.1, save_signal=save_signal, abs_tol=1e-7,
-            rel_tol=1e-8, log_var=['engine.time', 'membrane.V'])
+            timestep=0.1, save_signal=save_signal,
+            abs_tol=1e-7, rel_tol=1e-8,
+            log_var=['engine.time', 'membrane.V'])
         AP_conductance.append(d2)
 
         # Compute APD90
@@ -312,9 +313,7 @@ for drug in drug_list:
     # Plot APD90 simulated with actual drug concentration and
     # normalised drug concentration
     fig = modelling.figures.FigureStructure(figsize=(10, 2),
-                                            gridspec=(1, 2),
-                                            hspace=0.3,
-                                            height_ratios=[1, 1])
+                                            gridspec=(1, 2),)
     plot = modelling.figures.FigurePlot()
 
     fig.axs[0][0].plot(drug_conc_AP, APD_actual, 'o', color='b',
@@ -326,9 +325,9 @@ for drug in drug_list:
     fig.axs[0][1].plot(drug_conc_AP_rescale, APD_conductance_norm, '^',
                        color='r', label='Norm drug conc (rescaled)')
     for i in range(2):
-        fig.axs[0][i].xscale('log')
-        fig.axs[0][i].xlabel('Drug concentration')
-        fig.axs[0][i].ylabel(r'APD$_{90}$ (ms)')
+        fig.axs[0][i].set_xscale('log')
+        fig.axs[0][i].set_xlabel('Drug concentration')
+        fig.axs[0][i].set_ylabel(r'APD$_{90}$ (ms)')
         fig.axs[0][i].legend()
     fig.savefig(saved_fig_dir + 'APD_compare_' + drug + '.pdf')
     plt.close()

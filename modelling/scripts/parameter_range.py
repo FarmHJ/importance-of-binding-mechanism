@@ -98,10 +98,10 @@ fig = plt.figure()
 ax = fig.add_subplot(projection='3d')
 for j in range(len(drug_list)):
     ax.scatter(Vhalf[j], np.log(Kmax[j]), np.log(Ku[j]),
-            #    c=color_list[j], label=str(drug_list[j]),
+               # c=color_list[j], label=str(drug_list[j]),
                c=discrete_colors[APD_rough_diff[j]], s=100,
                label=APD_rough_diff_label[APD_rough_diff[j]])
-            #    marker=markers[APD_diff[j]], s=100)
+               # marker=markers[APD_diff[j]], s=100)
 
 handles, labels = ax.get_legend_handles_labels()
 unique = [(h, l) for i, (h, l) in enumerate(zip(handles, labels)) if

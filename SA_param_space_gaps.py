@@ -157,7 +157,7 @@ else:
             param_space.append(param_values)
             param_values_df = pd.concat([param_values_df, param_values])
             counter += 1
-    # param_values_df.to_csv(sample_filepath)
+    param_values_df.to_csv(sample_filepath)
 
 total_samples = len(param_space)
 samples_per_save = 1000
@@ -215,8 +215,8 @@ for file_num in saving_file_dict['file_num']:
     for i in range(int(np.ceil(samples_num / n_workers))):
         subset_samples_to_run = samples_to_run[
             n_workers * i:n_workers * (i + 1)]
-        print('Running samples ', subset_samples_to_run[0], ' to ',
-              subset_samples_to_run[-1])
+        print('Running samples ', int(subset_samples_to_run[0]), ' to ',
+              int(subset_samples_to_run[-1]))
         subset_param_space = param_values_df.loc[
             param_values_df['param_id'].isin(subset_samples_to_run)]
         param_space = []

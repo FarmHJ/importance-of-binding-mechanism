@@ -55,7 +55,7 @@ def model_comparison(param_values):
     start_time = time.time()
     ComparisonController.drug_param_values = orig_param_values
     Hill_curve_coefs, drug_conc_Hill, _ = \
-        ComparisonController.compute_Hill(BKmodel)
+        ComparisonController.compute_Hill(BKmodel, parallel=False)
     evaluation_Hill_time = time.time() - start_time
 
     if isinstance(Hill_curve_coefs, str):

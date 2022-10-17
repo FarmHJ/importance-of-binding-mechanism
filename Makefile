@@ -75,5 +75,6 @@ create_dir:
 
 scripts:
 	cd modelling/scripts/; \
-	python3 SA_drug_combine.py; \
-	python3 drug_norm_check.py; \
+	python3 SA_param_space.py; \
+	cd ../..; \
+	python3 SA_paramspace_gaps_reverse.py; \

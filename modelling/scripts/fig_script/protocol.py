@@ -4,21 +4,21 @@ import pandas as pd
 import modelling
 
 testing_fig_dir = '../../figures/testing/'
-# final_fig_dir = \
-#     '../../figures/binding_kinetics_comparison/OHaraCiPA_model/protocol/'
-final_fig_dir = '../../figures/conferences/'
+final_fig_dir = \
+    '../../figures/binding_kinetics_comparison/OHaraCiPA_model/protocol/'
+# final_fig_dir = '../../figures/conferences/'
 
-saved_fig_dir = final_fig_dir
+saved_fig_dir = testing_fig_dir
 
 # Set up figure's main grid
-# fig = modelling.figures.FigureStructure(figsize=(10, 6),
-#                                         gridspec=(3, 1), hspace=0.6,
-#                                         height_ratios=[1, 2, 2],
-#                                         plot_in_subgrid=True)
-fig = modelling.figures.FigureStructure(figsize=(10, 7.3),
-                                        gridspec=(3, 1), hspace=0.7,
+fig = modelling.figures.FigureStructure(figsize=(10, 6),
+                                        gridspec=(3, 1), hspace=0.6,
                                         height_ratios=[1, 2, 2],
                                         plot_in_subgrid=True)
+# fig = modelling.figures.FigureStructure(figsize=(10, 7.3),
+#                                         gridspec=(3, 1), hspace=0.7,
+#                                         height_ratios=[1, 2, 2],
+#                                         plot_in_subgrid=True)
 plot = modelling.figures.FigurePlot()
 
 subgridspecs = [(1, 4), (1, 2), (1, 4)]
@@ -70,7 +70,7 @@ drugs = ['dofetilide', 'verapamil']
 max_drug_conc = [3, 5]
 Hill_model = modelling.HillsModel()
 color = ['orange', 'blue', 'red', 'green']
-
+line_pattern = ['solid', 'dotted', 'dashed', 'dashdot']
 for i in range(len(drugs)):
     saved_data_dir = '../../simulation_data/binding_kinetics_comparison/' + \
         drugs[i] + '/'
@@ -84,7 +84,7 @@ for i in range(len(drugs)):
         Hill_eq = Hill_eq.values.tolist()[0][1:-1]
 
         panel2[0][i].plot(conc_grid, Hill_model.simulate(
-            Hill_eq, conc_grid), '-', color=color[p],
+            Hill_eq, conc_grid), linestyle='solid', color=color[p],
             label=protocol_name[p])
 
     panel2[0][i].set_xscale("log", nonpositive='clip')
@@ -127,9 +127,9 @@ panel3[0][0].legend(handlelength=1)
 fig.sharey([r"APD$_{90}$ (ms)"],
            axs=panel3, subgridspec=subgridspecs[2])
 
-fig.fig.text(0.075, 0.905, '(a)', fontsize=11)
-fig.fig.text(0.075, 0.675, '(b)', fontsize=11)
-fig.fig.text(0.535, 0.675, '(c)', fontsize=11)
-fig.fig.text(0.075, 0.355, '(d)', fontsize=11)
+fig.fig.text(0.075, 0.905, '(A)', fontsize=11)
+fig.fig.text(0.075, 0.675, '(B)', fontsize=11)
+fig.fig.text(0.535, 0.675, '(C)', fontsize=11)
+fig.fig.text(0.075, 0.355, '(D)', fontsize=11)
 
-fig.savefig(saved_fig_dir + "protocol_dependence.svg", format='svg')
+fig.savefig(saved_fig_dir + "protocol_dependence.pdf")

@@ -3,7 +3,7 @@ import pandas as pd
 
 import modelling
 
-# saved_data_dir = '../../simulation_data/sensitivity_analysis/'
+# saved_data_dir = '../../simulation_data/sensitivity_analysis/N/'
 saved_data_dir = '../../simulation_results/'
 
 param_names = modelling.SensitivityAnalysis().param_names

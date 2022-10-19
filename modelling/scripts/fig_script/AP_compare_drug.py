@@ -32,7 +32,8 @@ subgs.append(fig.gs[0].subgridspec(*subgridspecs[0], wspace=0.3,
                                    hspace=0.4))
 subgs.append(fig.gs[1].subgridspec(*subgridspecs[1], wspace=0.05,
                                    hspace=0.05))
-axs = [[[fig.fig.add_subplot(subgs[0][i, 0])] for i in range(subgridspecs[0][0])]]
+axs = [[[fig.fig.add_subplot(subgs[0][i, 0])] for
+        i in range(subgridspecs[0][0])]]
 axs.append([[fig.fig.add_subplot(subgs[0][:, 1])]])
 axs.append([[fig.fig.add_subplot(subgs[1][i, j]) for j in range(
     subgridspecs[1][1])] for i in range(subgridspecs[1][0])])
@@ -80,7 +81,8 @@ for i in range(len(trapping_data_files)):
 # APD_trapping = pd.read_csv(saved_data_dir + 'CiPA_APD_pulses2.csv')
 # APD_conductance = pd.read_csv(saved_data_dir + 'conductance_APD_pulses2.csv')
 APD_trapping = pd.read_csv(saved_data_dir + 'CiPA_APD_pulses1000.csv')
-APD_conductance = pd.read_csv(saved_data_dir + 'conductance_APD_pulses1000.csv')
+APD_conductance = pd.read_csv(saved_data_dir +
+                              'conductance_APD_pulses1000.csv')
 
 APD_trapping = [max(APD_trapping.loc[i].values.tolist()[1:-1]) for i in
                 range(APD_trapping.shape[0])]
@@ -184,7 +186,8 @@ panel3 = axs[1]
 # APD_trapping = pd.read_csv(saved_data_dir + 'CiPA_APD_fine.csv')
 # APD_conductance = pd.read_csv(saved_data_dir + 'conductance_APD_fine.csv')
 APD_trapping = pd.read_csv(saved_data_dir + 'CiPA_APD_pulses1000.csv')
-APD_conductance = pd.read_csv(saved_data_dir + 'conductance_APD_pulses1000.csv')
+APD_conductance = pd.read_csv(saved_data_dir +
+                              'conductance_APD_pulses1000.csv')
 
 drug_conc = APD_trapping['drug concentration'].values.tolist()
 APD_trapping = [max(APD_trapping.loc[i].values.tolist()[1:-1]) for i in

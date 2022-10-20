@@ -70,7 +70,7 @@ drugs = ['dofetilide', 'verapamil']
 max_drug_conc = [3, 5]
 Hill_model = modelling.HillsModel()
 color = ['orange', 'blue', 'red', 'green']
-line_pattern = ['solid', 'dotted', 'dashed', 'dashdot']
+line_pattern = ['solid', 'dashed', 'dotted', 'dashdot']
 for i in range(len(drugs)):
     saved_data_dir = '../../simulation_data/binding_kinetics_comparison/' + \
         drugs[i] + '/'
@@ -84,7 +84,7 @@ for i in range(len(drugs)):
         Hill_eq = Hill_eq.values.tolist()[0][1:-1]
 
         panel2[0][i].plot(conc_grid, Hill_model.simulate(
-            Hill_eq, conc_grid), linestyle='solid', color=color[p],
+            Hill_eq, conc_grid), linestyle=line_pattern[p], color=color[p],
             label=protocol_name[p])
 
     panel2[0][i].set_xscale("log", nonpositive='clip')

@@ -51,20 +51,23 @@ RMSError = np.array([])
 MAError = np.array([])
 
 param_id = np.array([])
+RMSE_range = 10
 
 for file in result_files:
     df = pd.read_csv(file,
                      header=[0, 1], index_col=[0],
                      skipinitialspace=True)
 
-    Vhalf_range = np.concatenate((Vhalf_range, df['param_values']['Vhalf'].values))
-    Kmax_range = np.concatenate((Kmax_range, df['param_values']['Kmax'].values))
-    Ku_range = np.concatenate((Ku_range, df['param_values']['Ku'].values))
+    df = df.loc[df['RMSE']['RMSE'] < RMSE_range]
+    print(df)
+    # Vhalf_range = np.concatenate((Vhalf_range, df['param_values']['Vhalf'].values))
+    # Kmax_range = np.concatenate((Kmax_range, df['param_values']['Kmax'].values))
+    # Ku_range = np.concatenate((Ku_range, df['param_values']['Ku'].values))
 
-    RMSError = np.concatenate((RMSError, df['RMSE']['RMSE'].values))
-    MAError = np.concatenate((MAError, df['MAE']['MAE'].values))
+    # RMSError = np.concatenate((RMSError, df['RMSE']['RMSE'].values))
+    # MAError = np.concatenate((MAError, df['MAE']['MAE'].values))
 
-    param_id = np.concatenate((param_id, df['param_id']['param_id'].values))
+    # param_id = np.concatenate((param_id, df['param_id']['param_id'].values))
 
 RMSError_drug = np.array(RMSError_drug) * np.array(MAError_drug) / np.abs(np.array(MAError_drug))
 RMSError_space = RMSError * MAError / np.abs(MAError)
@@ -86,42 +89,46 @@ scale_map = matplotlib.cm.ScalarMappable(norm=cmap_norm, cmap=cmap)
 #            c=scale_map.to_rgba(RMSError_space),
 #            s=10, marker='o', zorder=-10, alpha=0.5)
 
-# chosen_ind = [i for i, e in enumerate(RMSError_space) if e < 50 and e > -50]
-# Vhalf_chosen = np.array([Vhalf_range[i] for i in chosen_ind])
-# Kmax_chosen = np.array([Kmax_range[i] for i in chosen_ind])
-# Ku_chosen = np.array([Ku_range[i] for i in chosen_ind])
-# RMSE_chosen = np.array([RMSError_space[i] for i in chosen_ind])
+chosen_ind = [i for i, e in enumerate(RMSError_space) if e < 20 and e > -20]
+Vhalf_chosen = np.array([Vhalf_range[i] for i in chosen_ind])
+Kmax_chosen = np.array([Kmax_range[i] for i in chosen_ind])
+Ku_chosen = np.array([Ku_range[i] for i in chosen_ind])
+RMSE_chosen = np.array([RMSError_space[i] for i in chosen_ind])
 
-# Filling in gaps
-res = 5
-Vhalf_range = SA_model.param_explore('Vhalf', res)
-Kmax_range = SA_model.param_explore('Kmax', res)
-Ku_range = SA_model.param_explore('Ku', res)
+# # Filling in gaps
+# res = 5
+# Vhalf_range = SA_model.param_explore('Vhalf', res)
+# Kmax_range = SA_model.param_explore('Kmax', res)
+# Ku_range = SA_model.param_explore('Ku', res)
 
-Vhalf_fullrange = SA_model.param_explore_gaps(Vhalf_range, 3, 'Vhalf')
-Kmax_fullrange = SA_model.param_explore_gaps(Kmax_range, 3, 'Kmax')
-Ku_fullrange = SA_model.param_explore_gaps(Ku_range, 3, 'Ku')
+# Vhalf_fullrange = SA_model.param_explore_gaps(Vhalf_range, 3, 'Vhalf')
+# Kmax_fullrange = SA_model.param_explore_gaps(Kmax_range, 3, 'Kmax')
+# Ku_fullrange = SA_model.param_explore_gaps(Ku_range, 3, 'Ku')
 
-# Do I have to make the value absolute
-Vhalf_min_diff = min(np.array(sorted(Vhalf_fullrange)[1:]) -
-                     np.array(sorted(Vhalf_fullrange)[:-1]))
-Kmax_min_diff = min(np.array(sorted(Kmax_fullrange)[1:]) -
-                    np.array(sorted(Kmax_fullrange)[:-1]))
-Ku_min_diff = min(np.array(sorted(Ku_fullrange)[1:]) -
-                  np.array(sorted(Ku_fullrange)[:-1]))
+# # Do I have to make the value absolute
+# Vhalf_min_diff = min(np.array(sorted(Vhalf_fullrange)[1:]) -
+#                      np.array(sorted(Vhalf_fullrange)[:-1]))
+# Kmax_min_diff = min(np.array(sorted(Kmax_fullrange)[1:]) -
+#                     np.array(sorted(Kmax_fullrange)[:-1]))
+# Ku_min_diff = min(np.array(sorted(Ku_fullrange)[1:]) -
+#                   np.array(sorted(Ku_fullrange)[:-1]))
 
-X, Y, Z = np.meshgrid(Vhalf_fullrange, np.log(Kmax_fullrange),
-                      np.log(Ku_fullrange))
+# X, Y, Z = np.meshgrid(Vhalf_fullrange, np.log(Kmax_fullrange),
+#                       np.log(Ku_fullrange))
+Kmax_chosen = np.log(Kmax_chosen)
+Ku_chosen = np.log(Ku_chosen)
 
-X[0, 0, 0]
-Y[0, 0, 0]
-Z[0, 0, 0]
+print(sorted(Ku_chosen))
 
+half_len = int(np.ceil(len(Vhalf_chosen) / 2))
+Vhalf_2D = np.array([Vhalf_chosen[:half_len], Vhalf_chosen[half_len-1:]])
+Kmax_2D = np.array([Kmax_chosen[:half_len], Kmax_chosen[half_len-1:]])
+Ku_2D = np.array([Ku_chosen[:half_len], Ku_chosen[half_len-1:]])
+print(len(Vhalf_chosen[:half_len]))
+print(len(Vhalf_chosen[half_len:]))
 # Plot contour surfaces
-# _ = ax.contourf(
-#     Vhalf_chosen, np.log(Kmax_chosen), RMSE_chosen,
-#     zdir='z', offset=0
-# )
+_ = ax.scatter(
+    Vhalf_2D, Ku_2D, Kmax_2D)
 # _ = ax.contourf(
 #     X[0, :, :], data[0, :, :], Z[0, :, :],
 #     zdir='y', offset=0, **kw
@@ -133,13 +140,15 @@ Z[0, 0, 0]
 # scale_map.set_array(RMSError_drug)
 # fig.colorbar(scale_map)
 
-# # handles, labels = ax.get_legend_handles_labels()
-# # unique = [(h, l) for i, (h, l) in enumerate(zip(handles, labels)) if
-# #           l not in labels[:i]]
-# # ax.legend(*zip(*unique), loc='upper left', bbox_to_anchor=(1.0, 1.0))
-# # ax.set_facecolor('silver')
-# ax.set_xlabel('Vhalf')
-# ax.set_ylabel('Kmax')
-# ax.set_zlabel('Ku')
-# ax.set_rasterization_zorder(0)
-# plt.show()
+# handles, labels = ax.get_legend_handles_labels()
+# unique = [(h, l) for i, (h, l) in enumerate(zip(handles, labels)) if
+#           l not in labels[:i]]
+# ax.legend(*zip(*unique), loc='upper left', bbox_to_anchor=(1.0, 1.0))
+# ax.set_facecolor('silver')
+ax.set_xlabel('Vhalf')
+ax.set_ylabel('Kmax')
+ax.set_zlabel('Ku')
+ax.set_rasterization_zorder(0)
+
+saved_fig_dir = '../../figures/testing/'
+plt.savefig(saved_fig_dir + 'test.pdf')

@@ -7,7 +7,7 @@ import os
 
 import modelling
 
-drug = 'verapamil'
+drug = 'dofetilide'
 protocol_name = 'Milnes'
 
 saved_data_dir = '../../simulation_data/binding_kinetics_comparison/' + \
@@ -17,9 +17,9 @@ testing_fig_dir = '../../figures/testing/'
 final_fig_dir = '../../figures/binding_kinetics_comparison/' + drug + '/' + \
     protocol_name + '/'
 
-saved_fig_dir = testing_fig_dir
+saved_fig_dir = final_fig_dir
 
-panelC_title = 'Verapamil-like drug'
+# panelC_title = 'Verapamil-like drug'
 
 fig = modelling.figures.FigureStructure(figsize=(10, 5.5), gridspec=(2, 1),
                                         height_ratios=[1, 1], hspace=0.45,
@@ -50,13 +50,13 @@ conductance_data_files = [f for f in os.listdir(saved_data_dir) if
 conc_label = [fname[8:-4] for fname in trapping_data_files]
 drug_conc = [float(fname[8:-4]) for fname in trapping_data_files]
 # for verapamil
-removing_ind = drug_conc.index(500.0)
-drug_conc.pop(removing_ind)
-trapping_data_files.pop(removing_ind)
-conductance_data_files.pop(removing_ind)
-conc_label.pop(removing_ind)
-conc_label[-2] = r"$10^4$"
-conc_label[-1] = r"$10^5$"
+# removing_ind = drug_conc.index(500.0)
+# drug_conc.pop(removing_ind)
+# trapping_data_files.pop(removing_ind)
+# conductance_data_files.pop(removing_ind)
+# conc_label.pop(removing_ind)
+# conc_label[-2] = r"$10^4$"
+# conc_label[-1] = r"$10^5$"
 
 # Sort in increasing order of drug concentration
 sort_ind = [i[0] for i in sorted(enumerate(drug_conc), key=lambda x:x[1])]
@@ -89,6 +89,10 @@ APD_trapping = [max(APD_trapping.loc[i].values.tolist()[1:-1]) for i in
 APD_conductance = [max(APD_conductance.loc[i].values.tolist()[1:-1]) for i in
                    range(APD_conductance.shape[0])]
 
+# for dofetilide - because APD90 of 1000nM not run
+APD_trapping.append(1000)
+APD_conductance.append(1000)
+
 # Initiate constants and variables
 plotting_pulse_time = 1000 * 2
 
@@ -97,6 +101,7 @@ second_EAD_trap = [i for i, e in enumerate(APD_trapping)
                    if e == 1000][1:]
 second_EAD_conduct = [i for i, e in enumerate(APD_conductance)
                       if e == 1000][1:]
+
 if len(second_EAD_trap) <= len(second_EAD_conduct):
     chosen_conc_ind = second_EAD_trap
 else:
@@ -138,9 +143,9 @@ conductance_data_files = [f for f in os.listdir(saved_data_dir) if
                           f.startswith('conductance_hERG_')]
 drug_conc = [float(fname[10:-4]) for fname in trapping_data_files]
 # for verapamil
-removing_ind = drug_conc.index(500.0)
-trapping_data_files.pop(removing_ind)
-conductance_data_files.pop(removing_ind)
+# removing_ind = drug_conc.index(500.0)
+# trapping_data_files.pop(removing_ind)
+# conductance_data_files.pop(removing_ind)
 
 # Sort in increasing order of drug concentration
 trapping_data_files = [trapping_data_files[i] for i in sort_ind]
@@ -154,20 +159,20 @@ for i in range(len(trapping_data_files)):
     conductance_hERG_log.append(myokit.DataLog.load_csv(
         saved_data_dir + conductance_data_files[i]))
 
-AP_trapping_plot = [e for i, e in enumerate(CiPA_hERG_log)
-                    if i not in chosen_conc_ind]
-AP_conductance_plot = [e for i, e in enumerate(conductance_hERG_log)
-                       if i not in chosen_conc_ind]
+hERG_trapping_plot = [e for i, e in enumerate(CiPA_hERG_log)
+                      if i not in chosen_conc_ind]
+hERG_conductance_plot = [e for i, e in enumerate(conductance_hERG_log)
+                         if i not in chosen_conc_ind]
 
 # Initiate constants and variables
 # labels = labels[:-2]
 pulse_time = 25e3
 
 # Plot figure
-plot.add_multiple(panel1[0][0], CiPA_hERG_log, 'ikr.IKr', labels=labels,
+plot.add_multiple(panel1[0][0], hERG_trapping_plot, 'ikr.IKr', labels=labels,
                   color=cmap)
-plot.add_multiple(panel1[1][0], conductance_hERG_log, 'ikr.IKr', labels=labels,
-                  color=cmap)
+plot.add_multiple(panel1[1][0], hERG_conductance_plot, 'ikr.IKr',
+                  labels=labels, color=cmap)
 
 panel1[0][0].set_title('State dependent drug block')
 panel1[1][0].set_title('Conductance scaling drug block')
@@ -183,11 +188,11 @@ for i in range(2):
 # Top right panel
 panel3 = axs[1]
 
-# APD_trapping = pd.read_csv(saved_data_dir + 'CiPA_APD_fine.csv')
-# APD_conductance = pd.read_csv(saved_data_dir + 'conductance_APD_fine.csv')
-APD_trapping = pd.read_csv(saved_data_dir + 'CiPA_APD_pulses1000.csv')
-APD_conductance = pd.read_csv(saved_data_dir +
-                              'conductance_APD_pulses1000.csv')
+APD_trapping = pd.read_csv(saved_data_dir + 'CiPA_APD_fine.csv')
+APD_conductance = pd.read_csv(saved_data_dir + 'conductance_APD_fine.csv')
+# APD_trapping = pd.read_csv(saved_data_dir + 'CiPA_APD_pulses1000.csv')
+# APD_conductance = pd.read_csv(saved_data_dir +
+#                               'conductance_APD_pulses1000.csv')
 
 drug_conc = APD_trapping['drug concentration'].values.tolist()
 APD_trapping = [max(APD_trapping.loc[i].values.tolist()[1:-1]) for i in
@@ -215,4 +220,4 @@ fig.fig.text(0.075, 0.925, '(A)', fontsize=11)
 fig.fig.text(0.075, 0.455, '(B)', fontsize=11)
 fig.fig.text(0.525, 0.925, '(C)', fontsize=11)
 
-fig.savefig(saved_fig_dir + "test.svg", format='svg')
+fig.savefig(saved_fig_dir + "model_compare.svg", format='svg')

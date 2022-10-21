@@ -16,8 +16,8 @@ protocol = protocol_params.protocol_parameters[protocol_name]['function']
 # Drug concentration can be set referencing to hERG_peak figure
 if drug == 'dofetilide':
     drug_conc = 10.0**np.linspace(-1, 2.5, 20)
-    drug_conc_fine = 10**np.linspace(2.132, 2.316, 5)
-    drug_conc = np.append(drug_conc, drug_conc_fine)
+    # drug_conc_fine = 10**np.linspace(2.132, 2.316, 5)
+    # drug_conc = np.append(drug_conc, drug_conc_fine)
 elif drug == 'verapamil':
     drug_conc = 10.0**np.linspace(-1, 5, 20)
 repeats = 1000

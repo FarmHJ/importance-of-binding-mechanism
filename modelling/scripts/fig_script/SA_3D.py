@@ -33,10 +33,10 @@ Ku_list = df['param_values']['Ku'].values
 drug_list = df['drug']['drug'].values
 
 RMSError_drug = df['RMSE']['RMSE'].values
-MAError_drug = df['MAE']['MAE'].values
+MError_drug = df['ME']['ME'].values
 
-Error_drug = np.array(RMSError_drug) * np.array(MAError_drug) / \
-    np.abs(np.array(MAError_drug))
+Error_drug = np.array(RMSError_drug) * np.array(MError_drug) / \
+    np.abs(np.array(MError_drug))
 
 # Read data for space
 saved_data_dir = '../../simulation_results/'
@@ -131,6 +131,7 @@ for i in range(2):
     axs[i].zaxis.set_major_formatter(mticker.FuncFormatter(log_tick_formatter))
     axs[i].zaxis.set_major_locator(mticker.MaxNLocator(integer=True))
 
+    # axs[i].set_facecolor('darkgrey')
     axs[i].set_rasterization_zorder(0)
 
 cax = axs[0].inset_axes([0.5, -0.08, 1, 0.03])
@@ -141,7 +142,6 @@ fig.text(0.075, 0.75, '(A)', fontsize=11)
 fig.text(0.5, 0.75, '(B)', fontsize=11)
 
 plt.subplots_adjust(hspace=0)
-
 
 # fig.savefig(saved_fig_dir + 'test.pdf', bbox_inches='tight')
 plt.savefig(saved_fig_dir + 'test.pdf', bbox_inches='tight')

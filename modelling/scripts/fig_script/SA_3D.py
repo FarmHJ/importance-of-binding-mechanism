@@ -108,7 +108,7 @@ scale_map = matplotlib.cm.ScalarMappable(norm=cmap_norm, cmap=cmap)
 
 axs[0].scatter(Vhalf_range, np.log10(Kmax_range), np.log10(Ku_range),
                c=scale_map.to_rgba(Error_space),
-               s=10, marker='o', zorder=-10, alpha=0.5)
+               s=2, marker='o', zorder=-10, alpha=0.5)
 axs[0].view_init(20, 40)
 
 axs[1].scatter(Vhalf_list, np.log10(Kmax_list), np.log10(Ku_list),
@@ -144,4 +144,4 @@ fig.text(0.5, 0.75, '(B)', fontsize=11)
 plt.subplots_adjust(hspace=0)
 
 # fig.savefig(saved_fig_dir + 'test.pdf', bbox_inches='tight')
-plt.savefig(saved_fig_dir + 'test.pdf', bbox_inches='tight')
+plt.savefig(saved_fig_dir + 'Fig_SA_3D_2.png', bbox_inches='tight')

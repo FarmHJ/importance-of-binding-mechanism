@@ -201,6 +201,9 @@ APD_conductance = [max(APD_conductance.loc[i].values.tolist()[1:-1])
                    for i in range(APD_conductance.shape[0])]
 EAD_marker = [1050 if (i >= 1000 or j >= 1000) else None for (i, j)
               in zip(APD_trapping[1:], APD_conductance[1:])]
+print(drug_conc)
+print(APD_trapping)
+print(APD_conductance)
 
 panel3[0][0].plot(drug_conc[1:], APD_trapping[1:], 'o', color='orange',
                   label='SD model')
@@ -220,4 +223,4 @@ fig.fig.text(0.075, 0.925, '(A)', fontsize=11)
 fig.fig.text(0.075, 0.455, '(B)', fontsize=11)
 fig.fig.text(0.525, 0.925, '(C)', fontsize=11)
 
-fig.savefig(saved_fig_dir + "model_compare.svg", format='svg')
+# fig.savefig(saved_fig_dir + "model_compare.svg", format='svg')

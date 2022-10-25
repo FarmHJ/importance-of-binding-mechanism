@@ -7,7 +7,7 @@ import os
 
 import modelling
 
-drug = 'verapamil'
+drug = 'dofetilide'
 protocol_name = 'Milnes'
 
 saved_data_dir = '../../simulation_data/binding_kinetics_comparison/' + \
@@ -19,7 +19,7 @@ final_fig_dir = '../../figures/binding_kinetics_comparison/' + drug + '/' + \
 
 saved_fig_dir = testing_fig_dir
 
-panelC_title = 'Verapamil-like drug'
+# panelC_title = 'Verapamil-like drug'
 
 fig = modelling.figures.FigureStructure(figsize=(10, 5.5), gridspec=(2, 1),
                                         height_ratios=[1, 1], hspace=0.45,
@@ -49,14 +49,15 @@ conductance_data_files = [f for f in os.listdir(saved_data_dir) if
                           f.startswith('conductance_AP_tran')]
 conc_label = [fname[8:-4] for fname in trapping_data_files]
 drug_conc = [float(fname[8:-4]) for fname in trapping_data_files]
+print(trapping_data_files)
 # for verapamil
-removing_ind = drug_conc.index(500.0)
-drug_conc.pop(removing_ind)
-trapping_data_files.pop(removing_ind)
-conductance_data_files.pop(removing_ind)
-conc_label.pop(removing_ind)
-conc_label[-2] = r"$10^4$"
-conc_label[-1] = r"$10^5$"
+# removing_ind = drug_conc.index(500.0)
+# drug_conc.pop(removing_ind)
+# trapping_data_files.pop(removing_ind)
+# conductance_data_files.pop(removing_ind)
+# conc_label.pop(removing_ind)
+# conc_label[-2] = r"$10^4$"
+# conc_label[-1] = r"$10^5$"
 
 # Sort in increasing order of drug concentration
 sort_ind = [i[0] for i in sorted(enumerate(drug_conc), key=lambda x:x[1])]
@@ -92,6 +93,8 @@ APD_conductance = [max(APD_conductance.loc[i].values.tolist()[1:-1]) for i in
 # Initiate constants and variables
 plotting_pulse_time = 1000 * 2
 
+print(APD_trapping)
+print(APD_conductance)
 # Remove repeated signals at high concentrations
 second_EAD_trap = [i for i, e in enumerate(APD_trapping)
                    if e == 1000][1:]
@@ -137,10 +140,11 @@ trapping_data_files = [f for f in os.listdir(saved_data_dir) if
 conductance_data_files = [f for f in os.listdir(saved_data_dir) if
                           f.startswith('conductance_hERG_')]
 drug_conc = [float(fname[10:-4]) for fname in trapping_data_files]
+print(trapping_data_files)
 # for verapamil
-removing_ind = drug_conc.index(500.0)
-trapping_data_files.pop(removing_ind)
-conductance_data_files.pop(removing_ind)
+# removing_ind = drug_conc.index(500.0)
+# trapping_data_files.pop(removing_ind)
+# conductance_data_files.pop(removing_ind)
 
 # Sort in increasing order of drug concentration
 trapping_data_files = [trapping_data_files[i] for i in sort_ind]
@@ -169,6 +173,7 @@ plot.add_multiple(panel1[0][0], CiPA_hERG_log, 'ikr.IKr', labels=labels,
 plot.add_multiple(panel1[1][0], conductance_hERG_log, 'ikr.IKr', labels=labels,
                   color=cmap)
 
+panel1[1][0].legend()
 panel1[0][0].set_title('State dependent drug block')
 panel1[1][0].set_title('Conductance scaling drug block')
 fig.sharex(['Time (s)'], [(0, pulse_time)],

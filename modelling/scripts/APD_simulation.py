@@ -83,8 +83,6 @@ for i in range(len(drug_conc)):
 
     print('done concentration: ' + str(drug_conc[i]))
 
-print(APD_trapping)
-print(APD_conductance)
 APD_trapping = [max(i) for i in APD_trapping]
 APD_conductance = [max(i) for i in APD_conductance]
 

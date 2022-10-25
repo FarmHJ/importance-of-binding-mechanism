@@ -44,10 +44,23 @@ drug_list = param_lib.drug_compounds
 
 SA_model = modelling.SensitivityAnalysis()
 param_names = SA_model.param_names
+# res = 5
+# Vhalf_range = SA_model.param_explore('Vhalf', res)
+# Ku_range = SA_model.param_explore('Ku', res)
+# Kmax_range = SA_model.param_explore('Kmax', res)
 res = 5
-Vhalf_range = SA_model.param_explore('Vhalf', res)
-Ku_range = SA_model.param_explore('Ku', res)
-Kmax_range = SA_model.param_explore('Kmax', res)
+Vhalf_fullrange = SA_model.param_explore('Vhalf', res)
+Vhalf_fullrange = SA_model.param_explore_gaps(Vhalf_fullrange, 3, 'Vhalf')
+Vhalf_range = sorted(Vhalf_fullrange)[::5]
+
+Kmax_range = np.concatenate((np.linspace(1.11078, 1.4771, 3 + 2)[1:-1],
+                             np.linspace(1.4771, 2.6387, 7 + 2)[1:-1]))
+Kmax_range = 10**Kmax_range
+
+Ku_range = np.concatenate((np.linspace(-3.924, -3.1009, res + 2)[1:-1],
+                           np.linspace(-4.7471, -3.924, 7 + 2)[1:-1]))
+Ku_range = 10**Ku_range
+
 
 starting_param_df = pd.DataFrame([1] * 5, index=param_names).T
 ComparisonController = modelling.ModelComparison(starting_param_df)
@@ -116,14 +129,16 @@ def param_evaluation(param_values):
 
     return big_df
 
+
 # Assuming drug concentration are all normalised, the EC50 value in the model
 # becomes 1.
 # Since Hill's coefficient, N, does not affect APD difference behaviour, it
 # can be fixed at any value.
 # For simplicity, let N = 1.
 
-
-sample_filepath = saved_data_dir + 'parameter_space_res5.csv'
+# sample_filepath = saved_data_dir + 'parameter_space_res5.csv'
+# for curve
+sample_filepath = saved_data_dir + 'parameter_space_curve.csv'
 param_space = []
 if os.path.exists(sample_filepath):
     param_values_df = pd.read_csv(sample_filepath,
@@ -132,7 +147,9 @@ if os.path.exists(sample_filepath):
     for i in range(len(param_values_df.index)):
         param_space.append(param_values_df.iloc[[i]])
 else:
-    counter = 0
+    # counter = 0
+    # for curve
+    counter = 15000
     param_values_df = pd.DataFrame(columns=param_names)
     for Vhalf, Kmax, Ku in itertools.product(
             Vhalf_range, Kmax_range, Ku_range):
@@ -143,14 +160,17 @@ else:
         param_space.append(param_values)
         param_values_df = pd.concat([param_values_df, param_values])
         counter += 1
-    param_values_df.to_csv(saved_data_dir + 'parameter_space_res5.csv')
+    # param_values_df.to_csv(saved_data_dir + 'parameter_space_res5.csv')
+    # for curve
+    param_values_df.to_csv(saved_data_dir + 'parameter_space_curve.csv')
+
 
 total_samples = len(param_space)
 samples_per_save = 1000
 samples_split_n = int(np.ceil(total_samples / samples_per_save))
 total_saving_file_num = np.arange(samples_split_n)
 
-file_prefix = 'SA_allparam_'
+file_prefix = 'SA_curve_'
 evaluation_result_files = [f for f in os.listdir(saved_data_dir) if
                            f.startswith(file_prefix)]
 if len(evaluation_result_files) == 0:

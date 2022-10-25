@@ -44,9 +44,9 @@ saved_data_dir = '../../simulation_data/binding_kinetics_comparison/' + \
     drug + '/' + protocol_name + '/'
 
 trapping_data_files = [f for f in os.listdir(saved_data_dir) if
-                       f.startswith('CiPA_AP_transient_')]
+                       f.startswith('CiPA_AP_transient_pulses7')]
 conductance_data_files = [f for f in os.listdir(saved_data_dir) if
-                          f.startswith('conductance_AP_transient_')]
+                          f.startswith('conductance_AP_transient_pulses7')]
 conc_label = [fname[26:-4] for fname in trapping_data_files]
 drug_conc = [float(fname[26:-4]) for fname in trapping_data_files]
 
@@ -156,9 +156,9 @@ saved_data_dir = '../../simulation_data/binding_kinetics_comparison/' + \
     drug + '/' + protocol_name + '/'
 
 trapping_data_files = [f for f in os.listdir(saved_data_dir) if
-                       f.startswith('CiPA_AP_transient_')]
+                       f.startswith('CiPA_AP_transient_pulses7')]
 conductance_data_files = [f for f in os.listdir(saved_data_dir) if
-                          f.startswith('conductance_AP_transient_')]
+                          f.startswith('conductance_AP_transient_pulses7')]
 conc_label = [fname[26:-4] for fname in trapping_data_files]
 drug_conc = [float(fname[26:-4]) for fname in trapping_data_files]
 
@@ -179,6 +179,7 @@ for i in range(len(trapping_data_files)):
 
 # Initiate constants and variables
 labels = [i + ' nM' for i in conc_label]
+labels[-1] = r"$10^4$ nM"
 plotting_pulse_time = 1000 * 7
 cmap = matplotlib.cm.get_cmap('viridis')
 
@@ -201,6 +202,7 @@ panel2[0][0].set_title(drug + "-like drug, state dependent drug block")
 
 # Second row, right panel
 panel4 = axs[3]
+
 plot.add_multiple_continuous(panel4[0][0], conductance_AP_log, 'membrane.V',
                              cmap=cmap)
 plot.add_multiple_continuous(panel4[1][0], conductance_AP_log, 'ikr.IKr',
@@ -243,13 +245,13 @@ for i in range(len(drug_conc)):
     APD_plot = [APD_trapping_concs[i][ind] for ind in
                 range(len(APD_trapping_concs[i])) if ind % 2 == 0]
     panel6[0][i].plot(np.arange(saved_signal / 2) * 2, APD_plot, 'o', ms=0.9,
-                      label='state dependent\ndrug block', color='orange')
+                      label='SD model', color='orange')
     panel6[0][i].plot(np.arange(saved_signal), APD_conductance_concs[i], 'o',
-                      ms=0.9, label='conductance\nscaling', color='blue')
+                      ms=0.9, label='CS model', color='blue')
     panel6[0][i].set_title(str(drug_conc[i]) + ' nM')
 
 panel6[0][1].plot(150, 1050, 'o', color='k', marker=(5, 2),
-                  label='EAD-like\nbehaviour')
+                  label='EAD-like\nAP')
 lgnd = panel6[0][1].legend(loc='lower left', bbox_to_anchor=(1.0, 0),
                            handlelength=1)
 for handle in lgnd.legendHandles:
@@ -260,11 +262,11 @@ fig.sharey([r"APD$_{90}$ (ms)"],
            axs=panel6, subgridspec=subgridspecs[5])
 
 fig.fig.set_size_inches(10, 8)
-fig.fig.text(0.075, 0.905, '(a)', fontsize=11)
-fig.fig.text(0.535, 0.905, '(b)', fontsize=11)
-fig.fig.text(0.075, 0.625, '(c)', fontsize=11)
-fig.fig.text(0.535, 0.625, '(d)', fontsize=11)
-fig.fig.text(0.075, 0.325, '(e)', fontsize=11)
-fig.fig.text(0.535, 0.325, '(f)', fontsize=11)
+fig.fig.text(0.075, 0.905, '(A)', fontsize=11)
+fig.fig.text(0.535, 0.905, '(B)', fontsize=11)
+fig.fig.text(0.075, 0.625, '(C)', fontsize=11)
+fig.fig.text(0.535, 0.625, '(D)', fontsize=11)
+fig.fig.text(0.075, 0.325, '(E)', fontsize=11)
+fig.fig.text(0.535, 0.325, '(F)', fontsize=11)
 
-fig.savefig(saved_fig_dir + "AP_transient.svg", format='svg')
+fig.savefig(saved_fig_dir + "AP_transient.pdf")  # , format='svg')

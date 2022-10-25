@@ -1,10 +1,13 @@
 import matplotlib
 import matplotlib.pyplot as plt
+import matplotlib.ticker as mticker
 import numpy as np
 import os
 import pandas as pd
 
 import modelling
+
+saved_fig_dir = '../../figures/sensitivity_analysis/'
 
 # 3D plot in parameter space
 # Plot for known drugs
@@ -30,125 +33,115 @@ Ku_list = df['param_values']['Ku'].values
 drug_list = df['drug']['drug'].values
 
 RMSError_drug = df['RMSE']['RMSE'].values
-MAError_drug = df['MAE']['MAE'].values
+MError_drug = df['ME']['ME'].values
+
+Error_drug = np.array(RMSError_drug) * np.array(MError_drug) / \
+    np.abs(np.array(MError_drug))
 
 # Read data for space
-saved_data_dir = '../../simulation_data/sensitivity_analysis/'
-file_prefix = 'SA_allparam_'
-result_files = [saved_data_dir + f for f in os.listdir(saved_data_dir) if f.startswith(file_prefix)]
-
 saved_data_dir = '../../simulation_results/'
-file_prefix = 'SA_allparam_gaps_'
-result_files2 = [saved_data_dir + f for f in os.listdir(saved_data_dir) if f.startswith(file_prefix)]
+file_prefix = 'SA_APD'
+result_files = [saved_data_dir + f for f in os.listdir(saved_data_dir)
+                if f.startswith(file_prefix)]
 
-result_files.extend(result_files2)
+error_range = 20
 
-Vhalf_range = np.array([])
-Kmax_range = np.array([])
-Ku_range = np.array([])
-
-RMSError = np.array([])
-MAError = np.array([])
-
-param_id = np.array([])
-RMSE_range = 10
-
+first_iter = True
 for file in result_files:
     df = pd.read_csv(file,
                      header=[0, 1], index_col=[0],
                      skipinitialspace=True)
+    chosen_df = df.loc[df['RMSE']['RMSE'] < error_range]
 
-    df = df.loc[df['RMSE']['RMSE'] < RMSE_range]
-    print(df)
-    # Vhalf_range = np.concatenate((Vhalf_range, df['param_values']['Vhalf'].values))
-    # Kmax_range = np.concatenate((Kmax_range, df['param_values']['Kmax'].values))
-    # Ku_range = np.concatenate((Ku_range, df['param_values']['Ku'].values))
+    if first_iter:
+        combined_df = df
+        combined_chosen_df = chosen_df
+        first_iter = False
+    else:
+        combined_chosen_df = pd.concat([combined_chosen_df, chosen_df])
+        combined_df = pd.concat([combined_df, df])
 
-    # RMSError = np.concatenate((RMSError, df['RMSE']['RMSE'].values))
-    # MAError = np.concatenate((MAError, df['MAE']['MAE'].values))
+# combined_df = combined_df.sort_values(
+#     by=[('param_values', 'Ku'), ('param_values', 'Kmax'),
+#         ('param_values', 'Vhalf')], ascending=[False, True, True])
 
-    # param_id = np.concatenate((param_id, df['param_id']['param_id'].values))
+Vhalf_range = combined_df['param_values']['Vhalf'].values
+Kmax_range = combined_df['param_values']['Kmax'].values
+Ku_range = combined_df['param_values']['Ku'].values
 
-RMSError_drug = np.array(RMSError_drug) * np.array(MAError_drug) / np.abs(np.array(MAError_drug))
-RMSError_space = RMSError * MAError / np.abs(MAError)
+RMSError = combined_df['RMSE']['RMSE'].values
+MError = combined_df['ME']['ME'].values
 
-cmin = min(min(RMSError_drug), min(RMSError_space))
-cmax = max(max(RMSError_drug), max(RMSError_space))
+nan_ind = [i for i in range(len(RMSError)) if np.isnan(RMSError[i]) or
+           np.isnan(MError[i])]
+Error_space = RMSError * MError / np.abs(MError)
 
-fig = plt.figure()
-ax = fig.add_subplot(projection='3d')
+cmin = min(min(Error_drug), min(Error_space))
+cmax = max(max(Error_drug), max(Error_space))
 
-cmap = plt.get_cmap('jet')
+Vhalf_range = [Vhalf_range[i] for i in range(len(Vhalf_range))
+               if i not in nan_ind]
+Kmax_range = [Kmax_range[i] for i in range(len(Kmax_range))
+              if i not in nan_ind]
+Ku_range = [Ku_range[i] for i in range(len(Ku_range))
+            if i not in nan_ind]
+Error_space = [Error_space[i] for i in range(len(Error_space))
+               if i not in nan_ind]
+
+Vhalf_chosen = combined_chosen_df['param_values']['Vhalf'].values
+Kmax_chosen = combined_chosen_df['param_values']['Kmax'].values
+Ku_chosen = combined_chosen_df['param_values']['Ku'].values
+
+
+def log_tick_formatter(val, pos=None):
+    return f"$10^{{{int(val)}}}$"
+
+
+fig = plt.figure(figsize=(10, 5))
+
+gs = fig.add_gridspec(1, 2, wspace=0.1)
+axs = [fig.add_subplot(gs[0, j], projection='3d') for j in range(2)]
+
+cmap = plt.get_cmap('RdYlBu_r')
 cmap_norm = matplotlib.colors.Normalize(cmin, cmax)
 scale_map = matplotlib.cm.ScalarMappable(norm=cmap_norm, cmap=cmap)
 
-# ax.scatter(Vhalf_list, np.log(Kmax_list), np.log(Ku_list),
-#            c=scale_map.to_rgba(RMSError_drug),
-#            s=100, marker='^', zorder=-10)
-# ax.scatter(Vhalf_range, np.log(Kmax_range), np.log(Ku_range),
-#            c=scale_map.to_rgba(RMSError_space),
-#            s=10, marker='o', zorder=-10, alpha=0.5)
+axs[0].scatter(Vhalf_range, np.log10(Kmax_range), np.log10(Ku_range),
+               c=scale_map.to_rgba(Error_space),
+               s=2, marker='o', zorder=-10, alpha=0.5)
+axs[0].view_init(20, 40)
 
-chosen_ind = [i for i, e in enumerate(RMSError_space) if e < 20 and e > -20]
-Vhalf_chosen = np.array([Vhalf_range[i] for i in chosen_ind])
-Kmax_chosen = np.array([Kmax_range[i] for i in chosen_ind])
-Ku_chosen = np.array([Ku_range[i] for i in chosen_ind])
-RMSE_chosen = np.array([RMSError_space[i] for i in chosen_ind])
+axs[1].scatter(Vhalf_list, np.log10(Kmax_list), np.log10(Ku_list),
+               c=scale_map.to_rgba(Error_drug),
+               s=100, marker='^', zorder=-1)
+axs[1].scatter(Vhalf_chosen, np.log10(Kmax_chosen), np.log10(Ku_chosen),
+               c='k',
+               s=10, marker='o', zorder=-10)
+# axs[1].contour(Vhalf_chosen, np.log(Kmax_chosen), np.log(Ku_chosen),
+#                zdir='x', offset=min(Vhalf_range))
+axs[1].view_init(20, 20)
 
-# # Filling in gaps
-# res = 5
-# Vhalf_range = SA_model.param_explore('Vhalf', res)
-# Kmax_range = SA_model.param_explore('Kmax', res)
-# Ku_range = SA_model.param_explore('Ku', res)
+for i in range(2):
+    axs[i].set_xlabel(r"$V_\mathrm{half-trap}$")
+    axs[i].set_ylabel(r"$K_\mathrm{max}$")
+    axs[i].set_zlabel(r"$K_u$")
 
-# Vhalf_fullrange = SA_model.param_explore_gaps(Vhalf_range, 3, 'Vhalf')
-# Kmax_fullrange = SA_model.param_explore_gaps(Kmax_range, 3, 'Kmax')
-# Ku_fullrange = SA_model.param_explore_gaps(Ku_range, 3, 'Ku')
+    axs[i].yaxis.set_major_formatter(mticker.FuncFormatter(log_tick_formatter))
+    axs[i].yaxis.set_major_locator(mticker.MaxNLocator(integer=True))
+    axs[i].zaxis.set_major_formatter(mticker.FuncFormatter(log_tick_formatter))
+    axs[i].zaxis.set_major_locator(mticker.MaxNLocator(integer=True))
 
-# # Do I have to make the value absolute
-# Vhalf_min_diff = min(np.array(sorted(Vhalf_fullrange)[1:]) -
-#                      np.array(sorted(Vhalf_fullrange)[:-1]))
-# Kmax_min_diff = min(np.array(sorted(Kmax_fullrange)[1:]) -
-#                     np.array(sorted(Kmax_fullrange)[:-1]))
-# Ku_min_diff = min(np.array(sorted(Ku_fullrange)[1:]) -
-#                   np.array(sorted(Ku_fullrange)[:-1]))
+    # axs[i].set_facecolor('darkgrey')
+    axs[i].set_rasterization_zorder(0)
 
-# X, Y, Z = np.meshgrid(Vhalf_fullrange, np.log(Kmax_fullrange),
-#                       np.log(Ku_fullrange))
-Kmax_chosen = np.log(Kmax_chosen)
-Ku_chosen = np.log(Ku_chosen)
+cax = axs[0].inset_axes([0.5, -0.08, 1, 0.03])
+scale_map.set_array(Error_space)
+fig.colorbar(scale_map, orientation='horizontal', ax=axs, cax=cax)
 
-print(sorted(Ku_chosen))
+fig.text(0.075, 0.75, '(A)', fontsize=11)
+fig.text(0.5, 0.75, '(B)', fontsize=11)
 
-half_len = int(np.ceil(len(Vhalf_chosen) / 2))
-Vhalf_2D = np.array([Vhalf_chosen[:half_len], Vhalf_chosen[half_len-1:]])
-Kmax_2D = np.array([Kmax_chosen[:half_len], Kmax_chosen[half_len-1:]])
-Ku_2D = np.array([Ku_chosen[:half_len], Ku_chosen[half_len-1:]])
-print(len(Vhalf_chosen[:half_len]))
-print(len(Vhalf_chosen[half_len:]))
-# Plot contour surfaces
-_ = ax.scatter(
-    Vhalf_2D, Ku_2D, Kmax_2D)
-# _ = ax.contourf(
-#     X[0, :, :], data[0, :, :], Z[0, :, :],
-#     zdir='y', offset=0, **kw
-# )
-# C = ax.contourf(
-#     data[:, -1, :], Y[:, -1, :], Z[:, -1, :],
-#     zdir='x', offset=X.max(), **kw
-# )
-# scale_map.set_array(RMSError_drug)
-# fig.colorbar(scale_map)
+plt.subplots_adjust(hspace=0)
 
-# handles, labels = ax.get_legend_handles_labels()
-# unique = [(h, l) for i, (h, l) in enumerate(zip(handles, labels)) if
-#           l not in labels[:i]]
-# ax.legend(*zip(*unique), loc='upper left', bbox_to_anchor=(1.0, 1.0))
-# ax.set_facecolor('silver')
-ax.set_xlabel('Vhalf')
-ax.set_ylabel('Kmax')
-ax.set_zlabel('Ku')
-ax.set_rasterization_zorder(0)
-
-saved_fig_dir = '../../figures/testing/'
-plt.savefig(saved_fig_dir + 'test.pdf')
+# fig.savefig(saved_fig_dir + 'test.pdf', bbox_inches='tight')
+plt.savefig(saved_fig_dir + 'Fig_SA_3D_2.png', bbox_inches='tight')

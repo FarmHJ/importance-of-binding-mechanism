@@ -17,7 +17,7 @@ testing_fig_dir = '../../figures/testing/'
 final_fig_dir = '../../figures/binding_kinetics_comparison/' + drug + '/' + \
     protocol_name + '/'
 
-saved_fig_dir = testing_fig_dir
+saved_fig_dir = final_fig_dir
 
 # panelC_title = 'Verapamil-like drug'
 
@@ -90,6 +90,10 @@ APD_trapping = [max(APD_trapping.loc[i].values.tolist()[1:-1]) for i in
 APD_conductance = [max(APD_conductance.loc[i].values.tolist()[1:-1]) for i in
                    range(APD_conductance.shape[0])]
 
+# for dofetilide - because APD90 of 1000nM not run
+APD_trapping.append(1000)
+APD_conductance.append(1000)
+
 # Initiate constants and variables
 plotting_pulse_time = 1000 * 2
 
@@ -100,6 +104,7 @@ second_EAD_trap = [i for i, e in enumerate(APD_trapping)
                    if e == 1000][1:]
 second_EAD_conduct = [i for i, e in enumerate(APD_conductance)
                       if e == 1000][1:]
+
 if len(second_EAD_trap) <= len(second_EAD_conduct):
     chosen_conc_ind = second_EAD_trap
 else:
@@ -158,20 +163,20 @@ for i in range(len(trapping_data_files)):
     conductance_hERG_log.append(myokit.DataLog.load_csv(
         saved_data_dir + conductance_data_files[i]))
 
-AP_trapping_plot = [e for i, e in enumerate(CiPA_hERG_log)
-                    if i not in chosen_conc_ind]
-AP_conductance_plot = [e for i, e in enumerate(conductance_hERG_log)
-                       if i not in chosen_conc_ind]
+hERG_trapping_plot = [e for i, e in enumerate(CiPA_hERG_log)
+                      if i not in chosen_conc_ind]
+hERG_conductance_plot = [e for i, e in enumerate(conductance_hERG_log)
+                         if i not in chosen_conc_ind]
 
 # Initiate constants and variables
 # labels = labels[:-2]
 pulse_time = 25e3
 
 # Plot figure
-plot.add_multiple(panel1[0][0], CiPA_hERG_log, 'ikr.IKr', labels=labels,
+plot.add_multiple(panel1[0][0], hERG_trapping_plot, 'ikr.IKr', labels=labels,
                   color=cmap)
-plot.add_multiple(panel1[1][0], conductance_hERG_log, 'ikr.IKr', labels=labels,
-                  color=cmap)
+plot.add_multiple(panel1[1][0], hERG_conductance_plot, 'ikr.IKr',
+                  labels=labels, color=cmap)
 
 panel1[1][0].legend()
 panel1[0][0].set_title('State dependent drug block')
@@ -188,11 +193,11 @@ for i in range(2):
 # Top right panel
 panel3 = axs[1]
 
-# APD_trapping = pd.read_csv(saved_data_dir + 'CiPA_APD_fine.csv')
-# APD_conductance = pd.read_csv(saved_data_dir + 'conductance_APD_fine.csv')
-APD_trapping = pd.read_csv(saved_data_dir + 'CiPA_APD_pulses1000.csv')
-APD_conductance = pd.read_csv(saved_data_dir +
-                              'conductance_APD_pulses1000.csv')
+APD_trapping = pd.read_csv(saved_data_dir + 'CiPA_APD_fine.csv')
+APD_conductance = pd.read_csv(saved_data_dir + 'conductance_APD_fine.csv')
+# APD_trapping = pd.read_csv(saved_data_dir + 'CiPA_APD_pulses1000.csv')
+# APD_conductance = pd.read_csv(saved_data_dir +
+#                               'conductance_APD_pulses1000.csv')
 
 drug_conc = APD_trapping['drug concentration'].values.tolist()
 APD_trapping = [max(APD_trapping.loc[i].values.tolist()[1:-1]) for i in
@@ -201,6 +206,9 @@ APD_conductance = [max(APD_conductance.loc[i].values.tolist()[1:-1])
                    for i in range(APD_conductance.shape[0])]
 EAD_marker = [1050 if (i >= 1000 or j >= 1000) else None for (i, j)
               in zip(APD_trapping[1:], APD_conductance[1:])]
+print(drug_conc)
+print(APD_trapping)
+print(APD_conductance)
 
 panel3[0][0].plot(drug_conc[1:], APD_trapping[1:], 'o', color='orange',
                   label='SD model')
@@ -220,4 +228,4 @@ fig.fig.text(0.075, 0.925, '(A)', fontsize=11)
 fig.fig.text(0.075, 0.455, '(B)', fontsize=11)
 fig.fig.text(0.525, 0.925, '(C)', fontsize=11)
 
-fig.savefig(saved_fig_dir + "test.svg", format='svg')
+# fig.savefig(saved_fig_dir + "model_compare.svg", format='svg')

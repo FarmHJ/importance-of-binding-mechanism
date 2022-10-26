@@ -40,10 +40,10 @@ repeats = 1000
 APD_points = 20
 
 param_lib = modelling.BindingParameters()
-# drug_list = param_lib.drug_compounds
-# drug_list = ['dofetilide', 'verapamil', 'terfenadine',
-#              'cisapride', 'quinidine', 'sotalol']
-drug_list = ['cisapride', 'quinidine', 'sotalol']
+drug_list = param_lib.drug_compounds
+# # drug_list = ['dofetilide', 'verapamil', 'terfenadine',
+# #              'cisapride', 'quinidine', 'sotalol']
+# drug_list = ['cisapride', 'quinidine', 'sotalol']
 SA_model = modelling.SensitivityAnalysis()
 param_names = SA_model.param_names
 parameter_interest = 'N'
@@ -87,8 +87,8 @@ def param_evaluation(param, param_values):
 
             RMSError = ComparisonController.compute_RMSE(APD_trapping,
                                                          APD_conductance)
-            MAError = ComparisonController.compute_MAE(APD_trapping,
-                                                       APD_conductance)
+            MAError = ComparisonController.compute_ME(APD_trapping,
+                                                      APD_conductance)
         except myokit.SimulationError:
             APD_trapping = [float("Nan")] * APD_points
             APD_conductance = [float("Nan")] * APD_points
@@ -105,7 +105,7 @@ def param_evaluation(param, param_values):
                   'param_values': param_names, 'drug_conc_AP': conc_AP_ind,
                   'APD_trapping': conc_AP_ind,
                   'APD_conductance': conc_AP_ind, 'RMSE': ['RMSE'],
-                  'MAE': ['MAE']}
+                  'ME': ['ME']}
     all_index = [(i, j) for i in index_dict.keys() for j in index_dict[i]]
     index = pd.MultiIndex.from_tuples(all_index)
 
@@ -168,6 +168,3 @@ for drug in drug_list:
                 combined_df = pd.concat([combined_df, big_df[i].T])
 
         combined_df.to_csv(saved_data_dir + filename)
-
-        os.system('cp ' + saved_data_dir + filename + ' ' +
-                  saved_data_dir + filename[:-4] + '_copy.csv')

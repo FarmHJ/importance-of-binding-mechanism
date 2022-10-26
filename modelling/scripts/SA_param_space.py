@@ -51,7 +51,13 @@ param_names = SA_model.param_names
 res = 5
 Vhalf_fullrange = SA_model.param_explore('Vhalf', res)
 Vhalf_fullrange = SA_model.param_explore_gaps(Vhalf_fullrange, 3, 'Vhalf')
-Vhalf_range = sorted(Vhalf_fullrange)[::5]
+Vhalf_done = sorted(Vhalf_fullrange)[::5]
+Vhalf_range = sorted([Vhalf_fullrange[i] for i in range(len(Vhalf_fullrange))
+                      if Vhalf_fullrange[i] not in Vhalf_done])
+
+# remove -100.6775 as it is close to -100
+Vhalf_range.pop(8)
+Vhalf_range = np.array(Vhalf_range)
 
 Kmax_range = np.concatenate((np.linspace(1.11078, 1.4771, 3 + 2)[1:-1],
                              np.linspace(1.4771, 2.6387, 7 + 2)[1:-1]))
@@ -138,7 +144,7 @@ def param_evaluation(param_values):
 
 # sample_filepath = saved_data_dir + 'parameter_space_res5.csv'
 # for curve
-sample_filepath = saved_data_dir + 'parameter_space_curve.csv'
+sample_filepath = saved_data_dir + 'parameter_space_curve2.csv'
 param_space = []
 if os.path.exists(sample_filepath):
     param_values_df = pd.read_csv(sample_filepath,
@@ -149,7 +155,7 @@ if os.path.exists(sample_filepath):
 else:
     # counter = 0
     # for curve
-    counter = 15000
+    counter = 17000
     param_values_df = pd.DataFrame(columns=param_names)
     for Vhalf, Kmax, Ku in itertools.product(
             Vhalf_range, Kmax_range, Ku_range):
@@ -162,7 +168,7 @@ else:
         counter += 1
     # param_values_df.to_csv(saved_data_dir + 'parameter_space_res5.csv')
     # for curve
-    param_values_df.to_csv(saved_data_dir + 'parameter_space_curve.csv')
+    param_values_df.to_csv(saved_data_dir + 'parameter_space_curve2.csv')
 
 
 total_samples = len(param_space)
@@ -170,7 +176,7 @@ samples_per_save = 1000
 samples_split_n = int(np.ceil(total_samples / samples_per_save))
 total_saving_file_num = np.arange(samples_split_n)
 
-file_prefix = 'SA_curve_'
+file_prefix = 'SA_curve2_'
 evaluation_result_files = [f for f in os.listdir(saved_data_dir) if
                            f.startswith(file_prefix)]
 if len(evaluation_result_files) == 0:

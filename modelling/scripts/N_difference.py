@@ -1,16 +1,11 @@
 # To make sure that the hERG current and action potential are not affected by
-# the normalisation
+# the change in Hill's coefficient
 
-import matplotlib.pyplot as plt
-import myokit
 import numpy as np
 import os
 import pandas as pd
 
-import modelling
-
 saved_data_dir = '../../simulation_data/sensitivity_analysis/N/'
-saved_fig_dir = '../../figures/sensitivity_analysis/N/'
 
 # Read data for drugs
 saved_data_dir = '../../simulation_data/'
@@ -44,16 +39,12 @@ for drug in drug_list:
         [drug] + delta_RMSD_stats,
         index=['drug', 'deltaRMSD_min', 'deltaRMSD_max', 'deltaRMSD_mean'])
 
-    # if os.path.exists(saved_data_dir + percentage_diff_filename):
-    #     combined_df = pd.read_csv(saved_data_dir + filename,
-    #                                   header=[0, 1], index_col=[0],
-    #                                   skipinitialspace=True)
-    #         for i in range(len(big_df)):
-    #             combined_df = pd.concat([combined_df, big_df[i].T])
-    #     else:
-    #         combined_df = big_df[0].T
-    #         for i in range(1, len(big_df)):
-    #             combined_df = pd.concat([combined_df, big_df[i].T])
+    if os.path.exists(saved_data_dir + percentage_diff_filename):
+        combined_df = pd.read_csv(saved_data_dir + percentage_diff_filename,
+                                  header=[0, 1], index_col=[0],
+                                  skipinitialspace=True)
+        combined_df = pd.concat([combined_df, delta_RMSD_df.T])
+    else:
+        combined_df = delta_RMSD_df.T
 
-    #     combined_df.to_csv(saved_data_dir + filename)
-    
+    combined_df.to_csv(saved_data_dir + percentage_diff_filename)

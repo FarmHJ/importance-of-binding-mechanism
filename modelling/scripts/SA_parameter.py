@@ -9,7 +9,7 @@ import pints
 
 import modelling
 
-saved_data_dir = '../../simulation_data/sensitivity_analysis/'
+saved_data_dir = '../../simulation_data/sensitivity_analysis/N/'
 
 # Load IKr model
 model = '../../model/ohara-cipa-v1-2017-IKr.mmt'
@@ -118,6 +118,7 @@ def param_evaluation(param, param_values):
     return big_df
 
 
+drug_list = ['bepridil']
 for drug in drug_list:
     print(drug)
     Vhalf = param_lib.binding_parameters[drug]['Vhalf']
@@ -146,6 +147,7 @@ for drug in drug_list:
         ran_values = []
 
     param_range = [i for i in param_range if i not in ran_values]
+    print(param_range)
     n_workers = 8
     evaluator = pints.ParallelEvaluator(param_evaluation,
                                         n_workers=n_workers,

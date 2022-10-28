@@ -43,7 +43,7 @@ if not fig_short:
         k in range(len(subgs))]
 else:
     fig = modelling.figures.FigureStructure(
-        figsize=(10, 3),
+        figsize=(9, 3),
         gridspec=(1, 2),
         wspace=0.3,
         plot_in_subgrid=True)
@@ -212,10 +212,10 @@ EAD_marker = [1050 if (i >= 1000 or j >= 1000) else None for (i, j)
 
 # Left panel
 panel5[0][0].plot(drug_conc[1:], APD_trapping[1:],
-                  'o', color='orange', label='state dependent drug block')
+                  'o', color='orange', label='SD model')
 panel5[0][0].plot(drug_conc[1:], APD_conductance[1:],
-                  '^', color='blue', label='conductance scaling', alpha=0.8)
-panel5[0][0].plot(drug_conc[1:], EAD_marker, marker=(5, 2), color='k',
+                  '^', color='blue', label='CS model', alpha=0.8)
+panel5[0][0].scatter(drug_conc[1:], EAD_marker, marker=(5, 2), color='k',
                   label='EAD-like AP')
 panel5[0][0].set_xscale("log", nonpositive='clip')
 panel5[0][0].set_xlabel('Drug concentration (nM)')
@@ -237,6 +237,7 @@ drug_conc_lib = modelling.DrugConcentrations()
 conc_grid = drug_conc_lib.drug_concentrations[drug]['fine']
 
 protocol_list = modelling.ProtocolParameters().protocols
+line_pattern = ['solid', 'dashed', 'dotted', 'dashdot']
 
 for p, prot in enumerate(protocol_list):
     Hill_eq = Hill_coef_df.loc[
@@ -244,7 +245,7 @@ for p, prot in enumerate(protocol_list):
     Hill_eq = Hill_eq.values.tolist()[0][1:-1]
 
     panel6[0][0].plot(conc_grid, Hill_model.simulate(
-        Hill_eq, conc_grid), '-', color=color[p],
+        Hill_eq, conc_grid), linestyle=line_pattern[p], color=color[p],
         label=prot)
 
 panel6[0][0].set_xscale("log", nonpositive='clip')
@@ -255,69 +256,71 @@ panel6[0][0].legend()
 if not fig_short:
     fig.savefig(saved_fig_dir + 'sensitivity_summary.pdf')
 else:
+    fig.fig.text(0.075, 0.88, '(A)', fontsize=11)
+    fig.fig.text(0.5, 0.88, '(B)', fontsize=11)
     fig.savefig(saved_fig_dir + 'sensitivity_APD_Hill.pdf')
 
-# Figure 2
-APD_trapping = pd.read_csv(saved_data_dir + 'CiPA_APD_pulses1000.csv')
-APD_conductance = pd.read_csv(
-    saved_data_dir + 'conductance_APD_pulses1000.csv')
-
-APD_trapping_concs = []
-APD_conductance_concs = []
-drug_conc = APD_trapping['drug concentration'].values.tolist()
-drug_conc = [i for i in drug_conc if i != 0]
-
-for _, conc in enumerate(drug_conc):
-    APD_conc = APD_trapping.loc[
-        APD_trapping['drug concentration'] == conc]
-    APD_conc = APD_conc.drop(
-        columns='drug concentration').values.tolist()[0][1:]
-    saved_signal = len(APD_conc)
-    APD_trapping_concs.append(APD_conc)
-
-    APD_conc = APD_conductance.loc[
-        APD_conductance['drug concentration'] == conc]
-    APD_conc = APD_conc.drop(
-        columns='drug concentration').values.tolist()[0][1:]
-    APD_conductance_concs.append(APD_conc)
-
-nrow = int(np.ceil(len(drug_conc) / 4))
-fig = modelling.figures.FigureStructure(
-    figsize=(10, 2.5 * nrow),
-    gridspec=(nrow, 4), hspace=0.3,
-    wspace=0.1,
-    height_ratios=[1] * nrow)
-
-for i in range(len(drug_conc)):
-    # APD_plot = [APD_trapping_concs[i][ind] for ind in
-    #             range(len(APD_trapping_concs[i])) if ind % 2 == 0]
-    APD_plot = APD_trapping_concs[i]
-    pulse_num = len(APD_plot)
-    fig.axs[int(i / 4)][i % 4].plot(np.arange(pulse_num), APD_plot, 'o',
-                                    ms=0.9,
-                                    label='state dependent\ndrug block',
-                                    color='orange', zorder=-10)
-    # APD_plot = [APD_conductance_concs[i][ind] for ind in
-    #             range(len(APD_conductance_concs[i])) if ind % 2 == 0]
-    APD_plot = APD_conductance_concs[i]
-    fig.axs[int(i / 4)][i % 4].plot(np.arange(pulse_num), APD_plot, 'o',
-                                    ms=0.9, label='conductance\nscaling',
-                                    color='blue', zorder=-10)
-    fig.axs[int(i / 4)][i % 4].set_title(str(drug_conc[i]) + 'nM')
-    fig.axs[int(i / 4)][i % 4].set_rasterization_zorder(0)
-
-lim_APD = []
-for r in range(nrow):
-    combine_APD = []
-    for i in range(4):
-        combine_APD += APD_trapping_concs[i + 4 * r]
-        combine_APD += APD_conductance_concs[i + 4 * r]
-    lim_APD.append((min(combine_APD) - 30, max(combine_APD) + 30))
-lgnd = fig.axs[0][3].legend(loc='lower left', bbox_to_anchor=(1.0, 0),
-                            handlelength=1)
-for handle in lgnd.legendHandles:
-    handle.set_markersize(6)
-fig.sharex(['Sweeps'] * 4)
-fig.sharey([r"APD$_{90}$ (ms)"] * nrow, lim_APD)
-
-fig.savefig(saved_fig_dir + 'sensitivity_transientAPD.pdf')
+# # Figure 2
+# APD_trapping = pd.read_csv(saved_data_dir + 'CiPA_APD_pulses1000.csv')
+# APD_conductance = pd.read_csv(
+#     saved_data_dir + 'conductance_APD_pulses1000.csv')
+# 
+# APD_trapping_concs = []
+# APD_conductance_concs = []
+# drug_conc = APD_trapping['drug concentration'].values.tolist()
+# drug_conc = [i for i in drug_conc if i != 0]
+# 
+# for _, conc in enumerate(drug_conc):
+#     APD_conc = APD_trapping.loc[
+#         APD_trapping['drug concentration'] == conc]
+#     APD_conc = APD_conc.drop(
+#         columns='drug concentration').values.tolist()[0][1:]
+#     saved_signal = len(APD_conc)
+#     APD_trapping_concs.append(APD_conc)
+# 
+#     APD_conc = APD_conductance.loc[
+#         APD_conductance['drug concentration'] == conc]
+#     APD_conc = APD_conc.drop(
+#         columns='drug concentration').values.tolist()[0][1:]
+#     APD_conductance_concs.append(APD_conc)
+# 
+# nrow = int(np.ceil(len(drug_conc) / 4))
+# fig = modelling.figures.FigureStructure(
+#     figsize=(10, 2.5 * nrow),
+#     gridspec=(nrow, 4), hspace=0.3,
+#     wspace=0.1,
+#     height_ratios=[1] * nrow)
+# 
+# for i in range(len(drug_conc)):
+#     # APD_plot = [APD_trapping_concs[i][ind] for ind in
+#     #             range(len(APD_trapping_concs[i])) if ind % 2 == 0]
+#     APD_plot = APD_trapping_concs[i]
+#     pulse_num = len(APD_plot)
+#     fig.axs[int(i / 4)][i % 4].plot(np.arange(pulse_num), APD_plot, 'o',
+#                                     ms=0.9,
+#                                     label='state dependent\ndrug block',
+#                                     color='orange', zorder=-10)
+#     # APD_plot = [APD_conductance_concs[i][ind] for ind in
+#     #             range(len(APD_conductance_concs[i])) if ind % 2 == 0]
+#     APD_plot = APD_conductance_concs[i]
+#     fig.axs[int(i / 4)][i % 4].plot(np.arange(pulse_num), APD_plot, 'o',
+#                                     ms=0.9, label='conductance\nscaling',
+#                                     color='blue', zorder=-10)
+#     fig.axs[int(i / 4)][i % 4].set_title(str(drug_conc[i]) + 'nM')
+#     fig.axs[int(i / 4)][i % 4].set_rasterization_zorder(0)
+# 
+# lim_APD = []
+# for r in range(nrow):
+#     combine_APD = []
+#     for i in range(4):
+#         combine_APD += APD_trapping_concs[i + 4 * r]
+#         combine_APD += APD_conductance_concs[i + 4 * r]
+#     lim_APD.append((min(combine_APD) - 30, max(combine_APD) + 30))
+# lgnd = fig.axs[0][3].legend(loc='lower left', bbox_to_anchor=(1.0, 0),
+#                             handlelength=1)
+# for handle in lgnd.legendHandles:
+#     handle.set_markersize(6)
+# fig.sharex(['Sweeps'] * 4)
+# fig.sharey([r"APD$_{90}$ (ms)"] * nrow, lim_APD)
+# 
+# fig.savefig(saved_fig_dir + 'sensitivity_transientAPD.pdf')

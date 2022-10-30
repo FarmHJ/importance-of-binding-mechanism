@@ -71,21 +71,21 @@ def param_evaluation(param_values, drug):
         MAError = float("Nan")
     else:
         # Simulate action potentials
-        try:
-            APD_trapping, APD_conductance, drug_conc_AP = \
-                ComparisonController.APD_sim(
-                    AP_model, Hill_curve_coefs, drug_conc=drug_conc_AP,
-                    EAD=True)
+ #        try:
+        APD_trapping, APD_conductance, drug_conc_AP = \
+            ComparisonController.APD_sim(
+                AP_model, Hill_curve_coefs, drug_conc=drug_conc_AP,
+                EAD=True)
 
-            RMSError = ComparisonController.compute_RMSE(APD_trapping,
-                                                         APD_conductance)
-            MAError = ComparisonController.compute_MAE(APD_trapping,
-                                                       APD_conductance)
-        except myokit.SimulationError:
-            APD_trapping = [float("Nan")] * APD_points
-            APD_conductance = [float("Nan")] * APD_points
-            RMSError = float("Nan")
-            MAError = float("Nan")
+        RMSError = ComparisonController.compute_RMSE(APD_trapping,
+                                                     APD_conductance)
+        MAError = ComparisonController.compute_MAE(APD_trapping,
+                                                   APD_conductance)
+#         except myokit.SimulationError:
+#             APD_trapping = [float("Nan")] * APD_points
+#             APD_conductance = [float("Nan")] * APD_points
+#             RMSError = float("Nan")
+#             MAError = float("Nan")
 
     # Create dataframe to save results
     conc_Hill_ind = ['conc_' + str(i) for i, _ in
@@ -111,17 +111,19 @@ def param_evaluation(param_values, drug):
     return big_df
 
 
-filename = 'SA_alldrugs.csv'
-if os.path.exists(saved_data_dir + filename):
-    results_df = pd.read_csv(saved_data_dir + filename,
-                             header=[0, 1], index_col=[0],
-                             skipinitialspace=True)
-    ran_drugs = results_df['drug']['drug'].values
-else:
-    ran_drugs = []
-
-drug_list = [i for i in drug_list if i not in ran_drugs]
-print(drug_list)
+filename = 'testing.csv'
+# filename = 'SA_alldrugs.csv'
+# if os.path.exists(saved_data_dir + filename):
+#     results_df = pd.read_csv(saved_data_dir + filename,
+#                              header=[0, 1], index_col=[0],
+#                              skipinitialspace=True)
+#     ran_drugs = results_df['drug']['drug'].values
+# else:
+#     ran_drugs = []
+# 
+# drug_list = [i for i in drug_list if i not in ran_drugs]
+# print(drug_list)
+drug_list = ['dofetilide']
 # first_iter = True
 for drug in drug_list:
     print(drug)

@@ -51,10 +51,12 @@ param_names = SA_model.param_names
 res = 5
 Vhalf_fullrange = SA_model.param_explore('Vhalf', res)
 Vhalf_fullrange = SA_model.param_explore_gaps(Vhalf_fullrange, 3, 'Vhalf')
-Vhalf_range = sorted(Vhalf_fullrange)[::5]
-# Vhalf_range = sorted([Vhalf_fullrange[i] for i in range(len(Vhalf_fullrange))
-#                       if Vhalf_fullrange[i] not in Vhalf_done])
+Vhalf_done = sorted(Vhalf_fullrange)[::5]
+# Vhalf_range = sorted(Vhalf_fullrange)[15::2]
+Vhalf_range = sorted([Vhalf_fullrange[i] for i in range(len(Vhalf_fullrange))
+                      if Vhalf_fullrange[i] not in Vhalf_done])
 
+print(Vhalf_range)
 # # remove -100.6775 as it is close to -100
 # Vhalf_range.pop(8)
 # Vhalf_range = np.array(Vhalf_range)
@@ -87,6 +89,11 @@ Kmax_range2 = 10**Kmax_range2
 
 Ku_range2 = np.linspace(Ku_fullrange[0], Ku_fullrange[1], 3 + 2)[1:-1]
 Ku_range2 = 10**Ku_range2
+
+Kmax_range3 = Kmax_fullrange[6:]
+Kmax_range3 = 10**Kmax_range3
+Ku_range3 = np.linspace(-5, Ku_fullrange[0], 3 + 2)[:-1]
+Ku_range3 = 10**Ku_range3
 
 starting_param_df = pd.DataFrame([1] * 5, index=param_names).T
 ComparisonController = modelling.ModelComparison(starting_param_df)
@@ -164,7 +171,8 @@ def param_evaluation(param_values):
 
 # sample_filepath = saved_data_dir + 'parameter_space_res5.csv'
 # for curve
-sample_filepath = saved_data_dir + 'parameter_space_curve3.csv'
+# simulations for parameters in parameter_space_curve2.csv not completed 
+sample_filepath = saved_data_dir + 'parameter_space_curve3_test.csv'
 param_space = []
 if os.path.exists(sample_filepath):
     param_values_df = pd.read_csv(sample_filepath,
@@ -177,7 +185,7 @@ else:
     # for curve
     counter = 20000
     param_values_df = pd.DataFrame(columns=param_names)
-    for Kmax_range_i, Ku_range_i in zip([Kmax_range1, Kmax_range2], [Ku_range1, Ku_range2]):
+    for Kmax_range_i, Ku_range_i in zip([Kmax_range1, Kmax_range2, Kmax_range3], [Ku_range1, Ku_range2, Ku_range3]):
         for Vhalf, Kmax, Ku in itertools.product(
                 Vhalf_range, Kmax_range_i, Ku_range_i):
 
@@ -188,8 +196,26 @@ else:
             param_values_df = pd.concat([param_values_df, param_values])
             counter += 1
     # for curve
-    param_values_df.to_csv(saved_data_dir + 'parameter_space_curve3.csv')
+    param_values_df.to_csv(saved_data_dir + 'parameter_space_curve_test.csv')
 
+# param_values_df = pd.read_csv(sample_filepath,
+#                               header=[0], index_col=[0],
+#                               skipinitialspace=True)
+# 
+# Kmax_range_i = Kmax_range3
+# Ku_range_i = Ku_range3
+# counter = param_values_df['param_id'].values[-1] + 1
+# for Vhalf, Kmax, Ku in itertools.product(
+#         Vhalf_range, Kmax_range_i, Ku_range_i):
+# 
+#     param_values = pd.DataFrame([counter, Vhalf, Kmax, Ku, 1, 1],
+#                                 index=['param_id'] + param_names)
+#     param_values = param_values.T
+#     param_space.append(param_values)
+#     param_values_df = pd.concat([param_values_df, param_values])
+#     counter += 1
+# # for curve
+# param_values_df.to_csv(saved_data_dir + 'parameter_space_curve3.csv')
 
 total_samples = len(param_space)
 samples_per_save = 1000

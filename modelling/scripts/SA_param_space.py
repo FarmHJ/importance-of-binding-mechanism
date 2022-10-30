@@ -245,7 +245,7 @@ for curve_num in ['curve2', 'curve3']:
         saving_file_dict = {'file_num': sorted(file_num_to_run),
                             'sample_id_each_file': file_id_dict}
 
-    n_workers = 40
+    n_workers = 8
     evaluator = pints.ParallelEvaluator(param_evaluation,
                                         n_workers=n_workers)
     for file_num in saving_file_dict['file_num']:

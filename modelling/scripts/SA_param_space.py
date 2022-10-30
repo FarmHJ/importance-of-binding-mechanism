@@ -7,6 +7,7 @@ import numpy as np
 import os
 import pandas as pd
 import pints
+import time
 
 import modelling
 
@@ -249,6 +250,8 @@ for curve_num in ['curve2', 'curve3']:
                                         n_workers=n_workers)
     for file_num in saving_file_dict['file_num']:
         print('Starting function evaluation for file number: ', file_num)
+        current_time = time.strftime("%H:%M:%S", time.localtime())
+        print('Starting time: ', current_time)
         samples_to_run = saving_file_dict['sample_id_each_file'][file_num]
         samples_num = len(samples_to_run)
         filename = file_prefix + str(file_num) + '.csv'
@@ -256,7 +259,8 @@ for curve_num in ['curve2', 'curve3']:
         for i in range(int(np.ceil(samples_num / n_workers))):
             subset_samples_to_run = samples_to_run[
                 n_workers * i:n_workers * (i + 1)]
-            print('Running samples: ', subset_samples_to_run)
+            print('Running samples ', int(subset_samples_to_run[0]), ' to ',
+              int(subset_samples_to_run[-1]))
             subset_param_space = param_values_df.loc[
                 param_values_df['param_id'].isin(subset_samples_to_run)]
             param_space = []

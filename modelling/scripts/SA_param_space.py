@@ -10,7 +10,8 @@ import pints
 
 import modelling
 
-saved_data_dir = '../../simulation_data/sensitivity_analysis/'
+param_space_dir = '../../simulation_results/parameter_space/'
+saved_data_dir = '../../simulation_results/SA_curve/'
 
 # Load IKr model
 model = '../../model/ohara-cipa-v1-2017-IKr.mmt'
@@ -51,14 +52,15 @@ param_names = SA_model.param_names
 res = 5
 Vhalf_fullrange = SA_model.param_explore('Vhalf', res)
 Vhalf_fullrange = SA_model.param_explore_gaps(Vhalf_fullrange, 3, 'Vhalf')
-Vhalf_done = sorted(Vhalf_fullrange)[::5]
-# Vhalf_range = sorted(Vhalf_fullrange)[15::2]
-Vhalf_range = sorted([Vhalf_fullrange[i] for i in range(len(Vhalf_fullrange))
-                      if Vhalf_fullrange[i] not in Vhalf_done])
+# Vhalf_done = sorted(Vhalf_fullrange)[::5]
+# Vhalf_done = sorted(Vhalf_fullrange)[15::2]
+# Vhalf_range = sorted([Vhalf_fullrange[i] for i in range(len(Vhalf_fullrange))
+#                       if Vhalf_fullrange[i] not in Vhalf_done])
+Vhalf_range = sorted(Vhalf_fullrange)
 
-print(Vhalf_range)
+# print(Vhalf_range)
 # # remove -100.6775 as it is close to -100
-# Vhalf_range.pop(8)
+Vhalf_range.pop(11)
 # Vhalf_range = np.array(Vhalf_range)
 
 # Kmax_range = np.concatenate((np.linspace(1.11078, 1.4771, 3 + 2)[1:-1],
@@ -171,124 +173,107 @@ def param_evaluation(param_values):
 
 # sample_filepath = saved_data_dir + 'parameter_space_res5.csv'
 # for curve
-# simulations for parameters in parameter_space_curve2.csv not completed 
-sample_filepath = saved_data_dir + 'parameter_space_curve3_test.csv'
-param_space = []
-if os.path.exists(sample_filepath):
+# simulations for parameters in parameter_space_curve2.csv not completed
+for curve_num in ['curve2', 'curve3']:
+    sample_filepath = param_space_dir + 'parameter_space_' + curve_num + '.csv'
+    print('Running for parameter space file number : ', curve_num)
+    param_space = []
+    # if os.path.exists(sample_filepath):
     param_values_df = pd.read_csv(sample_filepath,
                                   header=[0], index_col=[0],
                                   skipinitialspace=True)
     for i in range(len(param_values_df.index)):
         param_space.append(param_values_df.iloc[[i]])
-else:
-    # counter = 0
-    # for curve
-    counter = 20000
-    param_values_df = pd.DataFrame(columns=param_names)
-    for Kmax_range_i, Ku_range_i in zip([Kmax_range1, Kmax_range2, Kmax_range3], [Ku_range1, Ku_range2, Ku_range3]):
-        for Vhalf, Kmax, Ku in itertools.product(
-                Vhalf_range, Kmax_range_i, Ku_range_i):
+    # else:
+    #     # counter = 0
+    #     # for curve
+    #     counter = 20000
+    #     param_values_df = pd.DataFrame(columns=param_names)
+    #     for Kmax_range_i, Ku_range_i in zip([Kmax_range1, Kmax_range3], [Ku_range1, Ku_range3]):
+    #         for Vhalf, Kmax, Ku in itertools.product(
+    #                 Vhalf_range, Kmax_range_i, Ku_range_i):
 
-            param_values = pd.DataFrame([counter, Vhalf, Kmax, Ku, 1, 1],
-                                        index=['param_id'] + param_names)
-            param_values = param_values.T
-            param_space.append(param_values)
-            param_values_df = pd.concat([param_values_df, param_values])
-            counter += 1
-    # for curve
-    param_values_df.to_csv(saved_data_dir + 'parameter_space_curve_test.csv')
+    #             param_values = pd.DataFrame([counter, Vhalf, Kmax, Ku, 1, 1],
+    #                                         index=['param_id'] + param_names)
+    #             param_values = param_values.T
+    #             param_space.append(param_values)
+    #             param_values_df = pd.concat([param_values_df, param_values])
+    #             counter += 1
+    #     # for curve
+    #     param_values_df.to_csv(param_space_dir + 'parameter_space_curve3.csv')
 
-# param_values_df = pd.read_csv(sample_filepath,
-#                               header=[0], index_col=[0],
-#                               skipinitialspace=True)
-# 
-# Kmax_range_i = Kmax_range3
-# Ku_range_i = Ku_range3
-# counter = param_values_df['param_id'].values[-1] + 1
-# for Vhalf, Kmax, Ku in itertools.product(
-#         Vhalf_range, Kmax_range_i, Ku_range_i):
-# 
-#     param_values = pd.DataFrame([counter, Vhalf, Kmax, Ku, 1, 1],
-#                                 index=['param_id'] + param_names)
-#     param_values = param_values.T
-#     param_space.append(param_values)
-#     param_values_df = pd.concat([param_values_df, param_values])
-#     counter += 1
-# # for curve
-# param_values_df.to_csv(saved_data_dir + 'parameter_space_curve3.csv')
+    total_samples = len(param_space)
+    samples_per_save = 1000
+    samples_split_n = int(np.ceil(total_samples / samples_per_save))
+    total_saving_file_num = np.arange(samples_split_n)
 
-total_samples = len(param_space)
-samples_per_save = 1000
-samples_split_n = int(np.ceil(total_samples / samples_per_save))
-total_saving_file_num = np.arange(samples_split_n)
+    file_prefix = 'SA_' + curve_num + '_'
+    evaluation_result_files = [f for f in os.listdir(saved_data_dir) if
+                               f.startswith(file_prefix)]
+    if len(evaluation_result_files) == 0:
+        file_id_dict = {}
+        for i in range(samples_split_n):
+            file_id_dict[i] = param_values_df['param_id'].values[
+                i * samples_per_save: (i + 1) * samples_per_save]
+        saving_file_dict = {'file_num': total_saving_file_num,
+                            'sample_id_each_file': file_id_dict}
+    else:
+        # to include missing file
+        result_files_num = [int(fname[len(file_prefix):-4]) for fname in
+                            evaluation_result_files]
+        file_num_to_run = []
+        file_id_dict = {}
+        missing_file = [i for i in total_saving_file_num
+                        if i not in result_files_num]
+        for i in missing_file:
+            file_id_dict[i] = param_values_df['param_id'].values[
+                i * samples_per_save: (i + 1) * samples_per_save]
+            file_num_to_run.append(i)
+        for file in evaluation_result_files:
+            file_num = int(file[len(file_prefix):-4])
+            saved_results_df = pd.read_csv(saved_data_dir + file,
+                                           header=[0, 1], index_col=[0],
+                                           skipinitialspace=True)
+            ran_values = saved_results_df['param_id']['param_id'].values
+            expected_ids = param_values_df['param_id'].values[
+                file_num * samples_per_save: (file_num + 1) * samples_per_save]
+            param_space_id = [i for i in expected_ids if i not in ran_values]
+            if len(param_space) != 0:
+                file_num_to_run.append(file_num)
+                file_id_dict[file_num] = param_space_id
+        saving_file_dict = {'file_num': sorted(file_num_to_run),
+                            'sample_id_each_file': file_id_dict}
 
-file_prefix = 'SA_curve3_'
-evaluation_result_files = [f for f in os.listdir(saved_data_dir) if
-                           f.startswith(file_prefix)]
-if len(evaluation_result_files) == 0:
-    file_id_dict = {}
-    for i in range(samples_split_n):
-        file_id_dict[i] = param_values_df['param_id'].values[
-            i * samples_per_save: (i + 1) * samples_per_save]
-    saving_file_dict = {'file_num': total_saving_file_num,
-                        'sample_id_each_file': file_id_dict}
-else:
-    # to include missing file
-    result_files_num = [int(fname[len(file_prefix):-4]) for fname in
-                        evaluation_result_files]
-    file_num_to_run = []
-    file_id_dict = {}
-    missing_file = [i for i in total_saving_file_num
-                    if i not in result_files_num]
-    for i in missing_file:
-        file_id_dict[i] = param_values_df['param_id'].values[
-            i * samples_per_save: (i + 1) * samples_per_save]
-        file_num_to_run.append(i)
-    for file in evaluation_result_files:
-        file_num = int(file[len(file_prefix):-4])
-        saved_results_df = pd.read_csv(saved_data_dir + file,
-                                       header=[0, 1], index_col=[0],
-                                       skipinitialspace=True)
-        ran_values = saved_results_df['param_id']['param_id'].values
-        expected_ids = param_values_df['param_id'].values[
-            file_num * samples_per_save: (file_num + 1) * samples_per_save]
-        param_space_id = [i for i in expected_ids if i not in ran_values]
-        if len(param_space) != 0:
-            file_num_to_run.append(file_num)
-            file_id_dict[file_num] = param_space_id
-    saving_file_dict = {'file_num': sorted(file_num_to_run),
-                        'sample_id_each_file': file_id_dict}
+    n_workers = 8
+    evaluator = pints.ParallelEvaluator(param_evaluation,
+                                        n_workers=n_workers)
+    for file_num in saving_file_dict['file_num']:
+        print('Starting function evaluation for file number: ', file_num)
+        samples_to_run = saving_file_dict['sample_id_each_file'][file_num]
+        samples_num = len(samples_to_run)
+        filename = file_prefix + str(file_num) + '.csv'
 
-n_workers = 8
-evaluator = pints.ParallelEvaluator(param_evaluation,
-                                    n_workers=n_workers)
-for file_num in saving_file_dict['file_num']:
-    print('Starting function evaluation for file number: ', file_num)
-    samples_to_run = saving_file_dict['sample_id_each_file'][file_num]
-    samples_num = len(samples_to_run)
-    filename = file_prefix + str(file_num) + '.csv'
+        for i in range(int(np.ceil(samples_num / n_workers))):
+            subset_samples_to_run = samples_to_run[
+                n_workers * i:n_workers * (i + 1)]
+            print('Running samples: ', subset_samples_to_run)
+            subset_param_space = param_values_df.loc[
+                param_values_df['param_id'].isin(subset_samples_to_run)]
+            param_space = []
+            for i in range(len(subset_param_space.index)):
+                param_space.append(subset_param_space.iloc[[i]])
 
-    for i in range(int(np.ceil(samples_num / n_workers))):
-        subset_samples_to_run = samples_to_run[
-            n_workers * i:n_workers * (i + 1)]
-        print('Running samples: ', subset_samples_to_run)
-        subset_param_space = param_values_df.loc[
-            param_values_df['param_id'].isin(subset_samples_to_run)]
-        param_space = []
-        for i in range(len(subset_param_space.index)):
-            param_space.append(subset_param_space.iloc[[i]])
+            big_df = evaluator.evaluate(param_space)
 
-        big_df = evaluator.evaluate(param_space)
+            if os.path.exists(saved_data_dir + filename):
+                combined_df = pd.read_csv(saved_data_dir + filename,
+                                          header=[0, 1], index_col=[0],
+                                          skipinitialspace=True)
+                for i in range(len(big_df)):
+                    combined_df = pd.concat([combined_df, big_df[i].T])
+            else:
+                combined_df = big_df[0].T
+                for i in range(1, len(big_df)):
+                    combined_df = pd.concat([combined_df, big_df[i].T])
 
-        if os.path.exists(saved_data_dir + filename):
-            combined_df = pd.read_csv(saved_data_dir + filename,
-                                      header=[0, 1], index_col=[0],
-                                      skipinitialspace=True)
-            for i in range(len(big_df)):
-                combined_df = pd.concat([combined_df, big_df[i].T])
-        else:
-            combined_df = big_df[0].T
-            for i in range(1, len(big_df)):
-                combined_df = pd.concat([combined_df, big_df[i].T])
-
-        combined_df.to_csv(saved_data_dir + filename)
+            combined_df.to_csv(saved_data_dir + filename)

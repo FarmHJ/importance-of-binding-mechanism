@@ -83,7 +83,7 @@ ax.set_ylabel('RMSD (ms)')
 ax2 = fig.add_subplot(1, 2, 2)
 ax2.boxplot(delta_RMSD_boxplot)
 ax2.set_xticks(np.arange(12) + 1, labels=drug_list)
-ax2.set_ylabel('RMSD (ms)')
+ax2.set_ylabel('RMSD difference (ms)')
 
 plt.setp(ax.get_xticklabels(), rotation=45, ha='right', rotation_mode='anchor')
 plt.setp(ax2.get_xticklabels(), rotation=45, ha='right', rotation_mode='anchor')

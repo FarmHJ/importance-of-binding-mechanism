@@ -175,7 +175,7 @@ def param_evaluation(param_values):
 # sample_filepath = saved_data_dir + 'parameter_space_res5.csv'
 # for curve
 # simulations for parameters in parameter_space_curve2.csv not completed
-for curve_num in ['curve3', 'curve2']:
+for curve_num in ['curve3']:
     sample_filepath = param_space_dir + 'parameter_space_' + curve_num + '.csv'
     print('Running for parameter space file number : ', curve_num)
     param_space = []
@@ -248,7 +248,7 @@ for curve_num in ['curve3', 'curve2']:
     n_workers = 8
     evaluator = pints.ParallelEvaluator(param_evaluation,
                                         n_workers=n_workers)
-    for file_num in np.flip(saving_file_dict['file_num']):
+    for file_num in saving_file_dict['file_num']:
         print('Starting function evaluation for file number: ', file_num)
         current_time = time.strftime("%H:%M:%S", time.localtime())
         print('Starting time: ', current_time)

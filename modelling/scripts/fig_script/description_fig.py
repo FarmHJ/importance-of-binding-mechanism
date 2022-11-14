@@ -89,13 +89,13 @@ plot.add_multiple(panel2[0][0], conductance_hERG_log, 'ikr.IKr',
 panel1[0][0].set_title('State-dependent drug block')
 panel2[0][0].set_title('Conductance scaling drug block')
 fig.sharex(['Time (s)'], [(0, pulse_time)],
-            axs=panel1, subgridspec=subgridspecs[0])
+           axs=panel1, subgridspec=subgridspecs[0])
 fig.sharex(['Time (s)'], [(0, pulse_time)],
-            axs=panel2, subgridspec=subgridspecs[3])
+           axs=panel2, subgridspec=subgridspecs[3])
 fig.sharey(['Current (A/F)'],
-            axs=panel1, subgridspec=subgridspecs[0])
+           axs=panel1, subgridspec=subgridspecs[0])
 fig.sharey(['Current (A/F)'],
-            axs=panel2, subgridspec=subgridspecs[3])
+           axs=panel2, subgridspec=subgridspecs[3])
 fig.adjust_ticks(panel1[0][0], pulse_time)
 fig.adjust_ticks(panel2[0][0], pulse_time)
 

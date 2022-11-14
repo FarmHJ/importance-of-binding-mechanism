@@ -23,7 +23,7 @@ fig = modelling.figures.FigureStructure(
     # wspace=0.55,
     figsize=(10, 8),
     gridspec=(3, 2), hspace=0.5,
-    wspace=0.45,
+    wspace=0.47,
     height_ratios=[1, 1, 1],
     plot_in_subgrid=True)
 plot = modelling.figures.FigurePlot()
@@ -131,20 +131,26 @@ for i in range(len(drug_conc)):
     APD_plot = [APD_conductance_concs[i][ind] for ind in
                 range(len(APD_conductance_concs[i])) if ind % 2 == 0]
     panel5[0][i].plot(np.arange(saved_signal / 2) * 2, APD_plot, 'o', ms=0.9,
-                      label='conductance\nscaling', color='blue')
+                      label='CS model', color='blue')
 
     APD_plot = [APD_trapping_concs[i][ind] for ind in
                 range(len(APD_trapping_concs[i])) if ind % 2 == 0]
     panel5[0][i].plot(np.arange(saved_signal / 2) * 2, APD_plot, 'o', ms=0.9,
-                      label='state dependent\ndrug block', color='orange')
+                      label='SD model', color='orange')
     panel5[0][i].set_title(str(drug_conc[i]) + ' nM')
 
 panel5[0][0].plot(0, 1050, 'o', color='k', marker=(5, 2))
 panel5[0][1].plot(150, 1050, 'o', color='k', marker=(5, 2),
-                  label='EAD-like\nbehaviour')
-# panel5[0][1].legend(loc='lower left', bbox_to_anchor=(1.0, 0),
-#                     handlelength=1)
-fig.sharex(['Sweeps'] * 2,
+                  label='EAD-like\nAP')
+handles, labels = panel5[0][1].get_legend_handles_labels()
+lgd_order = [1, 0, 2]
+lgnd = panel5[0][1].legend([handles[idx] for idx in lgd_order],
+                           [labels[idx] for idx in lgd_order],
+                           loc='lower left', bbox_to_anchor=(1.0, 0),
+                           handlelength=1)
+for handle in lgnd.legendHandles:
+    handle.set_markersize(6)
+fig.sharex(['Pulses'] * 2,
            axs=panel5, subgridspec=subgridspecs[4])
 fig.sharey([r"APD$_{90}$ (ms)"],
            axs=panel5, subgridspec=subgridspecs[4])
@@ -256,7 +262,7 @@ lgnd = panel6[0][1].legend(loc='lower left', bbox_to_anchor=(1.0, 0),
                            handlelength=1)
 for handle in lgnd.legendHandles:
     handle.set_markersize(6)
-fig.sharex(['Sweeps'] * 2,
+fig.sharex(['Pulses'] * 2,
            axs=panel6, subgridspec=subgridspecs[5])
 fig.sharey([r"APD$_{90}$ (ms)"],
            axs=panel6, subgridspec=subgridspecs[5])

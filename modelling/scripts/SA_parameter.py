@@ -64,7 +64,8 @@ def param_evaluation(param, param_values):
         ComparisonController.compute_Hill(drug_model,
                                           norm_constant=norm_constant,
                                           parallel=False)
-    # The parameters of Hill's curve are based on the normalised drug concentration
+    # The parameters of Hill's curve are based on the normalised
+    # drug concentration
     # Hill's coefficient remains the same but IC50 -> IC50/EC50
 
     drug_conc_AP = 10**np.linspace(np.log10(drug_conc_Hill[1]),
@@ -118,9 +119,9 @@ def param_evaluation(param, param_values):
     return big_df
 
 
-drug_list = ['bepridil']
+drug_list = ['mexiletine']
 for drug in drug_list:
-    print(drug)
+    # print(drug)
     Vhalf = param_lib.binding_parameters[drug]['Vhalf']
     Kmax = param_lib.binding_parameters[drug]['Kmax']
     Ku = param_lib.binding_parameters[drug]['Ku']
@@ -134,9 +135,10 @@ for drug in drug_list:
     ComparisonController = modelling.ModelComparison(orig_param_values)
 
     param_values = orig_param_values
-    param_range = SA_model.param_explore_drug(drug, parameter_interest)
+    param_range = SA_model.param_explore(parameter_interest, res_points=5)
+    param_fullrange = SA_model.param_explore_gaps(param_range, 3, 'N')
 
-    filename = 'SA_' + drug + '_' + parameter_interest + '.csv'
+    filename = 'SA_' + drug + '_' + parameter_interest + '_test.csv'
     if os.path.exists(saved_data_dir + filename):
         saved_results_df = pd.read_csv(saved_data_dir + filename,
                                        header=[0, 1], index_col=[0],
@@ -146,17 +148,17 @@ for drug in drug_list:
     else:
         ran_values = []
 
-    param_range = [i for i in param_range if i not in ran_values]
-    print(param_range)
+    param_fullrange = [i for i in param_fullrange if i not in ran_values]
+
     n_workers = 8
     evaluator = pints.ParallelEvaluator(param_evaluation,
                                         n_workers=n_workers,
                                         args=[param_values])
-    for i in range(int(np.ceil(len(param_range) / n_workers))):
+    for i in range(int(np.ceil(len(param_fullrange) / n_workers))):
         print('Running samples ', n_workers * i, 'to',
               n_workers * (i + 1) - 1)
         big_df = evaluator.evaluate(
-            param_range[i * n_workers: (i + 1) * n_workers])
+            param_fullrange[i * n_workers: (i + 1) * n_workers])
 
         if os.path.exists(saved_data_dir + filename):
             combined_df = pd.read_csv(saved_data_dir + filename,

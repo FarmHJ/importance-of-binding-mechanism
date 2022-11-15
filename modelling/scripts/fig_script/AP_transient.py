@@ -23,7 +23,7 @@ fig = modelling.figures.FigureStructure(
     # wspace=0.55,
     figsize=(10, 8),
     gridspec=(3, 2), hspace=0.5,
-    wspace=0.45,
+    wspace=0.47,
     height_ratios=[1, 1, 1],
     plot_in_subgrid=True)
 plot = modelling.figures.FigurePlot()
@@ -142,8 +142,12 @@ for i in range(len(drug_conc)):
 panel5[0][0].plot(0, 1050, 'o', color='k', marker=(5, 2))
 panel5[0][1].plot(150, 1050, 'o', color='k', marker=(5, 2),
                   label='EAD-like\nAP')
-panel5[0][1].legend(loc='lower left', bbox_to_anchor=(1.0, 0),
-                    handlelength=1)
+handles, labels = panel5[0][1].get_legend_handles_labels()
+lgd_order = [1, 0, 2]
+lgnd = panel5[0][1].legend([handles[idx] for idx in lgd_order],
+                           [labels[idx] for idx in lgd_order],
+                           loc='lower left', bbox_to_anchor=(1.0, 0),
+                           handlelength=1)
 for handle in lgnd.legendHandles:
     handle.set_markersize(6)
 fig.sharex(['Pulses'] * 2,

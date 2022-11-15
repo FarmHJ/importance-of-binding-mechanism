@@ -50,10 +50,7 @@ for drug in drug_list:
     df[("RMSD", "deltaRMSD_ratio")] = delta_RMSD_ratio
     # df.to_csv(filepath)
 
-    print('##############')
-    print(len(delta_RMSD))
     delta_RMSD = delta_RMSD[~np.isnan(delta_RMSD)]
-    print(len(delta_RMSD))
     delta_RMSD_boxplot.append(delta_RMSD)
     delta_RMSD_stats = [min(delta_RMSD), max(delta_RMSD), np.mean(delta_RMSD)]
 
@@ -96,9 +93,15 @@ plt.setp(ax2.get_xticklabels(), rotation=45, ha='right',
 plt.savefig('../../figures/testing/APD90_diff.pdf',
             bbox_inches='tight')
 
-arr = []
 for i in range(12):
-    print(len(delta_RMSD_boxplot[i]))
-    arr.append(delta_RMSD_boxplot[i])
-print(np.std(delta_RMSD_boxplot))
+    if i == 0:
+        arr = delta_RMSD_boxplot[i]
+    else:
+        arr = np.concatenate((arr, delta_RMSD_boxplot[i]))
+plt.figure()
+plt.hist(arr, bins=25)
+plt.savefig('../../figures/testing/single_boxplot.pdf',
+            bbox_inches='tight')
+print(arr)
+print(np.mean(arr))
 print(np.std(arr))

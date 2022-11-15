@@ -3,10 +3,9 @@
 import myokit
 import pandas as pd
 
-saved_data_dir = '../../simulation_results/'
+problem_file = '../../simulation_results/paramvalue_problem.csv'
 
-param_values = pd.read_csv(saved_data_dir + 'paramvalue_problem.csv',
-                           header=[0], index_col=[0])
+param_values = pd.read_csv(problem_file, header=[0], index_col=[0])
 
 # Set up AP model
 APmodel = '../../model/ohara-cipa-v1-2017.mmt'
@@ -31,5 +30,5 @@ log = sim.run(1000 * 1000)
 
 # Set smaller tolerance value and run simulation
 sim.reset()
-sim.set_tolerance(abs_tol=1e-8, rel_tol=1e-10)
+sim.set_tolerance(abs_tol=1e-9, rel_tol=1e-10)
 log = sim.run(1000 * 1000)

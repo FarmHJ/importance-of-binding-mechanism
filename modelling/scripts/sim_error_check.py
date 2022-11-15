@@ -101,7 +101,8 @@ def param_evaluation(param_values):
             ComparisonController.APD_sim(
                 AP_model, Hill_curve_coefs, drug_conc=drug_conc_AP,
                 # EAD=True, abs_tol=1e-8, rel_tol=1e-4)
-                EAD=True, abs_tol=1e-7, rel_tol=1e-8)
+                # EAD=True, abs_tol=1e-7, rel_tol=1e-8)
+                EAD=True, abs_tol=1e-8, rel_tol=1e-10)
 
         RMSError = ComparisonController.compute_RMSE(APD_trapping,
                                                      APD_conductance)

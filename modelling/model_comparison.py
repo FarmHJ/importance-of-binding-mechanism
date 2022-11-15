@@ -83,8 +83,8 @@ class ModelComparison(object):
                                for i in peaks_norm]
             counter += 1
 
-        # if counter == 20:
-        #     return 'Hill curve did not form.', drug_conc, peaks_norm
+        if counter == 20:
+            return 'Hill curve did not form.', drug_conc, peaks_norm
 
         # return 0, drug_conc, peaks_norm
         # Fit Hill curve

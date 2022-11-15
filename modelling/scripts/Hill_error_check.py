@@ -1,5 +1,7 @@
-# To plot the range of parameter values
-# Drug binding-related parameters
+# Check why peak of hERG current does not follow sigmoid curve
+# Ans: the drug concentration range I was looking at are either too high or
+# too low that I was focusing only on the part close to one or zero, thus the
+# fluctuate is large.
 
 import matplotlib.pyplot as plt
 import myokit
@@ -61,59 +63,7 @@ def param_evaluation(param_values):
     Hill_curve_coefs, drug_conc_Hill, peaks_norm = \
         ComparisonController.compute_Hill(drug_model,
                                           norm_constant=norm_constant)
-    # The parameters of Hill's curve are based on the normalised
-    # drug concentration
-    # Hill's coefficient remains the same but IC50 -> IC50/EC50
 
-    # drug_conc_AP = 10**np.linspace(np.log10(drug_conc_Hill[1]),
-    #                                np.log10(max(drug_conc_Hill)),
-    #                                APD_points)
-
-    # if isinstance(Hill_curve_coefs, str):
-    #     Hill_curve_coefs = [float("nan")] * 2
-    #     APD_trapping = [float("Nan")] * APD_points
-    #     APD_conductance = [float("Nan")] * APD_points
-    #     RMSError = float("Nan")
-    #     MAError = float("Nan")
-    # else:
-    #     # Simulate action potentials
-    #     try:
-    #         APD_trapping, APD_conductance, drug_conc_AP = \
-    #             ComparisonController.APD_sim(
-    #                 AP_model, Hill_curve_coefs, drug_conc=drug_conc_AP,
-    #                 EAD=True)
-
-    #         RMSError = ComparisonController.compute_RMSE(APD_trapping,
-    #                                                      APD_conductance)
-    #         MAError = ComparisonController.compute_ME(APD_trapping,
-    #                                                   APD_conductance)
-    #     except myokit.SimulationError:
-    #         APD_trapping = [float("Nan")] * APD_points
-    #         APD_conductance = [float("Nan")] * APD_points
-    #         RMSError = float("Nan")
-    #         MAError = float("Nan")
-
-    # # Create dataframe to save results
-    # conc_Hill_ind = ['conc_' + str(i) for i, _ in
-    #                  enumerate(drug_conc_Hill)]
-    # conc_AP_ind = ['conc_' + str(i) for i, _ in enumerate(drug_conc_AP)]
-    # index_dict = {'drug_conc_Hill': conc_Hill_ind,
-    #               'peak_current': conc_Hill_ind,
-    #               'Hill_curve': ['Hill_coef', 'IC50'],
-    #               'param_values': param_names, 'drug_conc_AP': conc_AP_ind,
-    #               'APD_trapping': conc_AP_ind,
-    #               'APD_conductance': conc_AP_ind, 'RMSE': ['RMSE'],
-    #               'ME': ['ME']}
-    # all_index = [(i, j) for i in index_dict.keys() for j in index_dict[i]]
-    # index = pd.MultiIndex.from_tuples(all_index)
-
-    # param_values['EC50'][0] = orig_half_effect_conc
-    # big_df = pd.DataFrame(
-    #     drug_conc_Hill + list(peaks_norm) + list(Hill_curve_coefs) +
-    #     list(param_values.values[0]) + list(drug_conc_AP) + APD_trapping +
-    #     APD_conductance + [RMSError] + [MAError], index=index)
-
-    # return big_df
     return Hill_curve_coefs, drug_conc_Hill, peaks_norm
 
 
@@ -122,11 +72,14 @@ result_df = pd.read_csv(saved_data_dir + filename,
                         header=[0, 1], index_col=[0],
                         skipinitialspace=True)
 
-Vhalf = result_df['param_values']['Vhalf'].values[0]
-Kmax = result_df['param_values']['Kmax'].values[0]
-Ku = result_df['param_values']['Ku'].values[0]
-N = result_df['param_values']['N'].values[0]
-EC = result_df['param_values']['EC50'].values[0]
+Hill_coefs = result_df['Hill_curve']['Hill_coef'].values
+nan_ind = [i for i in range(len(Hill_coefs)) if np.isnan(Hill_coefs[i])]
+
+Vhalf = result_df['param_values']['Vhalf'].values[nan_ind[0]]
+Kmax = result_df['param_values']['Kmax'].values[nan_ind[0]]
+Ku = result_df['param_values']['Ku'].values[nan_ind[0]]
+N = result_df['param_values']['N'].values[nan_ind[0]]
+EC = result_df['param_values']['EC50'].values[nan_ind[0]]
 paramid = 0
 param_values = pd.DataFrame([paramid, Vhalf, Kmax, Ku, N, EC],
                             index=['param_id'] + param_names)

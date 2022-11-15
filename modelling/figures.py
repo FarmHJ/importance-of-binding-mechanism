@@ -188,7 +188,7 @@ class FigurePlot(object):
             end_pulse = len(num_keys)
 
         if cmap is not None:
-            norm = matplotlib.colors.Normalize(0, len(log))
+            norm = matplotlib.colors.Normalize(0, len(log) - 1)
 
         if labels is not None and cmap is not None:
             for pulse in range(end_pulse - start_pulse):

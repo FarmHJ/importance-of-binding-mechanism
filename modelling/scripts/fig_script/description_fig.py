@@ -4,7 +4,6 @@ import myokit
 import numpy as np
 import os
 import pandas as pd
-import sys
 
 import modelling
 
@@ -89,13 +88,13 @@ plot.add_multiple(panel2[0][0], conductance_hERG_log, 'ikr.IKr',
 panel1[0][0].set_title('State-dependent drug block')
 panel2[0][0].set_title('Conductance scaling drug block')
 fig.sharex(['Time (s)'], [(0, pulse_time)],
-            axs=panel1, subgridspec=subgridspecs[0])
+           axs=panel1, subgridspec=subgridspecs[0])
 fig.sharex(['Time (s)'], [(0, pulse_time)],
-            axs=panel2, subgridspec=subgridspecs[3])
+           axs=panel2, subgridspec=subgridspecs[3])
 fig.sharey(['Current (A/F)'],
-            axs=panel1, subgridspec=subgridspecs[0])
+           axs=panel1, subgridspec=subgridspecs[0])
 fig.sharey(['Current (A/F)'],
-            axs=panel2, subgridspec=subgridspecs[3])
+           axs=panel2, subgridspec=subgridspecs[3])
 fig.adjust_ticks(panel1[0][0], pulse_time)
 fig.adjust_ticks(panel2[0][0], pulse_time)
 
@@ -120,6 +119,7 @@ Hill_eq = Hill_coef_df.loc[
     Hill_coef_df['protocol'] == protocol_name]
 Hill_eq = Hill_eq.values.tolist()[0][1:-1]
 
+panel4[0][0].plot(drug_conc[1:], peaks[1:], 'x', color='k')
 panel4[0][0].plot(conc_grid, Hill_model.simulate(
     Hill_eq, conc_grid), linestyle='-', color='k')
 
@@ -165,4 +165,4 @@ fig.sharey(['Voltage\n(mV)'],
 for i in range(5):
     axs[i][0][0].spines['top'].set_visible(False)
     axs[i][0][0].spines['right'].set_visible(False)
-fig.savefig(saved_fig_dir + 'method_diagram.svg', format='svg')
+fig.savefig(saved_fig_dir + 'method_diagram2.svg', format='svg')

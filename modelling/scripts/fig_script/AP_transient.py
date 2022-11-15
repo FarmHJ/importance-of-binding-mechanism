@@ -44,11 +44,11 @@ saved_data_dir = '../../simulation_data/binding_kinetics_comparison/' + \
     drug + '/' + protocol_name + '/'
 
 trapping_data_files = [f for f in os.listdir(saved_data_dir) if
-                       f.startswith('CiPA_AP_transient_pulses7')]
+                       f.startswith('CiPA_AP_transient_pulses10')]
 conductance_data_files = [f for f in os.listdir(saved_data_dir) if
-                          f.startswith('conductance_AP_transient_pulses7')]
-conc_label = [fname[26:-4] for fname in trapping_data_files]
-drug_conc = [float(fname[26:-4]) for fname in trapping_data_files]
+                          f.startswith('conductance_AP_transient_pulses10')]
+conc_label = [fname[27:-4] for fname in trapping_data_files]
+drug_conc = [float(fname[27:-4]) for fname in trapping_data_files]
 
 # Sort in increasing order of drug concentration
 sort_ind = [i[0] for i in sorted(enumerate(drug_conc), key=lambda x:x[1])]
@@ -131,20 +131,22 @@ for i in range(len(drug_conc)):
     APD_plot = [APD_conductance_concs[i][ind] for ind in
                 range(len(APD_conductance_concs[i])) if ind % 2 == 0]
     panel5[0][i].plot(np.arange(saved_signal / 2) * 2, APD_plot, 'o', ms=0.9,
-                      label='conductance\nscaling', color='blue')
+                      label='CS model', color='blue')
 
     APD_plot = [APD_trapping_concs[i][ind] for ind in
                 range(len(APD_trapping_concs[i])) if ind % 2 == 0]
     panel5[0][i].plot(np.arange(saved_signal / 2) * 2, APD_plot, 'o', ms=0.9,
-                      label='state dependent\ndrug block', color='orange')
+                      label='SD model', color='orange')
     panel5[0][i].set_title(str(drug_conc[i]) + ' nM')
 
 panel5[0][0].plot(0, 1050, 'o', color='k', marker=(5, 2))
 panel5[0][1].plot(150, 1050, 'o', color='k', marker=(5, 2),
-                  label='EAD-like\nbehaviour')
-# panel5[0][1].legend(loc='lower left', bbox_to_anchor=(1.0, 0),
-#                     handlelength=1)
-fig.sharex(['Sweeps'] * 2,
+                  label='EAD-like\nAP')
+panel5[0][1].legend(loc='lower left', bbox_to_anchor=(1.0, 0),
+                    handlelength=1)
+for handle in lgnd.legendHandles:
+    handle.set_markersize(6)
+fig.sharex(['Pulses'] * 2,
            axs=panel5, subgridspec=subgridspecs[4])
 fig.sharey([r"APD$_{90}$ (ms)"],
            axs=panel5, subgridspec=subgridspecs[4])
@@ -256,7 +258,7 @@ lgnd = panel6[0][1].legend(loc='lower left', bbox_to_anchor=(1.0, 0),
                            handlelength=1)
 for handle in lgnd.legendHandles:
     handle.set_markersize(6)
-fig.sharex(['Sweeps'] * 2,
+fig.sharex(['Pulses'] * 2,
            axs=panel6, subgridspec=subgridspecs[5])
 fig.sharey([r"APD$_{90}$ (ms)"],
            axs=panel6, subgridspec=subgridspecs[5])
@@ -269,4 +271,4 @@ fig.fig.text(0.535, 0.625, '(D)', fontsize=11)
 fig.fig.text(0.075, 0.325, '(E)', fontsize=11)
 fig.fig.text(0.535, 0.325, '(F)', fontsize=11)
 
-fig.savefig(saved_fig_dir + "AP_transient.pdf")  # , format='svg')
+fig.savefig(saved_fig_dir + "AP_transient_temp.pdf")  # , format='svg')

@@ -97,14 +97,14 @@ sample_filepath = os.path.join(saved_data_filepath, "param_value_samples.txt")
 if os.path.exists(sample_filepath):
     param_values = np.loadtxt(sample_filepath)
 else:
-    samples_n = 1024
+    samples_n = 2
     param_values = saltelli.sample(problem, samples_n)
     np.savetxt(os.path.join(saved_data_filepath, "param_value_samples.txt"),
                param_values)
 
 # Set up frequency to save files
 total_samples = param_values.shape[0]
-samples_per_save = 1000
+samples_per_save = 8
 samples_split_n = int(np.ceil(total_samples / samples_per_save))
 
 # Find out completed and saved function evaluations
@@ -126,7 +126,7 @@ else:
                                           saving_file_num))
 
 # Set up parallel evaluator
-n_workers = 40
+n_workers = 8
 evaluator = pints.ParallelEvaluator(model_comparison, n_workers=n_workers)
 
 # Evaluate function
@@ -137,8 +137,8 @@ for i in saving_file_num:
     print('Samples ', samples_per_save * i, 'to',
           samples_per_save * (i + 1) - 1)
     Y = []
-    for log_num in range(int(samples_per_save / (n_workers * 5))):
-        ind_multiplier = n_workers * 5
+    for log_num in range(int(samples_per_save / (n_workers))):
+        ind_multiplier = n_workers
 
         print('Running evaluation for sample number ',
               ind_multiplier * log_num + samples_per_save * i, ' to ',

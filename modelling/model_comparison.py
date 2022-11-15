@@ -95,7 +95,8 @@ class ModelComparison(object):
 
     def APD_sim(self, AP_model, Hill_curve_coefs, drug_conc=None,
                 steady_state_pulse=1000, save_signal=2, offset=50,
-                data_points=20, EAD=False, norm_constant=1):
+                data_points=20, EAD=False, norm_constant=1,
+                abs_tol=1e-7, rel_tol=1e-8):
 
         base_conductance = AP_model.original_constants['gKr']
         APD_trapping = []
@@ -108,8 +109,8 @@ class ModelComparison(object):
             # Run simulation for trapping model
             log = AP_model.custom_simulation(
                 self.drug_param_values, drug_conc[i], steady_state_pulse,
-                timestep=0.1, save_signal=save_signal, abs_tol=1e-7,
-                rel_tol=1e-8, log_var=['engine.time', 'membrane.V'])
+                timestep=0.1, save_signal=save_signal, abs_tol=abs_tol,
+                rel_tol=rel_tol, log_var=['engine.time', 'membrane.V'])
 
             # Compute APD90
             APD_trapping_pulse = []
@@ -123,8 +124,8 @@ class ModelComparison(object):
                 Hill_curve_coefs, drug_conc[i] * norm_constant)
             d2 = AP_model.conductance_simulation(
                 base_conductance * reduction_scale, steady_state_pulse,
-                timestep=0.1, save_signal=save_signal, abs_tol=1e-7,
-                rel_tol=1e-8, log_var=['engine.time', 'membrane.V'])
+                timestep=0.1, save_signal=save_signal, abs_tol=abs_tol,
+                rel_tol=rel_tol, log_var=['engine.time', 'membrane.V'])
 
             # Compute APD90
             APD_conductance_pulse = []
@@ -147,8 +148,8 @@ class ModelComparison(object):
                 drug_conc = drug_conc + [max(drug_conc) * np.sqrt(10)]
                 log = AP_model.custom_simulation(
                     self.drug_param_values, drug_conc[-1], steady_state_pulse,
-                    timestep=0.1, save_signal=save_signal, abs_tol=1e-7,
-                    rel_tol=1e-8, log_var=['engine.time', 'membrane.V'])
+                    timestep=0.1, save_signal=save_signal, abs_tol=abs_tol,
+                    rel_tol=rel_tol, log_var=['engine.time', 'membrane.V'])
 
                 # Compute APD90
                 APD_trapping_pulse = []
@@ -163,8 +164,8 @@ class ModelComparison(object):
                     Hill_curve_coefs, drug_conc[-1])
                 d2 = AP_model.conductance_simulation(
                     base_conductance * reduction_scale, steady_state_pulse,
-                    timestep=0.1, save_signal=save_signal, abs_tol=1e-7,
-                    rel_tol=1e-8, log_var=['engine.time', 'membrane.V'])
+                    timestep=0.1, save_signal=save_signal, abs_tol=abs_tol,
+                    rel_tol=rel_tol, log_var=['engine.time', 'membrane.V'])
 
                 # Compute APD90
                 APD_conductance_pulse = []

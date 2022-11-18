@@ -26,7 +26,7 @@ delta_RMSD_boxplot = []
 
 # plt.figure()
 for drug in drug_list:
-    print(drug)
+    # print(drug)
     # Read data
     filepath = saved_data_dir + 'SA_' + drug + '_N_2.csv'
     df = pd.read_csv(filepath,
@@ -68,11 +68,10 @@ for drug in drug_list:
     else:
         combined_df = pd.concat([combined_df, delta_RMSD_df.T])
 
-print(combined_df['deltaRMSD_max'])
+combined_df.to_csv(saved_data_dir + 'SA_N_stats.csv')
 combined_df.to_csv(saved_data_dir + percentage_diff_filename)
 
 RMSD_mean = np.mean(combined_df['deltaRMSD_mean'].values)
-print(RMSD_mean)
 
 fig = plt.figure(figsize=(10, 3))
 plt.rcParams.update({'font.size': 9})
@@ -82,26 +81,31 @@ ax.set_xticks(np.arange(12) + 1, labels=drug_list)
 ax.set_ylabel('RMSD (ms)')
 
 ax2 = fig.add_subplot(1, 2, 2)
-ax2.boxplot(delta_RMSD_boxplot)
-ax2.set_xticks(np.arange(12) + 1, labels=drug_list)
-ax2.set_ylabel('RMSD difference (ms)')
+# ax2.boxplot(delta_RMSD_boxplot)
+# ax2.set_xticks(np.arange(12) + 1, labels=drug_list)
+# ax2.set_ylabel('RMSD difference (ms)')
 
 plt.setp(ax.get_xticklabels(), rotation=45, ha='right',
          rotation_mode='anchor')
-plt.setp(ax2.get_xticklabels(), rotation=45, ha='right',
-         rotation_mode='anchor')
-plt.savefig('../../figures/testing/APD90_diff.pdf',
-            bbox_inches='tight')
+# plt.setp(ax2.get_xticklabels(), rotation=45, ha='right',
+#          rotation_mode='anchor')
+# plt.savefig('../../figures/testing/APD90_diff.pdf',
+#             bbox_inches='tight')
 
 for i in range(12):
     if i == 0:
         arr = delta_RMSD_boxplot[i]
     else:
         arr = np.concatenate((arr, delta_RMSD_boxplot[i]))
-plt.figure()
-plt.hist(arr, bins=25)
-plt.savefig('../../figures/testing/single_boxplot.pdf',
+ax2.hist(arr, bins=25)
+ax2.set_xlabel('RMSD difference (ms)')
+ax2.set_ylabel('Number of virtual drugs')
+
+fig.text(0.075, 0.9, '(A)', fontsize=11)
+fig.text(0.5, 0.9, '(B)', fontsize=11)
+
+plt.savefig('../../figures/sensitivity_analysis/N/RMSD_N.pdf',
             bbox_inches='tight')
-print(arr)
+
 print(np.mean(arr))
 print(np.std(arr))

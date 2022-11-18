@@ -91,7 +91,7 @@ for i in range(len(drugs)):
     panel2[0][i].set_title(drugs[i] + '-like drug')
     panel2[0][i].set_xlabel('Drug concentration (nM)')
     panel2[0][i].set_ylabel('Normalised\npeak current')
-    panel2[0][i].legend()
+    panel2[0][i].legend(handlelength=3)
 
 # Bottom panel
 panel3 = axs[2]

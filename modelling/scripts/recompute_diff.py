@@ -13,8 +13,8 @@ starting_param_df = pd.DataFrame([1] * 5, index=param_names).T
 ComparisonController = modelling.ModelComparison(starting_param_df)
 
 # Get all data
-saved_data_dir = '../../simulation_data/sensitivity_analysis/N/'
-file_prefix = 'SA_'
+saved_data_dir = '../../simulation_results/SA_space/'
+file_prefix = 'filling_'
 result_files = [saved_data_dir + f for f in os.listdir(saved_data_dir)
                 if f.startswith(file_prefix)]
 

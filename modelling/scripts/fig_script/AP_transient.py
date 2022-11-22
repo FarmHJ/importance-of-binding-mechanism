@@ -13,7 +13,7 @@ testing_fig_dir = '../../figures/testing/'
 final_fig_dir = '../../figures/binding_kinetics_comparison/'
 # final_fig_dir = '../../figures/conferences/'
 
-saved_fig_dir = testing_fig_dir
+saved_fig_dir = final_fig_dir
 
 # Set up figure's main grid
 fig = modelling.figures.FigureStructure(
@@ -22,7 +22,7 @@ fig = modelling.figures.FigureStructure(
     # gridspec=(3, 2), hspace=0.6,
     # wspace=0.55,
     figsize=(10, 8),
-    gridspec=(3, 2), hspace=0.5,
+    gridspec=(3, 2), hspace=0.55,
     wspace=0.25,
     height_ratios=[1, 1, 1],
     plot_in_subgrid=True)
@@ -68,7 +68,8 @@ for i in range(len(trapping_data_files)):
 # Initiate constants and variables
 labels = [i + ' nM' for i in conc_label]
 plotting_pulse_time = 1000 * 7
-cmap = matplotlib.cm.get_cmap('viridis')
+cmap = matplotlib.colors.ListedColormap(
+    matplotlib.cm.get_cmap('tab10')(range(3)))
 
 # Top left panel
 panel1 = axs[0]
@@ -80,15 +81,15 @@ plot.add_multiple_continuous(panel1[1][0], CiPA_AP_log, 'ikr.IKr',
 unique = fig.legend_without_duplicate_labels(panel1[1][0])
 # panel1[1][0].legend(*zip(*unique), loc='lower left',
 #                     bbox_to_anchor=(1.0, 0), handlelength=1)
-panel1[1][0].legend(*zip(*unique), loc='upper left',
-                    bbox_to_anchor=(0, 2.1), handlelength=1, ncol=3,
+panel1[1][0].legend(*zip(*unique), loc='lower left',
+                    bbox_to_anchor=(0, 2.0), handlelength=1, ncol=3,
                     columnspacing=1)
 fig.sharex(['Time (s)'], [(0, plotting_pulse_time)],
            axs=panel1, subgridspec=subgridspecs[0])
-fig.sharey(['Voltage\n(mV)', 'hERG current'],
+fig.sharey(['Voltage\n(mV)', 'Current (A/F)'],
            axs=panel1, subgridspec=subgridspecs[0])
 fig.adjust_ticks(panel1[1][0], plotting_pulse_time)
-panel1[0][0].set_title(drug + "-like drug, ORd-SD model")
+panel1[0][0].set_title(drug + "-like drug, ORd-SD model", y=1.25)
 
 # Second row, left panel
 panel3 = axs[2]
@@ -98,15 +99,15 @@ plot.add_multiple_continuous(panel3[1][0], conductance_AP_log, 'ikr.IKr',
                              labels=labels, cmap=cmap)
 
 unique = fig.legend_without_duplicate_labels(panel3[1][0])
-panel3[1][0].legend(*zip(*unique), loc='upper left',
-                    bbox_to_anchor=(0, 2.1), handlelength=1, ncol=3,
+panel3[1][0].legend(*zip(*unique), loc='lower left',
+                    bbox_to_anchor=(0, 2.0), handlelength=1, ncol=3,
                     columnspacing=1)
 fig.sharex(['Time (s)'], [(0, plotting_pulse_time)],
            axs=panel3, subgridspec=subgridspecs[2])
-fig.sharey(['Voltage\n(mV)', 'hERG current'],
+fig.sharey(['Voltage\n(mV)', 'Current (A/F)'],
            axs=panel3, subgridspec=subgridspecs[2])
 fig.adjust_ticks(panel3[1][0], plotting_pulse_time)
-panel3[0][0].set_title(drug + "-like drug, ORd-CS model")
+panel3[0][0].set_title(drug + "-like drug, ORd-CS model", y=1.25)
 
 # Load APD values
 APD_trapping = pd.read_csv(saved_data_dir + 'CiPA_APD_transient.csv')
@@ -150,7 +151,6 @@ handles, labels = panel5[0][1].get_legend_handles_labels()
 lgd_order = [1, 0, 2]
 lgnd = panel5[0][1].legend([handles[idx] for idx in lgd_order],
                            [labels[idx] for idx in lgd_order],
-                        #    loc='lower left', bbox_to_anchor=(1.0, 0),
                            loc='lower right', bbox_to_anchor=(1.0, 0),
                            handlelength=1)
 for handle in lgnd.legendHandles:
@@ -192,7 +192,7 @@ for i in range(len(trapping_data_files)):
 labels = [i + ' nM' for i in conc_label]
 labels[-1] = r"$10^4$ nM"
 plotting_pulse_time = 1000 * 7
-cmap = matplotlib.cm.get_cmap('viridis')
+# cmap = matplotlib.cm.get_cmap('viridis')
 
 # Top right panel
 panel2 = axs[1]
@@ -202,15 +202,15 @@ plot.add_multiple_continuous(panel2[1][0], CiPA_AP_log, 'ikr.IKr',
                              labels=labels, cmap=cmap)
 
 unique = fig.legend_without_duplicate_labels(panel2[1][0])
-panel2[1][0].legend(*zip(*unique), loc='upper left',
-                    bbox_to_anchor=(0, 2.1), handlelength=1, ncol=3,
+panel2[1][0].legend(*zip(*unique), loc='lower left',
+                    bbox_to_anchor=(0, 2.0), handlelength=1, ncol=3,
                     columnspacing=1)
 fig.sharex(['Time (s)'], [(0, plotting_pulse_time)],
            axs=panel2, subgridspec=subgridspecs[1])
-fig.sharey(['Voltage\n(mV)', 'hERG current'],
+fig.sharey(['Voltage\n(mV)', 'Current (A/F)'],
            axs=panel2, subgridspec=subgridspecs[1])
 fig.adjust_ticks(panel2[1][0], plotting_pulse_time)
-panel2[0][0].set_title(drug + "-like drug, ORd-SD model")
+panel2[0][0].set_title(drug + "-like drug, ORd-SD model", y=1.25)
 
 # Second row, right panel
 panel4 = axs[3]
@@ -221,15 +221,15 @@ plot.add_multiple_continuous(panel4[1][0], conductance_AP_log, 'ikr.IKr',
                              labels=labels, cmap=cmap)
 
 unique = fig.legend_without_duplicate_labels(panel4[1][0])
-panel4[1][0].legend(*zip(*unique), loc='upper left',
-                    bbox_to_anchor=(0, 2.1), handlelength=1, ncol=3,
+panel4[1][0].legend(*zip(*unique), loc='lower left',
+                    bbox_to_anchor=(0, 2.0), handlelength=1, ncol=3,
                     columnspacing=1)
 fig.sharex(['Time (s)'], [(0, plotting_pulse_time)],
            axs=panel4, subgridspec=subgridspecs[3])
-fig.sharey(['Voltage\n(mV)', 'hERG current'],
+fig.sharey(['Voltage\n(mV)', 'Current (A/F)'],
            axs=panel4, subgridspec=subgridspecs[3])
 fig.adjust_ticks(panel4[1][0], plotting_pulse_time)
-panel4[0][0].set_title(drug + "-like drug, ORd-CS model")
+panel4[0][0].set_title(drug + "-like drug, ORd-CS model", y=1.25)
 
 # Load APD values
 APD_trapping = pd.read_csv(saved_data_dir + 'CiPA_APD_transient.csv')
@@ -267,7 +267,7 @@ panel6[0][1].plot(150, 1050, 'o', color='k', marker=(5, 2),
                   label='EAD-like AP')
 # lgnd = panel6[0][1].legend(loc='lower left', bbox_to_anchor=(1.0, 0),
 lgnd = panel6[0][1].legend(loc='upper left', bbox_to_anchor=(-1.1, 1.0),
-                           handlelength=1)   
+                           handlelength=1)
 for handle in lgnd.legendHandles:
     handle.set_markersize(6)
 fig.sharex(['Pulses'] * 2,
@@ -283,4 +283,4 @@ fig.fig.text(0.535, 0.625, '(D)', fontsize=11)
 fig.fig.text(0.1, 0.325, '(E)', fontsize=11)
 fig.fig.text(0.535, 0.325, '(F)', fontsize=11)
 
-fig.savefig(saved_fig_dir + "AP_transient_temp.pdf")  # , format='svg')
+fig.savefig(saved_fig_dir + "AP_transient.pdf")  # , format='svg')

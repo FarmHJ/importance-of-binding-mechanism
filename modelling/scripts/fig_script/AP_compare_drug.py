@@ -7,7 +7,7 @@ import os
 
 import modelling
 
-drug = 'dofetilide'
+drug = 'verapamil'
 protocol_name = 'Milnes'
 
 saved_data_dir = '../../simulation_data/binding_kinetics_comparison/' + \
@@ -19,7 +19,7 @@ final_fig_dir = '../../figures/binding_kinetics_comparison/' + drug + '/' + \
 
 saved_fig_dir = final_fig_dir
 
-fig = modelling.figures.FigureStructure(figsize=(10, 5.5), gridspec=(2, 2),
+fig = modelling.figures.FigureStructure(figsize=(10, 5), gridspec=(2, 2),
                                         height_ratios=[3, 4], hspace=0.4,
                                         width_ratios=[2.5, 1.2],
                                         plot_in_subgrid=True)
@@ -60,13 +60,13 @@ conc_label = [fname[8:-4] for fname in trapping_data_files]
 drug_conc = [float(fname[8:-4]) for fname in trapping_data_files]
 
 # for verapamil
-# removing_ind = drug_conc.index(500.0)
-# drug_conc.pop(removing_ind)
-# trapping_data_files.pop(removing_ind)
-# conductance_data_files.pop(removing_ind)
-# conc_label.pop(removing_ind)
-# conc_label[-2] = r"$10^4$"
-# conc_label[-1] = r"$10^5$"
+removing_ind = drug_conc.index(500.0)
+drug_conc.pop(removing_ind)
+trapping_data_files.pop(removing_ind)
+conductance_data_files.pop(removing_ind)
+conc_label.pop(removing_ind)
+conc_label[-2] = r"$10^4$"
+conc_label[-1] = r"$10^5$"
 
 # Sort in increasing order of drug concentration
 sort_ind = [i[0] for i in sorted(enumerate(drug_conc), key=lambda x:x[1])]
@@ -154,9 +154,9 @@ conductance_data_files = [f for f in os.listdir(saved_data_dir) if
 drug_conc = [float(fname[10:-4]) for fname in trapping_data_files]
 
 # for verapamil
-# removing_ind = drug_conc.index(500.0)
-# trapping_data_files.pop(removing_ind)
-# conductance_data_files.pop(removing_ind)
+removing_ind = drug_conc.index(500.0)
+trapping_data_files.pop(removing_ind)
+conductance_data_files.pop(removing_ind)
 
 # Sort in increasing order of drug concentration
 trapping_data_files = [trapping_data_files[i] for i in sort_ind]

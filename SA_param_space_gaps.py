@@ -60,6 +60,10 @@ Vhalf_fullrange = SA_model.param_explore_gaps(Vhalf_range, 3, 'Vhalf')
 Kmax_fullrange = SA_model.param_explore_gaps(Kmax_range, 3, 'Kmax')
 Ku_fullrange = SA_model.param_explore_gaps(Ku_range, 3, 'Ku')
 
+Ku_fullrange = np.log10(sorted(Ku_fullrange))
+Ku_range3 = np.linspace(-5, Ku_fullrange[0], 3 + 2)[::2][:-1]
+Ku_range3 = 10**Ku_range3
+
 starting_param_df = pd.DataFrame([1] * 5, index=param_names).T
 ComparisonController = modelling.ModelComparison(starting_param_df)
 
@@ -134,7 +138,7 @@ def param_evaluation(param_values):
 # can be fixed at any value.
 # For simplicity, let N = 1.
 sample_filepath = os.path.join(saved_data_filepath,
-                               'parameter_space_gaps_res5.csv')
+                               'parameter_space_gaps_Ku.csv')
 param_space = []
 if os.path.exists(sample_filepath):
     param_values_df = pd.read_csv(sample_filepath,
@@ -143,10 +147,11 @@ if os.path.exists(sample_filepath):
     for i in range(len(param_values_df.index)):
         param_space.append(param_values_df.iloc[[i]])
 else:
-    counter = 5000
+    counter = 24000
     param_values_df = pd.DataFrame(columns=param_names)
     for Vhalf, Kmax, Ku in itertools.product(
-            Vhalf_fullrange, Kmax_fullrange, Ku_fullrange):
+            # Vhalf_fullrange, Kmax_fullrange, Ku_fullrange):
+            Vhalf_fullrange, Kmax_fullrange, Ku_range3):
 
         if not (Vhalf in Vhalf_range and Kmax in Kmax_range and
                 Ku in Ku_range):
@@ -164,7 +169,7 @@ samples_per_save = 1000
 samples_split_n = int(np.ceil(total_samples / samples_per_save))
 total_saving_file_num = np.arange(samples_split_n)
 
-file_prefix = 'SA_allparam_gaps_'
+file_prefix = 'SA_allparam_gaps_Ku_'
 saved_data_dir = os.getcwd() + '/simulation_results/'
 evaluation_result_files = [f for f in os.listdir(saved_data_filepath) if
                            f.startswith(file_prefix)]
@@ -201,7 +206,7 @@ else:
     saving_file_dict = {'file_num': sorted(file_num_to_run),
                         'sample_id_each_file': file_id_dict}
 
-n_workers = 40
+n_workers = 8
 evaluator = pints.ParallelEvaluator(param_evaluation,
                                     n_workers=n_workers)
 for file_num in saving_file_dict['file_num']:

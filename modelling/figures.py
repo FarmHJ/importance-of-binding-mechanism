@@ -10,7 +10,7 @@ class FigureStructure(object):
     """
     def __init__(self, figsize=(5, 4), gridspec=(1, 1),
                  height_ratios=None, hspace=0.1, wspace=None,
-                 plot_in_subgrid=False):
+                 width_ratios=None, plot_in_subgrid=False):
         super(FigureStructure, self).__init__()
 
         plt.rcParams.update({'font.size': 8})
@@ -23,6 +23,7 @@ class FigureStructure(object):
 
         self.gs = self.fig.add_gridspec(*self.gridspec,
                                         height_ratios=height_ratios,
+                                        width_ratios=width_ratios,
                                         hspace=hspace, wspace=wspace)
         if not plot_in_subgrid:
             self.axs = [[self.fig.add_subplot(self.gs[i, j]) for j in range(
@@ -150,7 +151,7 @@ class FigurePlot(object):
         Plot overlapping signals
         """
         if color is not None:
-            norm = matplotlib.colors.Normalize(0, len(log))
+            norm = matplotlib.colors.Normalize(0, len(log) - 1)
 
         if labels is not None and color is not None:
             for i in range(len(log)):

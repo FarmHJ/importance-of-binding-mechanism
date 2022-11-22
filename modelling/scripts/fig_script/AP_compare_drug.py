@@ -19,27 +19,36 @@ final_fig_dir = '../../figures/binding_kinetics_comparison/' + drug + '/' + \
 
 saved_fig_dir = final_fig_dir
 
-# panelC_title = 'Verapamil-like drug'
-
-fig = modelling.figures.FigureStructure(figsize=(10, 5.5), gridspec=(2, 1),
-                                        height_ratios=[1, 1], hspace=0.45,
+fig = modelling.figures.FigureStructure(figsize=(10, 5.5), gridspec=(2, 2),
+                                        height_ratios=[3, 4], hspace=0.4,
+                                        width_ratios=[2.5, 1.2],
                                         plot_in_subgrid=True)
 plot = modelling.figures.FigurePlot()
 
-subgridspecs = [(2, 2), (2, 2)]
+subgridspecs = [(2, 2), (1, 1)] * 2
 subgs = []
-subgs.append(fig.gs[0].subgridspec(*subgridspecs[0], wspace=0.3,
-                                   hspace=0.4))
-subgs.append(fig.gs[1].subgridspec(*subgridspecs[1], wspace=0.05,
-                                   hspace=0.05))
-axs = [[[fig.fig.add_subplot(subgs[0][i, 0])] for
-        i in range(subgridspecs[0][0])]]
-axs.append([[fig.fig.add_subplot(subgs[0][:, 1])]])
-axs.append([[fig.fig.add_subplot(subgs[1][i, j]) for j in range(
-    subgridspecs[1][1])] for i in range(subgridspecs[1][0])])
+# subgs.append(fig.gs[0].subgridspec(*subgridspecs[0], wspace=0.05,
+#                                    hspace=0.4))
+# subgs.append(fig.gs[1].subgridspec(*subgridspecs[1], wspace=0.05,
+#                                    hspace=0.05))
+# axs = [[[fig.fig.add_subplot(subgs[0][i, 0])] for
+#         i in range(subgridspecs[0][0])]]
+# axs.append([[fig.fig.add_subplot(subgs[0][:, 1])]])
+# axs.append([[fig.fig.add_subplot(subgs[1][i, j]) for j in range(
+#     subgridspecs[1][1])] for i in range(subgridspecs[1][0])])
+
+subgs.append(fig.gs[0].subgridspec(*subgridspecs[0], wspace=0.08,
+                                   hspace=0.08, height_ratios=[1, 2]))
+for i in range(1, 2 * 2):
+    subgs.append(fig.gs[i].subgridspec(*subgridspecs[i], wspace=0.08,
+                                       hspace=0.08))
+axs = [[[fig.fig.add_subplot(subgs[k][i, j]) for j in range(
+         subgridspecs[k][1])] for i in range(subgridspecs[k][0])]
+       for k in [0, 2]]
+axs.append([[fig.fig.add_subplot(subgs[3][0, 0])]])
 
 # Bottom panel
-panel2 = axs[2]
+panel2 = axs[1]
 # Load action potential data
 trapping_data_files = [f for f in os.listdir(saved_data_dir) if
                        f.startswith('CiPA_AP_') and not
@@ -49,7 +58,7 @@ conductance_data_files = [f for f in os.listdir(saved_data_dir) if
                           f.startswith('conductance_AP_tran')]
 conc_label = [fname[8:-4] for fname in trapping_data_files]
 drug_conc = [float(fname[8:-4]) for fname in trapping_data_files]
-print(trapping_data_files)
+
 # for verapamil
 # removing_ind = drug_conc.index(500.0)
 # drug_conc.pop(removing_ind)
@@ -97,8 +106,6 @@ APD_conductance.append(1000)
 # Initiate constants and variables
 plotting_pulse_time = 1000 * 2
 
-print(APD_trapping)
-print(APD_conductance)
 # Remove repeated signals at high concentrations
 second_EAD_trap = [i for i, e in enumerate(APD_trapping)
                    if e == 1000][1:]
@@ -126,16 +133,16 @@ plot.add_multiple_continuous(panel2[0][1], AP_conductance_plot,
                              labels=labels)
 plot.add_multiple_continuous(panel2[1][1], AP_conductance_plot,
                              'ikr.IKr', cmap=cmap, labels=labels)
-panel2[0][0].set_title('State dependent drug block')
-panel2[0][1].set_title('Conductance scaling drug block')
+panel2[0][0].set_title('ORd-state dependent model')
+panel2[0][1].set_title('ORd-conductance scaling model')
 
 unique = fig.legend_without_duplicate_labels(panel2[1][1])
-panel2[1][1].legend(*zip(*unique), loc='lower left',
-                    bbox_to_anchor=(1.0, 0), handlelength=1)
+# panel2[1][1].legend(*zip(*unique), loc='lower left',
+#                     bbox_to_anchor=(1.0, 0), handlelength=1)
 fig.sharex(['Time (ms)'] * 2, [(0, plotting_pulse_time)] * 2,
-           axs=panel2, subgridspec=subgridspecs[1])
+           axs=panel2, subgridspec=subgridspecs[2])
 fig.sharey(['Voltage (mV)', 'Current (A/F)'],
-           axs=panel2, subgridspec=subgridspecs[1])
+           axs=panel2, subgridspec=subgridspecs[2])
 
 # Top left panel
 panel1 = axs[0]
@@ -145,7 +152,7 @@ trapping_data_files = [f for f in os.listdir(saved_data_dir) if
 conductance_data_files = [f for f in os.listdir(saved_data_dir) if
                           f.startswith('conductance_hERG_')]
 drug_conc = [float(fname[10:-4]) for fname in trapping_data_files]
-print(trapping_data_files)
+
 # for verapamil
 # removing_ind = drug_conc.index(500.0)
 # trapping_data_files.pop(removing_ind)
@@ -173,25 +180,29 @@ hERG_conductance_plot = [e for i, e in enumerate(conductance_hERG_log)
 pulse_time = 25e3
 
 # Plot figure
-plot.add_multiple(panel1[0][0], hERG_trapping_plot, 'ikr.IKr', labels=labels,
+plot.add_single(panel1[0][0], hERG_trapping_plot[0], 'membrane.V', color='k')
+plot.add_multiple(panel1[1][0], hERG_trapping_plot, 'ikr.IKr', labels=labels,
                   color=cmap)
-plot.add_multiple(panel1[1][0], hERG_conductance_plot, 'ikr.IKr',
+plot.add_single(panel1[0][1], hERG_conductance_plot[0], 'membrane.V',
+                color='k')
+plot.add_multiple(panel1[1][1], hERG_conductance_plot, 'ikr.IKr',
                   labels=labels, color=cmap)
 
-panel1[1][0].legend()
-panel1[0][0].set_title('State dependent drug block')
-panel1[1][0].set_title('Conductance scaling drug block')
-fig.sharex(['Time (s)'], [(0, pulse_time)],
-           axs=panel1, subgridspec=(2, 1))
-fig.sharey(['Current (A/F)'] * 2,
-           axs=panel1, subgridspec=(2, 1))
+panel1[1][1].legend(handlelength=1, ncol=2, columnspacing=1)
+panel1[0][0].set_title('SD model')
+panel1[0][1].set_title('CS model')
+fig.sharex(['Time (s)'] * 2, [(0, pulse_time)] * 2,
+           axs=panel1, subgridspec=subgridspecs[0])
+fig.sharey(['Voltage (mV)', 'Current (A/F)'],
+           axs=panel1, subgridspec=subgridspecs[0])
 for i in range(2):
-    panel1[i][0].spines['top'].set_visible(False)
-    panel1[i][0].spines['right'].set_visible(False)
+    # panel1[i][0].spines['top'].set_visible(False)
+    # panel1[i][0].spines['right'].set_visible(False)
     fig.adjust_ticks(panel1[i][0], pulse_time)
+    fig.adjust_ticks(panel1[i][1], pulse_time)
 
 # Top right panel
-panel3 = axs[1]
+panel3 = axs[2]
 
 APD_trapping = pd.read_csv(saved_data_dir + 'CiPA_APD_fine.csv')
 APD_conductance = pd.read_csv(saved_data_dir + 'conductance_APD_fine.csv')
@@ -206,26 +217,23 @@ APD_conductance = [max(APD_conductance.loc[i].values.tolist()[1:-1])
                    for i in range(APD_conductance.shape[0])]
 EAD_marker = [1050 if (i >= 1000 or j >= 1000) else None for (i, j)
               in zip(APD_trapping[1:], APD_conductance[1:])]
-print(drug_conc)
-print(APD_trapping)
-print(APD_conductance)
 
 panel3[0][0].plot(drug_conc[1:], APD_trapping[1:], 'o', color='orange',
-                  label='SD model')
+                  label='ORd-SD model')
 panel3[0][0].plot(drug_conc[1:], APD_conductance[1:], '^', color='blue',
-                  label='CS model', alpha=0.8)
+                  label='ORd-CS model', alpha=0.8)
 panel3[0][0].plot(drug_conc[1:], EAD_marker, 'o', color='k',
                   marker=(5, 2), label='EAD-like AP')
 panel3[0][0].set_xscale("log", nonpositive='clip')
 panel3[0][0].set_xlabel('Drug concentration (nM)')
 panel3[0][0].set_ylabel(r'APD$_{90}$ (ms)')
-# panel3[0][0].set_title(panelC_title)
 panel3[0][0].legend(handlelength=1)
 
 # Add panel letter
 fig.fig.set_size_inches(10, 5.5)
-fig.fig.text(0.075, 0.925, '(A)', fontsize=11)
-fig.fig.text(0.075, 0.455, '(B)', fontsize=11)
-fig.fig.text(0.525, 0.925, '(C)', fontsize=11)
+fig.fig.text(0.1, 0.905, '(A)', fontsize=11)
+fig.fig.text(0.1, 0.495, '(B)', fontsize=11)
+fig.fig.text(0.64, 0.495, '(C)', fontsize=11)
 
-# fig.savefig(saved_fig_dir + "model_compare.svg", format='svg')
+fig.savefig(saved_fig_dir + "model_compare.svg", format='svg')
+# fig.savefig(saved_fig_dir + "grid_test.pdf")

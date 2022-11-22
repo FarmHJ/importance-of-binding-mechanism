@@ -212,9 +212,9 @@ EAD_marker = [1050 if (i >= 1000 or j >= 1000) else None for (i, j)
 
 # Left panel
 panel5[0][0].plot(drug_conc[1:], APD_trapping[1:],
-                  'o', color='orange', label='SD model')
+                  'o', color='orange', label='ORd-SD model')
 panel5[0][0].plot(drug_conc[1:], APD_conductance[1:],
-                  '^', color='blue', label='CS model', alpha=0.8)
+                  '^', color='blue', label='ORd-CS model', alpha=0.8)
 panel5[0][0].scatter(drug_conc[1:], EAD_marker, marker=(5, 2), color='k',
                   label='EAD-like AP')
 panel5[0][0].set_xscale("log", nonpositive='clip')
@@ -251,7 +251,7 @@ for p, prot in enumerate(protocol_list):
 panel6[0][0].set_xscale("log", nonpositive='clip')
 panel6[0][0].set_xlabel('Drug concentration (nM)')
 panel6[0][0].set_ylabel('Normalised\npeak current')
-panel6[0][0].legend()
+panel6[0][0].legend(handlelength=3)
 
 if not fig_short:
     fig.savefig(saved_fig_dir + 'sensitivity_summary.pdf')

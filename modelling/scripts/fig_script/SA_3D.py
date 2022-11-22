@@ -119,32 +119,84 @@ def log_tick_formatter(val, pos=None):
     return f"$10^{{{int(val)}}}$"
 
 
+# fig = plt.figure(figsize=(10, 5))
+
+# gs = fig.add_gridspec(1, 2, wspace=0.1)
+# axs = [fig.add_subplot(gs[0, j], projection='3d') for j in range(2)]
+
+# # cmap = plt.get_cmap('RdYlBu_r')
+# cmap = plt.get_cmap('rainbow')
+# # coolwarm, rainbow, jet
+# cmap_norm = matplotlib.colors.Normalize(cmin, cmax)
+# scale_map = matplotlib.cm.ScalarMappable(norm=cmap_norm, cmap=cmap)
+
+# axs[0].scatter(Vhalf_range, np.log10(Kmax_range), np.log10(Ku_range),
+#                c=scale_map.to_rgba(Error_space),
+#                s=5, marker='o', zorder=-10, alpha=0.5)
+# # axs[0].view_init(15, 25)
+# axs[0].view_init(20, 40)
+
+# axs[1].scatter(Vhalf_chosen, np.log10(Kmax_chosen), np.log10(Ku_chosen),
+#                c='dimgrey', s=10, marker='o', zorder=-10, alpha=0.5)
+# axs[1].scatter(Vhalf_curve, np.log10(Kmax_curve), np.log10(Ku_curve),
+#                c='dimgrey', s=10, marker='o', zorder=-10, alpha=0.5)
+# axs[1].scatter(Vhalf_list, np.log10(Kmax_list), np.log10(Ku_list),
+#                c=scale_map.to_rgba(Error_drug),
+#                s=100, marker='^', zorder=-1)
+# axs[1].view_init(20, 40)
+# # axs[1].view_init(15, 25)
+
+# for i in range(2):
+#     axs[i].set_xlabel(r"$V_\mathrm{half-trap}$")
+#     axs[i].set_ylabel(r"$K_\mathrm{max}$")
+#     axs[i].set_zlabel(r"$K_u$")
+
+#     axs[i].set_xlim(min(Vhalf_range), max(Vhalf_range))
+#     axs[i].set_ylim(min(np.log10(Kmax_range)), max(np.log10(Kmax_range)))
+#     # axs[i].set_zlim(min(np.log10(Ku_range)), max(np.log10(Ku_range)))
+#     axs[i].set_zlim(min(np.log10(Ku_curve)), max(np.log10(Ku_curve)))
+
+#     axs[i].yaxis.set_major_formatter(mticker.FuncFormatter(log_tick_formatter))
+#     axs[i].yaxis.set_major_locator(mticker.MaxNLocator(integer=True))
+#     axs[i].zaxis.set_major_formatter(mticker.FuncFormatter(log_tick_formatter))
+#     axs[i].zaxis.set_major_locator(mticker.MaxNLocator(integer=True))
+
+#     axs[i].set_rasterization_zorder(0)
+
+# cax = axs[0].inset_axes([0.5, -0.08, 1, 0.03])
+# scale_map.set_array(Error_space)
+# fig.colorbar(scale_map, orientation='horizontal', ax=axs, cax=cax)
+
+# fig.text(0.075, 0.75, '(A)', fontsize=11)
+# fig.text(0.5, 0.75, '(B)', fontsize=11)
+
+# plt.subplots_adjust(hspace=0)
+
+# # plt.show()
+# plt.savefig(saved_fig_dir + 'Fig_SA_3D_test5.png', bbox_inches='tight')
+
+############################################
+
 fig = plt.figure(figsize=(10, 5))
 
 gs = fig.add_gridspec(1, 2, wspace=0.1)
 axs = [fig.add_subplot(gs[0, j], projection='3d') for j in range(2)]
 
-# cmap = plt.get_cmap('RdYlBu_r')
 cmap = plt.get_cmap('rainbow')
-# coolwarm, rainbow, jet
 cmap_norm = matplotlib.colors.Normalize(cmin, cmax)
 scale_map = matplotlib.cm.ScalarMappable(norm=cmap_norm, cmap=cmap)
 
-axs[0].scatter(Vhalf_range, np.log10(Kmax_range), np.log10(Ku_range),
-               c=scale_map.to_rgba(Error_space),
-               s=5, marker='o', zorder=-10, alpha=0.5)
-# axs[0].view_init(15, 25)
-axs[0].view_init(20, 40)
+for i in range(2):
+    axs[i].scatter(Vhalf_chosen, np.log10(Kmax_chosen), np.log10(Ku_chosen),
+                   c='dimgrey', s=10, marker='o', zorder=-10, alpha=0.5)
+    axs[i].scatter(Vhalf_curve, np.log10(Kmax_curve), np.log10(Ku_curve),
+                   c='dimgrey', s=10, marker='o', zorder=-10, alpha=0.5)
+    axs[i].scatter(Vhalf_list, np.log10(Kmax_list), np.log10(Ku_list),
+                   c=scale_map.to_rgba(Error_drug), s=100, marker='^')
 
-axs[1].scatter(Vhalf_chosen, np.log10(Kmax_chosen), np.log10(Ku_chosen),
-               c='dimgrey', s=10, marker='o', zorder=-10, alpha=0.5)
-axs[1].scatter(Vhalf_curve, np.log10(Kmax_curve), np.log10(Ku_curve),
-               c='dimgrey', s=10, marker='o', zorder=-10, alpha=0.5)
-axs[1].scatter(Vhalf_list, np.log10(Kmax_list), np.log10(Ku_list),
-               c=scale_map.to_rgba(Error_drug),
-               s=100, marker='^', zorder=-1)
-axs[1].view_init(20, 40)
-# axs[1].view_init(15, 25)
+axs[0].view_init(35, 60)
+axs[1].view_init(10, 10)
+
 
 for i in range(2):
     axs[i].set_xlabel(r"$V_\mathrm{half-trap}$")
@@ -153,7 +205,6 @@ for i in range(2):
 
     axs[i].set_xlim(min(Vhalf_range), max(Vhalf_range))
     axs[i].set_ylim(min(np.log10(Kmax_range)), max(np.log10(Kmax_range)))
-    # axs[i].set_zlim(min(np.log10(Ku_range)), max(np.log10(Ku_range)))
     axs[i].set_zlim(min(np.log10(Ku_curve)), max(np.log10(Ku_curve)))
 
     axs[i].yaxis.set_major_formatter(mticker.FuncFormatter(log_tick_formatter))
@@ -172,55 +223,4 @@ fig.text(0.5, 0.75, '(B)', fontsize=11)
 
 plt.subplots_adjust(hspace=0)
 
-# plt.show()
-plt.savefig(saved_fig_dir + 'Fig_SA_3D_test5.png', bbox_inches='tight')
-
-############################################
-
-# fig = plt.figure(figsize=(10, 5))
-
-# gs = fig.add_gridspec(1, 2, wspace=0.1)
-# axs = [fig.add_subplot(gs[0, j], projection='3d') for j in range(2)]
-
-# cmap = plt.get_cmap('RdYlBu_r')
-# cmap_norm = matplotlib.colors.Normalize(cmin, cmax)
-# scale_map = matplotlib.cm.ScalarMappable(norm=cmap_norm, cmap=cmap)
-
-# for i in range(2):
-#     axs[i].scatter(Vhalf_chosen, np.log10(Kmax_chosen), np.log10(Ku_chosen),
-#                    c='dimgrey', s=10, marker='o', zorder=-10, alpha=0.5)
-#     axs[i].scatter(Vhalf_curve, np.log10(Kmax_curve), np.log10(Ku_curve),
-#                    c='dimgrey', s=10, marker='o', zorder=-10, alpha=0.5)
-#     axs[i].scatter(Vhalf_list, np.log10(Kmax_list), np.log10(Ku_list),
-#                    c=scale_map.to_rgba(Error_drug), s=100, marker='^')
-
-# axs[0].view_init(35, 60)
-# axs[1].view_init(10, 10)
-
-
-# for i in range(2):
-#     axs[i].set_xlabel(r"$V_\mathrm{half-trap}$")
-#     axs[i].set_ylabel(r"$K_\mathrm{max}$")
-#     axs[i].set_zlabel(r"$K_u$")
-
-#     axs[i].set_xlim(min(Vhalf_range), max(Vhalf_range))
-#     axs[i].set_ylim(min(np.log10(Kmax_range)), max(np.log10(Kmax_range)))
-#     axs[i].set_zlim(min(np.log10(Ku_range)), max(np.log10(Ku_range)))
-
-#     axs[i].yaxis.set_major_formatter(mticker.FuncFormatter(log_tick_formatter))
-#     axs[i].yaxis.set_major_locator(mticker.MaxNLocator(integer=True))
-#     axs[i].zaxis.set_major_formatter(mticker.FuncFormatter(log_tick_formatter))
-#     axs[i].zaxis.set_major_locator(mticker.MaxNLocator(integer=True))
-
-#     axs[i].set_rasterization_zorder(0)
-
-# cax = axs[0].inset_axes([0.5, -0.08, 1, 0.03])
-# scale_map.set_array(Error_space)
-# fig.colorbar(scale_map, orientation='horizontal', ax=axs, cax=cax)
-
-# fig.text(0.075, 0.75, '(A)', fontsize=11)
-# fig.text(0.5, 0.75, '(B)', fontsize=11)
-
-# plt.subplots_adjust(hspace=0)
-
-# plt.savefig(saved_fig_dir + 'FigS_SA_3D.png', bbox_inches='tight')
+plt.savefig(saved_fig_dir + 'FigS_SA_3D.png', bbox_inches='tight')

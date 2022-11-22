@@ -87,7 +87,7 @@ SA_model = modelling.SensitivityAnalysis()
 
 # previous_i, i = chosen_Kmax_id[1]
 # norm = matplotlib.colors.Normalize(0, i - previous_i)
-# Vhalf_chosen_id = [previous_i, int((i - previous_i) / 2 + previous_i), i - 1]
+# Vhalf_chosen_id = [previous_i, int((i - previous_i) / 2 + previous_i + 1), i - 1]
 
 # for i in range(len(Vhalf_chosen_id)):
 #     for num, r in enumerate(Vhalf_chosen_id):
@@ -104,13 +104,13 @@ SA_model = modelling.SensitivityAnalysis()
 #                                 color='grey', alpha=0.5, zorder=-10)
 #         else:
 #             fig2.axs[0][i].plot(drug_conc, APD_trapping, 'o',
-#                                 color='orange', label='SD model')
+#                                 color='orange', label='ORd-SD model')
 #             fig2.axs[0][i].plot(drug_conc, APD_conductance, '^',
-#                                 color='blue', label='CS model')
+#                                 color='blue', label='ORd-CS model')
 #             fig2.axs[0][i].scatter(drug_conc, EAD_marker, color='k',
 #                                    marker=(5, 2), label='EAD-like AP')
 
-#         print('RMSE = ', RMSE_range[r])
+#         # print('RMSE = ', RMSE_range[r])
 #         fig2.axs[0][i].set_title(r'$V_{half-trap} = $' + "%.2e" %
 #                                  (Vhalf_range[Vhalf_chosen_id[i]]))
 #         fig2.axs[0][i].set_xscale("log", nonpositive='clip')
@@ -171,15 +171,21 @@ fig = modelling.figures.FigureStructure(figsize=(10, 3),
                                         wspace=0.1,)
 plot = modelling.figures.FigurePlot()
 
-cmap = plt.get_cmap('RdYlBu_r')
+cmap = plt.get_cmap('rainbow')
 
 chosen_Vhalf_value = [-219.45, -100, -1.147]
 for i in range(3):
     chosen_Vhalf_df = combined_df[np.abs(combined_df[('param_values', 'Vhalf')]
                                   - chosen_Vhalf_value[i]) < 0.01]
+    chosen_Vhalf_df = chosen_Vhalf_df.sort_values(by=[('param_values', 'Kmax'), ('param_values', 'Ku')],
+                                                  ascending=[True, True])
 
     # Vhalf_range = chosen_Vhalf_df['param_values']['Vhalf'].values
+    ######################################
     Kmax_range = chosen_Vhalf_df['param_values']['Kmax'].values
+    Kmax_range_2D = np.reshape(Kmax_range, (100, 28)).T
+    print(Kmax_range_2D)
+    ######################################
     Ku_range = chosen_Vhalf_df['param_values']['Ku'].values
 
     RMSError = chosen_Vhalf_df['RMSE']['RMSE'].values
@@ -196,6 +202,8 @@ for i in range(3):
     fig.axs[0][i].scatter(Kmax_range, Ku_range,
                           c=scale_map.to_rgba(Error_space),
                           s=5, marker='o', zorder=-10)
+    # fig.axs[0][i].contour(Kmax_range, Ku_range, Error_space,
+    #                       cmap=cmap_norm)
     fig.axs[0][i].set_xscale('log')
     fig.axs[0][i].set_yscale('log')
     fig.axs[0][i].set_title(r'$V_{half-trap} = $' + "%.2e" %

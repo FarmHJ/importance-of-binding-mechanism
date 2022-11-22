@@ -8,12 +8,12 @@ steady_state = False
 hERG_model = True
 
 drugs = ['dofetilide', 'verapamil']
-drug_label = ['drug free', 'trapped\ndrug', 'nontrapped\ndrug']
+drug_label = ['drug free', 'dofetilide-like\ndrug', 'verapamil-like\ndrug']
 
 testing_fig_dir = '../../figures/testing/'
 final_fig_dir = '../../figures/background/trapping/'
 # final_fig_dir = '../../figures/conferences/'
-saved_fig_dir = final_fig_dir
+saved_fig_dir = testing_fig_dir
 
 saved_data_dir = '../../simulation_data/background/'
 
@@ -67,8 +67,8 @@ panel2[2][0].plot(
     nontrapped_log['ikr.IKr', 0][length:] + nontrapped_log[
         'ikr.IKr', 1][:length], 'k')
 
-panel2[1][0].text(248000, 0.6, 'trapped drug', fontsize=8, ha='right')
-panel2[2][0].text(248000, 0.6, 'nontrapped drug', fontsize=8, ha='right')
+panel2[1][0].text(248000, 0.6, 'dofetilide-like drug', fontsize=8, ha='right')
+panel2[2][0].text(248000, 0.6, 'verapamil-like drug', fontsize=8, ha='right')
 
 fig.sharex(['Time (s)'], [(0, pulse_time * repeats)],
            axs=panel2, subgridspec=(3, 1))

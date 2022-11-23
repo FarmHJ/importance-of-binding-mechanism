@@ -213,3 +213,45 @@ class BindingKinetics(object):
             APD90 = len(signal) * timestep
 
         return APD90
+
+    def drug_APclamp(self, drug, drug_conc, times, voltages, t_max, repeats,
+                     timestep=0.1, save_signal=1, log_var=None):
+        param_lib = modelling.BindingParameters()
+
+        Vhalf = param_lib.binding_parameters[drug]['Vhalf']
+        Kmax = param_lib.binding_parameters[drug]['Kmax']
+        Ku = param_lib.binding_parameters[drug]['Ku']
+        N = param_lib.binding_parameters[drug]['N']
+        EC50 = param_lib.binding_parameters[drug]['EC50']
+
+        concentration = self.model.get('ikr.D')
+        concentration.set_state_value(drug_conc)
+
+        self.sim = myokit.Simulation(self.model)
+        self.sim.set_fixed_form_protocol(times, voltages)
+        self.sim.reset()
+        # self.sim.set_state(self.initial_state)
+
+        self.sim.set_constant(self.current_head.var('Vhalf'), Vhalf)
+        self.sim.set_constant(self.current_head.var('Kmax'), Kmax)
+        self.sim.set_constant(self.current_head.var('Ku'), Ku)
+        self.sim.set_constant(self.current_head.var('n'), N)
+        self.sim.set_constant(self.current_head.var('halfmax'), EC50)
+        self.sim.set_constant(self.current_head.var('Kt'), 3.5e-5)
+        self.sim.set_constant(self.current_head.var('gKr'),
+                              self.original_constants["gKr"])
+
+        for pace in range(1000):
+            self.sim.run(t_max, log=myokit.LOG_NONE)
+            self.sim.set_time(0)
+        log = self.sim.run(t_max)
+        # self.sim.pre(t_max * (repeats - save_signal))
+        # log = self.sim.run(t_max * save_signal, log=log_var,
+        #                    log_interval=timestep)
+        d2 = log.npview()
+        if save_signal > 1:
+            d2 = d2.fold(t_max)
+
+        self.sim.reset()
+
+        return d2

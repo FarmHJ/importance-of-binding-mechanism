@@ -37,6 +37,9 @@ axs = [[[fig.fig.add_subplot(subgs[k][i, j]) for j in range(
     subgridspecs[k][1])] for i in range(subgridspecs[k][0])] for
     k in range(len(subgs))]
 
+control_log = myokit.DataLog.load_csv(
+    '../../simulation_data/binding_kinetics_comparison/steady_state_control.csv')
+
 # Load data
 drug = 'dofetilide'
 protocol_name = 'Milnes'
@@ -44,11 +47,15 @@ saved_data_dir = '../../simulation_data/binding_kinetics_comparison/' + \
     drug + '/' + protocol_name + '/'
 
 trapping_data_files = [f for f in os.listdir(saved_data_dir) if
-                       f.startswith('CiPA_AP_transient_pulses7')]
+                       f.startswith('CiPA_AP_transient_pulses7') and
+                       f.endswith('_paced.csv')]
 conductance_data_files = [f for f in os.listdir(saved_data_dir) if
-                          f.startswith('conductance_AP_transient_pulses7')]
-conc_label = [fname[26:-4] for fname in trapping_data_files]
-drug_conc = [float(fname[26:-4]) for fname in trapping_data_files]
+                          f.startswith('conductance_AP_transient_pulses7') and
+                          f.endswith('_paced.csv')]
+# conc_label = [fname[26:-4] for fname in trapping_data_files]
+# drug_conc = [float(fname[26:-4]) for fname in trapping_data_files]
+conc_label = [fname[26:-10] for fname in trapping_data_files]
+drug_conc = [float(fname[26:-10]) for fname in trapping_data_files]
 
 # Sort in increasing order of drug concentration
 sort_ind = [i[0] for i in sorted(enumerate(drug_conc), key=lambda x:x[1])]
@@ -73,6 +80,11 @@ cmap = matplotlib.colors.ListedColormap(
 
 # Top left panel
 panel1 = axs[0]
+plot.add_single(panel1[0][0], control_log, 'membrane.V', color=cmap(0))
+plot.add_single(panel1[1][0], control_log, 'ikr.IKr', color=cmap(0))
+panel1[0][0].axvline(999, color='k', linestyle='--')
+panel1 [1][0].axvline(999, color='k', linestyle='--')
+
 plot.add_multiple_continuous(panel1[0][0], CiPA_AP_log, 'membrane.V',
                              cmap=cmap)
 plot.add_multiple_continuous(panel1[1][0], CiPA_AP_log, 'ikr.IKr',
@@ -93,6 +105,11 @@ panel1[0][0].set_title(drug + "-like drug, ORd-SD model", y=1.25)
 
 # Second row, left panel
 panel3 = axs[2]
+plot.add_single(panel3[0][0], control_log, 'membrane.V', color=cmap(0))
+plot.add_single(panel3[1][0], control_log, 'ikr.IKr', color=cmap(0))
+panel3[0][0].axvline(999, color='k', linestyle='--')
+panel3[1][0].axvline(999, color='k', linestyle='--')
+
 plot.add_multiple_continuous(panel3[0][0], conductance_AP_log, 'membrane.V',
                              cmap=cmap)
 plot.add_multiple_continuous(panel3[1][0], conductance_AP_log, 'ikr.IKr',
@@ -110,8 +127,8 @@ fig.adjust_ticks(panel3[1][0], plotting_pulse_time)
 panel3[0][0].set_title(drug + "-like drug, ORd-CS model", y=1.25)
 
 # Load APD values
-APD_trapping = pd.read_csv(saved_data_dir + 'CiPA_APD_transient.csv')
-APD_conductance = pd.read_csv(saved_data_dir + 'conductance_APD_transient.csv')
+APD_trapping = pd.read_csv(saved_data_dir + 'CiPA_APD_transient_paced.csv')
+APD_conductance = pd.read_csv(saved_data_dir + 'conductance_APD_transient_paced.csv')
 
 APD_trapping_concs = []
 APD_conductance_concs = []
@@ -139,7 +156,7 @@ for i in range(len(drug_conc)):
                       label='ORd-CS model', color='blue')
 
     APD_plot = [APD_trapping_concs[i][ind] for ind in
-                range(len(APD_trapping_concs[i])) if ind % 2 == 0]
+                range(len(APD_trapping_concs[i])) if ind % 2 == 1]
     panel5[0][i].plot(np.arange(saved_signal / 2) * 2, APD_plot, 'o', ms=0.9,
                       label='ORd-SD model', color='orange')
     panel5[0][i].set_title(str(drug_conc[i]) + ' nM')
@@ -167,11 +184,15 @@ saved_data_dir = '../../simulation_data/binding_kinetics_comparison/' + \
     drug + '/' + protocol_name + '/'
 
 trapping_data_files = [f for f in os.listdir(saved_data_dir) if
-                       f.startswith('CiPA_AP_transient_pulses7')]
+                       f.startswith('CiPA_AP_transient_pulses7') and
+                       f.endswith('_paced.csv')]
 conductance_data_files = [f for f in os.listdir(saved_data_dir) if
-                          f.startswith('conductance_AP_transient_pulses7')]
-conc_label = [fname[26:-4] for fname in trapping_data_files]
-drug_conc = [float(fname[26:-4]) for fname in trapping_data_files]
+                          f.startswith('conductance_AP_transient_pulses7')
+                          and f.endswith('_paced.csv')]
+# conc_label = [fname[26:-4] for fname in trapping_data_files]
+# drug_conc = [float(fname[26:-4]) for fname in trapping_data_files]
+conc_label = [fname[26:-10] for fname in trapping_data_files]
+drug_conc = [float(fname[26:-10]) for fname in trapping_data_files]
 
 # Sort in increasing order of drug concentration
 sort_ind = [i[0] for i in sorted(enumerate(drug_conc), key=lambda x:x[1])]
@@ -179,6 +200,8 @@ drug_conc = sorted(drug_conc)
 trapping_data_files = [trapping_data_files[i] for i in sort_ind]
 conductance_data_files = [conductance_data_files[i] for i in sort_ind]
 conc_label = [conc_label[i] for i in sort_ind]
+
+print(trapping_data_files)
 
 CiPA_AP_log = []
 conductance_AP_log = []
@@ -196,6 +219,11 @@ plotting_pulse_time = 1000 * 7
 
 # Top right panel
 panel2 = axs[1]
+plot.add_single(panel2[0][0], control_log, 'membrane.V', color=cmap(0))
+plot.add_single(panel2[1][0], control_log, 'ikr.IKr', color=cmap(0))
+panel2[0][0].axvline(999, color='k', linestyle='--')
+panel2[1][0].axvline(999, color='k', linestyle='--')
+
 plot.add_multiple_continuous(panel2[0][0], CiPA_AP_log, 'membrane.V',
                              cmap=cmap)
 plot.add_multiple_continuous(panel2[1][0], CiPA_AP_log, 'ikr.IKr',
@@ -214,6 +242,10 @@ panel2[0][0].set_title(drug + "-like drug, ORd-SD model", y=1.25)
 
 # Second row, right panel
 panel4 = axs[3]
+plot.add_single(panel4[0][0], control_log, 'membrane.V', color=cmap(0))
+plot.add_single(panel4[1][0], control_log, 'ikr.IKr', color=cmap(0))
+panel4[0][0].axvline(999, color='k', linestyle='--')
+panel4[1][0].axvline(999, color='k', linestyle='--')
 
 plot.add_multiple_continuous(panel4[0][0], conductance_AP_log, 'membrane.V',
                              cmap=cmap)
@@ -232,8 +264,8 @@ fig.adjust_ticks(panel4[1][0], plotting_pulse_time)
 panel4[0][0].set_title(drug + "-like drug, ORd-CS model", y=1.25)
 
 # Load APD values
-APD_trapping = pd.read_csv(saved_data_dir + 'CiPA_APD_transient.csv')
-APD_conductance = pd.read_csv(saved_data_dir + 'conductance_APD_transient.csv')
+APD_trapping = pd.read_csv(saved_data_dir + 'CiPA_APD_transient_paced.csv')
+APD_conductance = pd.read_csv(saved_data_dir + 'conductance_APD_transient_paced.csv')
 
 APD_trapping_concs = []
 APD_conductance_concs = []
@@ -283,4 +315,4 @@ fig.fig.text(0.535, 0.625, '(D)', fontsize=11)
 fig.fig.text(0.1, 0.325, '(E)', fontsize=11)
 fig.fig.text(0.535, 0.325, '(F)', fontsize=11)
 
-fig.savefig(saved_fig_dir + "AP_transient.pdf")  # , format='svg')
+fig.savefig(saved_fig_dir + "AP_transient_paced.pdf")  # , format='svg')

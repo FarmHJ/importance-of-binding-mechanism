@@ -15,10 +15,8 @@ protocol = protocol_params.protocol_parameters[protocol_name]['function']
 # Drug concentration can be set referencing to hERG_peak figure
 if drug == 'dofetilide':
     drug_conc = [0, 100, 200]  # nM
-    # drug_conc = [0, 30, 100]
 elif drug == 'verapamil':
-    # drug_conc = [0, 1000, 100000]  # nM
-    drug_conc = [0, 1000, 10000]
+    drug_conc = [0, 1000, 10000]  # nM
 drug_labels = [str(i) + ' nM' for i in drug_conc]
 
 saved_data_dir = '../../simulation_data/binding_kinetics_comparison/' + \
@@ -53,21 +51,29 @@ save_signal = repeats
 AP_conductance = []
 AP_trapping = []
 
+# log = AP_model.drug_simulation(
+#     drug, 0, 1000, timestep=0.1, save_signal=1)
+# log.save_csv(saved_data_dir + 'steady_state_control.csv')
+import matplotlib.pyplot as plt
+
+control_log = myokit.DataLog.load_csv(
+    '../../simulation_data/binding_kinetics_comparison/steady_state_control.csv')
+
 for i in range(len(drug_conc)):
     print('simulating concentration: ' + str(drug_conc[i]))
     log = AP_model.drug_simulation(
         drug, drug_conc[i], repeats, timestep=0.1, save_signal=save_signal,
-        log_var=['engine.time', 'membrane.V', 'ikr.IKr'])
+        log_var=['engine.time', 'membrane.V', 'ikr.IKr'], set_state=control_log)
     log.save_csv(saved_data_dir + 'CiPA_AP_transient_pulses' + str(repeats) +
-                 '_' + str(drug_conc[i]) + '.csv')
+                 '_' + str(drug_conc[i]) + '_paced.csv')
 
     reduction_scale = Hill_model.simulate(estimates[:2], drug_conc[i])
     d2 = AP_model.conductance_simulation(
         base_conductance * reduction_scale, repeats, timestep=0.1,
         save_signal=save_signal,
-        log_var=['engine.time', 'membrane.V', 'ikr.IKr'])
+        log_var=['engine.time', 'membrane.V', 'ikr.IKr'], set_state=control_log)
     d2.save_csv(saved_data_dir + 'conductance_AP_transient_pulses' +
-                str(repeats) + '_' + str(drug_conc[i]) + '.csv')
+                str(repeats) + '_' + str(drug_conc[i]) + '_paced.csv')
 
     print('done concentration: ' + str(drug_conc[i]))
 
@@ -82,7 +88,7 @@ for i in range(len(drug_conc)):
     print('simulating concentration: ' + str(drug_conc[i]))
     log = AP_model.drug_simulation(
         drug, drug_conc[i], repeats, timestep=0.1, save_signal=save_signal,
-        log_var=['engine.time', 'membrane.V', 'ikr.IKr'])
+        log_var=['engine.time', 'membrane.V', 'ikr.IKr'], set_state=control_log)
 
     APD_trapping_pulse = []
     for pulse in range(save_signal):
@@ -95,7 +101,7 @@ for i in range(len(drug_conc)):
     d2 = AP_model.conductance_simulation(
         base_conductance * reduction_scale, repeats, timestep=0.1,
         save_signal=save_signal,
-        log_var=['engine.time', 'membrane.V', 'ikr.IKr'])
+        log_var=['engine.time', 'membrane.V', 'ikr.IKr'], set_state=control_log)
 
     APD_conductance_pulse = []
 
@@ -109,7 +115,7 @@ for i in range(len(drug_conc)):
 
 APD_trapping_df = pd.DataFrame(np.array(APD_trapping))
 APD_trapping_df['drug concentration'] = drug_conc
-APD_trapping_df.to_csv(saved_data_dir + 'CiPA_APD_transient.csv')
+APD_trapping_df.to_csv(saved_data_dir + 'CiPA_APD_transient_paced.csv')
 APD_conductance_df = pd.DataFrame(np.array(APD_conductance))
 APD_conductance_df['drug concentration'] = drug_conc
-APD_conductance_df.to_csv(saved_data_dir + 'conductance_APD_transient.csv')
+APD_conductance_df.to_csv(saved_data_dir + 'conductance_APD_transient_paced.csv')

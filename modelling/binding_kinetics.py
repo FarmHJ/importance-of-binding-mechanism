@@ -43,7 +43,8 @@ class BindingKinetics(object):
             "gKr": self.model.get(self.current_head.var('gKr')).eval(), }
 
     def drug_simulation(self, drug, drug_conc, repeats,
-                        timestep=0.1, save_signal=1, log_var=None):
+                        timestep=0.1, save_signal=1, log_var=None,
+                        set_state=None, abs_tol=1e-6, rel_tol=1e-4):
         param_lib = modelling.BindingParameters()
 
         Vhalf = param_lib.binding_parameters[drug]['Vhalf']
@@ -53,12 +54,17 @@ class BindingKinetics(object):
         EC50 = param_lib.binding_parameters[drug]['EC50']
 
         t_max = self.protocol.characteristic_time()
+        # print(t_max)
 
         concentration = self.model.get('ikr.D')
         concentration.set_state_value(drug_conc)
 
         self.sim = myokit.Simulation(self.model, self.protocol)
         self.sim.reset()
+        self.sim.set_tolerance(abs_tol=abs_tol, rel_tol=rel_tol)
+        if set_state:
+            set_state['ikr.D'][-1] = drug_conc
+            self.sim.set_state(set_state)
         # self.sim.set_state(self.initial_state)
 
         self.sim.set_constant(self.current_head.var('Vhalf'), Vhalf)
@@ -121,9 +127,11 @@ class BindingKinetics(object):
 
     def conductance_simulation(self, conductance, repeats,
                                timestep=1, save_signal=1, log_var=None,
-                               abs_tol=1e-6, rel_tol=1e-4):
+                               abs_tol=1e-6, rel_tol=1e-4, set_state=None):
         self.sim = myokit.Simulation(self.model, self.protocol)
         self.sim.reset()
+        if set_state:
+            self.sim.set_state(set_state)
         self.sim.set_tolerance(abs_tol=abs_tol, rel_tol=rel_tol)
 
         self.sim.set_constant(self.current_head.var('Vhalf'),

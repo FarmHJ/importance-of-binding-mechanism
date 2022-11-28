@@ -147,8 +147,8 @@ for i in range(len(log_all)):
             plot.add_single(panel4[0][i], log_all[j], 'membrane.V')
             plot.add_single(panel4[1][i], log_all[j], 'ikr.IKr')
         else:
-            plot.add_single(panel4[0][i], log_all[j], 'membrane.V',
-                            color='grey', alpha=0.5)
+            # plot.add_single(panel4[0][i], log_all[j], 'membrane.V',
+            #                 color='grey', alpha=0.5)
             plot.add_single(panel4[1][i], log_all[j], 'ikr.IKr',
                             color='grey', alpha=0.5)
     panel4[1][i].text(980, 0.8, drug_label[i], fontsize=8,

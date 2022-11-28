@@ -3,11 +3,12 @@
 import pandas as pd
 import matplotlib
 import myokit
+import numpy as np
 import os
 
 import modelling
 
-drug = 'verapamil'
+drug = 'dofetilide'
 protocol_name = 'Milnes'
 
 saved_data_dir = '../../simulation_data/binding_kinetics_comparison/' + \
@@ -42,13 +43,16 @@ subgs.append(fig.gs[0].subgridspec(*subgridspecs[0], wspace=0.08,
 for i in range(1, 2 * 2):
     subgs.append(fig.gs[i].subgridspec(*subgridspecs[i], wspace=0.08,
                                        hspace=0.08))
+# axs = [[[fig.fig.add_subplot(subgs[k][i, j]) for j in range(
+#          subgridspecs[k][1])] for i in range(subgridspecs[k][0])]
+#        for k in [0, 2]]
+# axs.append([[fig.fig.add_subplot(subgs[3][0, 0])]])
 axs = [[[fig.fig.add_subplot(subgs[k][i, j]) for j in range(
          subgridspecs[k][1])] for i in range(subgridspecs[k][0])]
-       for k in [0, 2]]
-axs.append([[fig.fig.add_subplot(subgs[3][0, 0])]])
+       for k in range(4)]
 
 # Bottom panel
-panel2 = axs[1]
+panel2 = axs[2]
 # Load action potential data
 trapping_data_files = [f for f in os.listdir(saved_data_dir) if
                        f.startswith('CiPA_AP_') and not
@@ -60,13 +64,14 @@ conc_label = [fname[8:-4] for fname in trapping_data_files]
 drug_conc = [float(fname[8:-4]) for fname in trapping_data_files]
 
 # for verapamil
-removing_ind = drug_conc.index(500.0)
-drug_conc.pop(removing_ind)
-trapping_data_files.pop(removing_ind)
-conductance_data_files.pop(removing_ind)
-conc_label.pop(removing_ind)
-conc_label[-2] = r"$10^4$"
-conc_label[-1] = r"$10^5$"
+# removing_ind = drug_conc.index(500.0)
+# drug_conc.pop(removing_ind)
+# trapping_data_files.pop(removing_ind)
+# conductance_data_files.pop(removing_ind)
+# conc_label.pop(removing_ind)
+# conc_label[-3] = r"$10^3$"
+# conc_label[-2] = r"$10^4$"
+# conc_label[-1] = r"$10^5$"
 
 # Sort in increasing order of drug concentration
 sort_ind = [i[0] for i in sorted(enumerate(drug_conc), key=lambda x:x[1])]
@@ -188,7 +193,7 @@ plot.add_single(panel1[0][1], hERG_conductance_plot[0], 'membrane.V',
 plot.add_multiple(panel1[1][1], hERG_conductance_plot, 'ikr.IKr',
                   labels=labels, color=cmap)
 
-panel1[1][1].legend(handlelength=1, ncol=2, columnspacing=1)
+panel1[1][1].legend(handlelength=0.9, ncol=2, columnspacing=0.9, frameon=False)
 panel1[0][0].set_title('SD model')
 panel1[0][1].set_title('CS model')
 fig.sharex(['Time (s)'] * 2, [(0, pulse_time)] * 2,
@@ -196,13 +201,15 @@ fig.sharex(['Time (s)'] * 2, [(0, pulse_time)] * 2,
 fig.sharey(['Voltage (mV)', 'Current (A/F)'],
            axs=panel1, subgridspec=subgridspecs[0])
 for i in range(2):
-    # panel1[i][0].spines['top'].set_visible(False)
-    # panel1[i][0].spines['right'].set_visible(False)
+    panel1[i][0].spines['top'].set_visible(False)
+    panel1[i][0].spines['right'].set_visible(False)
+    panel1[i][1].spines['top'].set_visible(False)
+    panel1[i][1].spines['right'].set_visible(False)
     fig.adjust_ticks(panel1[i][0], pulse_time)
     fig.adjust_ticks(panel1[i][1], pulse_time)
 
-# Top right panel
-panel3 = axs[2]
+# Bottom right panel
+panel3 = axs[3]
 
 APD_trapping = pd.read_csv(saved_data_dir + 'CiPA_APD_fine.csv')
 APD_conductance = pd.read_csv(saved_data_dir + 'conductance_APD_fine.csv')
@@ -229,11 +236,80 @@ panel3[0][0].set_xlabel('Drug concentration (nM)')
 panel3[0][0].set_ylabel(r'APD$_{90}$ (ms)')
 panel3[0][0].legend(handlelength=1)
 
+# Top right panel
+panel4 = axs[1]
+
+data_dir = '../../data/'
+exp_data = pd.read_csv(data_dir + drug + '.csv',
+                       header=[0], index_col=[0],
+                       skipinitialspace=True)
+control_log = myokit.DataLog.load_csv(data_dir + 'control_pulses10.csv')
+
+cmap = matplotlib.colors.ListedColormap(
+    matplotlib.cm.get_cmap('tab10')(range(4)))
+
+# Load hERG current data
+sim_data_files = [f for f in os.listdir(data_dir) if
+                  f.startswith(drug + '_')]
+drug_conc = [float(fname[len(drug) + 5:-13]) for fname in sim_data_files]
+sort_ind = [i[0] for i in sorted(enumerate(drug_conc), key=lambda x:x[1])]
+
+# Sort in increasing order of drug concentration
+sim_data_files = [sim_data_files[i] for i in sort_ind]
+
+sim_log = []
+for i in range(len(sim_data_files)):
+    sim_log.append(myokit.DataLog.load_csv(
+        data_dir + sim_data_files[i]))
+
+for i, conc_i in enumerate(drug_conc):
+
+    current = exp_data.loc[exp_data['conc'] == conc_i]
+    log = sim_log[i]
+
+    max_exp = max(current['exp'].values)
+    exp_repeats = []
+    for exp in range(1, max_exp):
+        current_exp = current.loc[current['exp'] == exp]
+
+        max_sweep = max(current_exp['sweep'].values)
+        current_temp = current_exp.loc[current_exp['sweep'] == max_sweep]
+        exp_repeats.append(current_temp['frac'].values)
+
+    min_time = min(current_temp.index)
+    max_time = max(current_temp.index)
+    log_range_min = np.argmin(np.abs(np.array(log.time()) - min_time))
+    log_range_max = np.argmin(np.abs(np.array(log.time()) - max_time))
+
+    log_plot = log['ikr.IKr'][log_range_min:log_range_max + 1]
+    control_log_plot = control_log['ikr.IKr'][log_range_min:log_range_max + 1]
+
+    panel4[0][0].plot(current_temp.index - current_temp.index[0],
+             np.mean(exp_repeats, axis=0), 'o', ms=1.2,
+             zorder=-10, color=cmap(i), label=str(int(conc_i)) + ' nM')
+    panel4[0][0].fill_between(
+        current_temp.index - current_temp.index[0], np.mean(exp_repeats, axis=0) -
+        np.std(exp_repeats, axis=0), np.mean(exp_repeats, axis=0) +
+        np.std(exp_repeats, axis=0), color=cmap(i), alpha=.3)
+
+    panel4[0][0].plot(np.array(log.time()[log_range_min:log_range_max + 1]) - log.time()[log_range_min],
+             np.array(log_plot) / np.array(control_log_plot), zorder=1, color='k')
+
+panel4[0][0].set_xlim(min_time  - current_temp.index[0], max_time - current_temp.index[0])
+panel4[0][0].set_ylim(top=1.3)
+panel4[0][0].set_xlabel('Time (s)')
+panel4[0][0].set_ylabel('Fractional block')
+fig.adjust_ticks(panel4[0][0], 1e4)
+lgnd = panel4[0][0].legend(ncol=2, columnspacing=1, handlelength=1)
+for handle in lgnd.legendHandles:
+    handle.set_markersize(4)
+
 # Add panel letter
 fig.fig.set_size_inches(10, 5.5)
 fig.fig.text(0.1, 0.905, '(A)', fontsize=11)
 fig.fig.text(0.1, 0.495, '(B)', fontsize=11)
-fig.fig.text(0.64, 0.495, '(C)', fontsize=11)
+fig.fig.text(0.64, 0.905, '(C)', fontsize=11)
+fig.fig.text(0.64, 0.495, '(D)', fontsize=11)
 
-fig.savefig(saved_fig_dir + "model_compare.svg", format='svg')
+fig.savefig(saved_fig_dir + "model_compare_test.svg", format='svg')
 # fig.savefig(saved_fig_dir + "grid_test.pdf")

@@ -1,3 +1,4 @@
+import matplotlib
 import matplotlib.pyplot as plt
 import myokit
 import numpy as np
@@ -6,7 +7,7 @@ import pandas as pd
 import modelling
 
 data_dir = '../../data/'
-drug = 'dofetilide'
+drug = 'verapamil'
 repeats = 10
 
 df = pd.read_csv(data_dir + drug + '.csv',
@@ -38,10 +39,13 @@ protocol3.schedule(-80, 11000, 14000 - 1, period=t_max)
 drug_model.protocol = protocol3
 
 control_log = drug_model.drug_simulation(drug, 0, repeats)
-
-fig = modelling.figures.FigureStructure(figsize=(10, 6), gridspec=(2, 2),
-                                        height_ratios=[1, 1], hspace=0.3)
-plot = modelling.figures.FigurePlot()
+control_log.save_csv(data_dir + 'control_pulses10.csv')
+# fig = modelling.figures.FigureStructure(figsize=(10, 6), gridspec=(2, 2),
+#                                         height_ratios=[1, 1], hspace=0.3)
+# plot = modelling.figures.FigurePlot()
+fig = plt.figure(figsize=(5, 3))
+cmap = matplotlib.colors.ListedColormap(
+    matplotlib.cm.get_cmap('tab10')(range(4)))
 
 for i, conc_i in enumerate(drug_conc):
     print(conc_i)
@@ -51,6 +55,7 @@ for i, conc_i in enumerate(drug_conc):
         drug, conc_i, repeats,
         log_var=['engine.time', 'membrane.V', 'ikr.IKr'],
         set_state=control_log)
+    log.save_csv(data_dir + drug + '_conc' + str(conc_i) + '_pulses10.csv')
 
     max_exp = max(current['exp'].values)
     exp_repeats = []
@@ -60,7 +65,7 @@ for i, conc_i in enumerate(drug_conc):
         max_sweep = max(current_exp['sweep'].values)
         current_temp = current_exp.loc[current_exp['sweep'] == max_sweep]
         exp_repeats.append(current_temp['frac'].values)
-    
+
     min_time = min(current_temp.index)
     max_time = max(current_temp.index)
     log_range_min = np.where(log.time() == min_time)[0][0]
@@ -69,29 +74,29 @@ for i, conc_i in enumerate(drug_conc):
     log_plot = log['ikr.IKr'][log_range_min:log_range_max + 1]
     control_log_plot = control_log['ikr.IKr'][log_range_min:log_range_max + 1]
 
-    fig.axs[int(i / 2)][i % 2].plot(current_temp.index,
-                                    np.mean(exp_repeats, axis=0), '-',
-                                    zorder=-10)
-    fig.axs[int(i / 2)][i % 2].fill_between(
-        current_temp.index, np.mean(exp_repeats, axis=0) -
+    plt.plot(current_temp.index - current_temp.index[0],
+             np.mean(exp_repeats, axis=0), 'o', ms=1.2,
+             zorder=-10, color=cmap(i), label=str(conc_i) + ' nM')
+    plt.fill_between(
+        current_temp.index - current_temp.index[0], np.mean(exp_repeats, axis=0) -
         np.std(exp_repeats, axis=0), np.mean(exp_repeats, axis=0) +
-        np.std(exp_repeats, axis=0), color='b', alpha=.3)
+        np.std(exp_repeats, axis=0), color=cmap(i), alpha=.3)
 
-    fig.axs[int(i / 2)][i % 2].plot(log.time()[log_range_min:log_range_max + 1],
-                                    log_plot / control_log_plot,
-                                    zorder=1)
+    plt.plot(log.time()[log_range_min:log_range_max + 1] - log.time()[log_range_min],
+             log_plot / control_log_plot, zorder=1, color='k')
     # fig.axs[int(i / 2)][i % 2].plot(log.time()[log_range_min:log_range_max + 1],
     #                                 log_plot, zorder=1)
     # fig.axs[int(i / 2)][i % 2].plot(log.time()[log_range_min:log_range_max + 1],
     #                                 control_log_plot, zorder=1)
     # print('simulation max: ')
     # print(max(log_plot / control_log_plot))
-    fig.axs[int(i / 2)][i % 2].set_xlim(min_time, max_time)
-    # fig.axs[int(i / 2)][i % 2].set_ylim(0.9 * min(current_temp.index),
-    #                                     max(current_temp.index))
-    fig.axs[int(i / 2)][i % 2].set_title(str(conc_i) + ' nM ' + drug)
-    fig.axs[int(i / 2)][i % 2].set_xlabel('Time (ms)')
-    fig.axs[int(i / 2)][i % 2].set_ylabel('Fractional block')
+plt.xlim(min_time  - current_temp.index[0], max_time - current_temp.index[0])
+# fig.axs[int(i / 2)][i % 2].set_ylim(0.9 * min(current_temp.index),
+#                                     max(current_temp.index))
+# plt.title(str(conc_i) + ' nM ' + drug)
+plt.xlabel('Time (ms)')
+plt.ylabel('Fractional block')
+plt.legend()
 # fig.savefig('../../data/' + drug + '_expdata_repeats' + str(repeats) + '.pdf')
-fig.savefig('../../data/testing.pdf')
+plt.savefig('../../data/testing.pdf')
 plt.close()

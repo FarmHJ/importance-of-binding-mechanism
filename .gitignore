@@ -102,3 +102,4 @@ venv.bak/
 # Results and figures
 simulation_data/
 figures/
+data/

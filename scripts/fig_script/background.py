@@ -17,8 +17,6 @@ if not os.path.isdir(fig_dir):
 
 expdata_dir = '../../exp_data/'
 data_dir = '../../simulation_data/background/'
-if not os.path.isdir(data_dir):
-    os.makedirs(data_dir)
 
 # Set up structure of the figure
 fig = modelling.figures.FigureStructure(figsize=(12, 8), gridspec=(2, 2),

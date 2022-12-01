@@ -1,4 +1,4 @@
-# Plots figures to see how APD90 changes with different drugs
+# Describe the fitting procedure of the CS model to the SD model
 import matplotlib
 import myokit
 import numpy as np
@@ -9,11 +9,11 @@ import modelling
 
 
 # Set up directory for figures
-testing_fig_dir = '../../figures/testing/'
-final_fig_dir = '../../figures/binding_kinetics_comparison/'
+fig_dir = '../../figures/background/'
+if not os.path.isdir(fig_dir):
+    os.makedirs(fig_dir)
 
-saved_fig_dir = final_fig_dir
-
+# Set up structure of the figure
 fig = modelling.figures.FigureStructure(
     figsize=(10, 5),
     gridspec=(2, 3), hspace=1,
@@ -31,6 +31,7 @@ axs = [[[fig.fig.add_subplot(subgs[k][i, j]) for j in range(
     subgridspecs[k][1])] for i in range(subgridspecs[k][0])] for
     k in range(len(subgs))]
 
+# Choose an example
 drug = 'verapamil'
 protocol_name = 'Milnes'
 saved_data_dir = '../../simulation_data/binding_kinetics_comparison/' + \
@@ -165,4 +166,4 @@ fig.sharey(['Voltage\n(mV)'],
 for i in range(5):
     axs[i][0][0].spines['top'].set_visible(False)
     axs[i][0][0].spines['right'].set_visible(False)
-fig.savefig(saved_fig_dir + 'method_diagram2.svg', format='svg')
+fig.savefig(fig_dir + 'method_diagram2.svg', format='svg')

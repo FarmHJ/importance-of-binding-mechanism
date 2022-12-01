@@ -1,23 +1,26 @@
 # Introduces the idea of trapping and justifies the use of the Milnes protocol
+# Plots figure that introduces the SD model and trapping
 import myokit
 import numpy as np
+import os
 import pandas as pd
 
 import modelling
 
-steady_state = False
-hERG_model = True
-
 drugs = ['dofetilide', 'verapamil']
+drug_conc = [30, 1000]
 drug_label = ['drug free', 'dofetilide-like\ndrug', 'verapamil-like\ndrug']
 
-testing_fig_dir = '../../figures/testing/'
-final_fig_dir = '../../figures/background/trapping/'
-# final_fig_dir = '../../figures/conferences/'
-saved_fig_dir = final_fig_dir
+fig_dir = '../../figures/background/'
+if not os.path.isdir(fig_dir):
+    os.makedirs(fig_dir)
 
-saved_data_dir = '../../simulation_data/background/'
+expdata_dir = '../../exp_data/'
+data_dir = '../../simulation_data/background/'
+if not os.path.isdir(data_dir):
+    os.makedirs(data_dir)
 
+# Set up structure of the figure
 fig = modelling.figures.FigureStructure(figsize=(12, 8), gridspec=(2, 2),
                                         height_ratios=[2, 3], hspace=0.3,
                                         wspace=0.3, plot_in_subgrid=True)
@@ -30,79 +33,36 @@ for i in range(4):
     subgs.append(fig.gs[i].subgridspec(*subgridspecs[i], wspace=0.1,
                                        hspace=0.05,
                                        height_ratios=height_ratio))
-# subgs.append(fig.gs[-1].subgridspec(*subgridspecs[-1], wspace=0.1,
-#                                     hspace=0.05,
-#                                     height_ratios=[1] * subgridspecs[-1][0]))
 axs = [[[fig.fig.add_subplot(subgs[k + 1][i, j]) for j in range(
     subgridspecs[k + 1][1])] for i in range(subgridspecs[k + 1][0])] for
     k in range(len(subgs) - 1)]
 
 # Top right panel
-# trapped_log = myokit.DataLog.load_csv(
-#     saved_data_dir + 'trapped_current_transient.csv',
-#     precision=myokit.DOUBLE_PRECISION)
-# nontrapped_log = myokit.DataLog.load_csv(
-#     saved_data_dir + 'nontrapped_current_transient.csv')
-
-# pulse_time = 25e3
-# repeats = 10
-# max_hERG = np.max(trapped_log['ikr.IKr', 0])
-
-# length = int(len(trapped_log.time()) / 2)
-# panel2 = axs[0]
-# plot.add_continuous(panel2[0][0], trapped_log, 'membrane.V')
-# plot.add_continuous(panel2[1][0], trapped_log, 'ikr.IKr')
-# plot.add_continuous(panel2[2][0], nontrapped_log, 'ikr.IKr')
-
-# # Add on to cut off section
-# panel2[0][0].plot(
-#     np.array(trapped_log.time()) + max(trapped_log.time()) / 2,
-#     trapped_log['membrane.V', 0][length:] + trapped_log[
-#         'membrane.V', 1][:length], 'k')
-# panel2[1][0].plot(
-#     np.array(trapped_log.time()) + max(trapped_log.time()) / 2,
-#     trapped_log['ikr.IKr', 0][length:] + trapped_log['ikr.IKr', 1][:length],
-#     'k')
-# panel2[2][0].plot(
-#     np.array(trapped_log.time()) + max(trapped_log.time()) / 2,
-#     nontrapped_log['ikr.IKr', 0][length:] + nontrapped_log[
-#         'ikr.IKr', 1][:length], 'k')
-
-# panel2[1][0].text(248000, 0.6, 'dofetilide-like drug', fontsize=8, ha='right')
-# panel2[2][0].text(248000, 0.6, 'verapamil-like drug', fontsize=8, ha='right')
-
-# fig.sharex(['Time (s)'], [(0, pulse_time * repeats)],
-#            axs=panel2, subgridspec=(3, 1))
-# fig.sharey(['Voltage\n(mV)', 'Current\n(A/F)', 'Current\n(A/F)'],
-#            [None, (0, max_hERG + 0.05), (0, max_hERG + 0.05)],
-#            axs=panel2, subgridspec=(3, 1))
-# fig.adjust_ticks(panel2[2][0], pulse_time * repeats)
-
+# Shows the fractional current of the SD model for first 10 pulses after the
+# addition of a dofetilide-like drug and a verapamil-like drug
 panel2 = axs[0]
 
-data_dir = '../../data/'
 pulse_time = 25e3
 repeats = 10
 
 control_log = myokit.DataLog.load_csv(data_dir + 'control_pulses10.csv')
-control_log = control_log.npview()
-control_log = control_log.fold(pulse_time)
 
-drug_list = ['dofetilide', 'verapamil']
-drug_conc = [30, 1000]
-for i, drug in enumerate(drug_list):
-    df = pd.read_csv(data_dir + drug + '.csv',
+for i, drug in enumerate(drugs):
+
+    # Load experimental data
+    df = pd.read_csv(expdata_dir + drug + '.csv',
                      header=[0], index_col=[0],
                      skipinitialspace=True)
-
     current = df.loc[df['conc'] == drug_conc[i]]
+
+    # Load simulated data
     log = myokit.DataLog.load_csv(
         data_dir + drug + '_conc' + str(drug_conc[i]) + '_pulses10.csv')
 
     max_sweeps = max(current['sweep'].values)
     for sweep in range(1, max_sweeps + 1):
-        current_sweep = current.loc[current['sweep'] == sweep]
 
+        current_sweep = current.loc[current['sweep'] == sweep]
         max_exp = max(current['exp'].values)
         exp_repeats = []
         for exp in range(1, max_exp):
@@ -114,11 +74,13 @@ for i, drug in enumerate(drug_list):
         log_range_min = np.argmin(np.abs(np.array(log.time()) - min_time))
         log_range_max = np.argmin(np.abs(np.array(log.time()) - max_time))
 
+        # Organise simulated data
         log_plot = log['ikr.IKr', sweep - 1][
             log_range_min + 1:log_range_max + 1]
         control_log_plot = control_log['ikr.IKr', sweep - 1][
             log_range_min + 1:log_range_max + 1]
 
+        # Plot experimental data
         panel2[i + 1][0].plot(
             current_exp.index[11:] + (sweep - 1) * pulse_time,
             np.mean(exp_repeats, axis=0), 'o', ms=1.2,
@@ -129,45 +91,51 @@ for i, drug in enumerate(drug_list):
             np.mean(exp_repeats, axis=0) + np.std(exp_repeats, axis=0),
             color='orange', alpha=.3, zorder=-10)
 
+        # Plot the voltage-clamp protocol
         if i == 0:
             panel2[i][0].plot(np.array(log.time()) + (sweep - 1) * pulse_time,
                               log['membrane.V', sweep - 1], zorder=1,
                               color='k')
 
+        # Plot simulated data
         panel2[i + 1][0].plot(
             np.array(log.time()[log_range_min + 1:log_range_max + 1]) +
             (sweep - 1) * pulse_time,
             np.array(log_plot) / np.array(control_log_plot),
             zorder=1, color='b')
-        panel2[i + 1][0].set_ylim(0, 1.1)
 
+        panel2[i + 1][0].set_ylim(0, 1.1)
         panel2[i][0].set_rasterization_zorder(0)
 
+# Add description text
 panel2[1][0].text(248000, 0.9, 'dofetilide-like drug', fontsize=8, ha='right')
 panel2[2][0].text(248000, 0.9, 'verapamil-like drug', fontsize=8, ha='right')
 
+# Adjust axes
 fig.sharex(['Time (s)'], [(0, pulse_time * repeats)],
            axs=panel2, subgridspec=(3, 1))
 fig.sharey(['Voltage\n(mV)', 'Fractional\ncurrent', 'Fractional\ncurrent'],
-        #    [None, (0, max_hERG + 0.05), (0, max_hERG + 0.05)],
            axs=panel2, subgridspec=(3, 1))
 fig.adjust_ticks(panel2[2][0], pulse_time * repeats)
-# plt.legend()
 
 # Bottom left panel
+panel3 = axs[1]
+
+# Load steady state IKr data for drug free, addition of a dofetilide-like drug
+# and a verapamil-like drug conditions (Milnes' protocol)
 drug_free_log = myokit.DataLog.load_csv(
-    saved_data_dir + 'drug_free_current.csv')
+    data_dir + 'drug_free_Milnes_current.csv')
 trapped_log = myokit.DataLog.load_csv(
-    saved_data_dir + 'trapped_current.csv')
+    data_dir + 'dofetilide_Milnes_current.csv')
 nontrapped_log = myokit.DataLog.load_csv(
-    saved_data_dir + 'nontrapped_current.csv')
+    data_dir + 'verapamil_Milnes_current.csv')
 log_all = [drug_free_log, trapped_log, nontrapped_log]
 
-model = '../../model/ohara-cipa-v1-2017-IKr.mmt'
+# Load hERG channel model
+model = '../../math_model/ohara-cipa-v1-2017-IKr.mmt'
 model, _, x = myokit.load(model)
-pulse_time = 25e3
 
-panel3 = axs[1]
+# Plot state occupancies of the hERG channel
 for d in range(len(drugs) + 1):
     plot.add_single(panel3[0][d], log_all[d], 'membrane.V')
     if d == 2:
@@ -176,6 +144,7 @@ for d in range(len(drugs) + 1):
         plot.state_occupancy_plot(panel3[2][d], log_all[d],
                                   model, legend=False)
 
+# Plot IKr
 for i in range(len(log_all)):
     for j in range(len(log_all)):
         if i == j:
@@ -186,6 +155,7 @@ for i in range(len(log_all)):
     panel3[1][i].text(24500, 0.75, drug_label[i], fontsize=8,
                       ha='right', va='top')
 
+# Adjust axes
 for col in range(3):
     for tick in panel3[2][col].get_xticklabels():
         tick.set_ha('right')
@@ -198,25 +168,27 @@ for i in range(len(log_all)):
     fig.adjust_ticks(panel3[2][i], pulse_time)
 
 # Bottom right panel
+panel4 = axs[2]
+
+# Load steady state IKr data for drug free, addition of a dofetilide-like drug
+# and a verapamil-like drug conditions (AP clamp protocol)
 drug_free_log = myokit.DataLog.load_csv(
-    saved_data_dir + 'drug_free_APclamp_current.csv')
+    data_dir + 'drug_free_APclamp_current.csv')
 trapped_log = myokit.DataLog.load_csv(
-    saved_data_dir + 'dofetilide_APclamp_current.csv')
+    data_dir + 'dofetilide_APclamp_current.csv')
 nontrapped_log = myokit.DataLog.load_csv(
-    saved_data_dir + 'verapamil_APclamp_current.csv')
+    data_dir + 'verapamil_APclamp_current.csv')
 log_all = [drug_free_log, trapped_log, nontrapped_log]
 
-APmodel = '../../model/ohara-cipa-v1-2017.mmt'
+# Load AP model
+APmodel = '../../math_model/ohara-cipa-v1-2017.mmt'
 APmodel, _, x = myokit.load(APmodel)
 pulse_time = 1000
 
-panel4 = axs[2]
+# Plot state occupancies of the hERG channel
 for d in range(len(drugs) + 1):
-    if d == 2:
-        plot.state_occupancy_plot(panel4[2][d], log_all[d], APmodel)
-    else:
-        plot.state_occupancy_plot(panel4[2][d], log_all[d],
-                                  APmodel, legend=False)
+    plot.state_occupancy_plot(panel4[2][d], log_all[d],
+                              APmodel, legend=False)
 
 for i in range(len(log_all)):
     for j in range(len(log_all)):
@@ -224,13 +196,12 @@ for i in range(len(log_all)):
             plot.add_single(panel4[0][i], log_all[j], 'membrane.V')
             plot.add_single(panel4[1][i], log_all[j], 'ikr.IKr')
         else:
-            # plot.add_single(panel4[0][i], log_all[j], 'membrane.V',
-            #                 color='grey', alpha=0.5)
             plot.add_single(panel4[1][i], log_all[j], 'ikr.IKr',
                             color='grey', alpha=0.5)
     panel4[1][i].text(980, 0.8, drug_label[i], fontsize=8,
                       ha='right', va='top')
 
+# Adjust axes
 for col in range(3):
     for tick in panel4[2][col].get_xticklabels():
         tick.set_ha('right')
@@ -242,10 +213,9 @@ fig.sharey(['Voltage\n(mV)', 'Current\n(A/F)', 'State\noccupancy'],
 
 # Add panel letter
 fig.fig.set_size_inches(10, 6.5)
-# fig.fig.set_size_inches(20, 8)
 fig.fig.text(0.075, 0.925, '(A)', fontsize=11)
 fig.fig.text(0.5, 0.925, '(B)', fontsize=11)
 fig.fig.text(0.075, 0.525, '(C)', fontsize=11)
 fig.fig.text(0.5, 0.525, '(D)', fontsize=11)
 
-fig.savefig(saved_fig_dir + "background_compile_test.svg", format='svg')
+fig.savefig(fig_dir + "background_compile_test.svg", format='svg')

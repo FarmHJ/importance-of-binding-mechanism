@@ -1,157 +1,97 @@
 # Introduces the idea of trapping and justifies the use of the Milnes protocol
 import myokit
-import numpy as np
+import os
 
 import modelling
 
-steady_state = False
-hERG_model = True
-
 drugs = ['dofetilide', 'verapamil']
 drug_concs = [30, 1000]  # nM
-# drug_label = ['drug free'] + [str(drug_concs[i]) + ' nM ' + drugs[i]
-#                               for i in range(len(drugs))]
-drug_label = ['drug free', 'trapped drug', 'nontrapped drug']
-short_label = ['drug_free', 'trapped', 'nontrapped']
+short_label = ['drug_free', 'dofetilide', 'verapamil']
 
-testing_fig_dir = '../../figures/testing/'
-final_fig_dir = '../../figures/background/trapping/'
-saved_fig_dir = final_fig_dir
+data_dir = '../../simulation_data/background/'
+if not os.path.isdir(data_dir):
+    os.makedirs(data_dir)
 
-saved_data_dir = '../../simulation_data/background/'
+# Simulating the SD model with Milnes' protocol for 10 pulses after addition
+# of a dofetilide-like drug and verapamil-like drug
 
-if hERG_model:
-    model = '../../model/ohara-cipa-v1-2017-IKr.mmt'
-    model, _, x = myokit.load(model)
+# Load hERG model
+model = '../../math_model/ohara-cipa-v1-2017-IKr.mmt'
+model, _, x = myokit.load(model)
+current_model = modelling.BindingKinetics(model)
 
-    pulse_time = 25e3
-    protocol = modelling.ProtocolLibrary().Milnes(pulse_time)
+# Define Milnes' protocol
+pulse_time = 25e3
+protocol = myokit.Protocol()
+protocol.schedule(-80, 0, 800, period=pulse_time)
+protocol.schedule(-90, 800, 100, period=pulse_time)
+protocol.schedule(-80, 900, 100, period=pulse_time)
+protocol.schedule(-80, 11000, 14000 - 1, period=pulse_time)
+current_model.protocol = protocol
+repeats = 10
 
-    drug_model = modelling.BindingKinetics(model)
-    drug_model.protocol = protocol
+# Simulate control condition
+control_log = current_model.drug_simulation(drugs[0], 0, 1000, save_signal=10)
+control_log.save_csv(data_dir + 'control_Milnes_current_pulses10.csv')
 
-if not hERG_model:
-    APmodel = '../../model/ohara-cipa-v1-2017.mmt'
-    APmodel, _, x = myokit.load(APmodel)
+# Simulate 10 pulses after drug addition from steady state of control condition
+control_log_single = current_model.drug_simulation(drugs[0], 0, 1000)
+for i, conc_i in enumerate(drug_concs):
 
-    pulse_time = 1000
-    protocol = modelling.ProtocolLibrary().current_impulse(pulse_time)
+    log = current_model.drug_simulation(
+        drugs[i], conc_i, repeats, save_signal=repeats,
+        log_var=['engine.time', 'membrane.V', 'ikr.IKr'],
+        set_state=control_log_single)
+    log.save_csv(data_dir + drugs[i] + '_Milnes_current_pulses10.csv')
 
-    AP_model = modelling.BindingKinetics(APmodel, current_head='ikr')
-    AP_model.protocol = protocol
+# Simulating the SD model with Milnes' protocol for 1000 pulses till steady
+# state under drug free, addition of dofetilide-like drug and verapamil-like
+# drug conditions
 
-if steady_state and hERG_model:
-    repeats = 1000
+# Define Milnes' protocol
+Milnes_protocol = modelling.ProtocolLibrary().Milnes(pulse_time)
+current_model.protocol = Milnes_protocol
 
-    fig = modelling.figures.FigureStructure(figsize=(8, 4), gridspec=(3, 3),
-                                            wspace=0.05)
-    plot = modelling.figures.FigurePlot()
+# Simulate SD model under drug-free condition
+repeats = 1000
+log_control = current_model.drug_simulation(drugs[0], 0, repeats)
+log_control.save_csv(data_dir + short_label[0] + '_Milnes_current.csv')
 
-    log_all = []
-    log_control = drug_model.drug_simulation(drugs[0], 0, repeats)
-    log_all.append(log_control)
+# Simulate the SD model under addition of drugs
+for d in range(len(drugs)):
+    log = current_model.drug_simulation(drugs[d], drug_concs[d], repeats)
+    log.save_csv(data_dir + short_label[d + 1] + '_Milnes_current.csv')
 
-    log_control.save_csv(
-        saved_data_dir + short_label[0] + '_current.csv')
+# Simulating the SD model with AP clamp protocol for 1000 pulses till steady
+# state under drug free, addition of dofetilide-like drug and verapamil-like
+# drug conditions
 
-    plot.add_single(fig.axs[0][0], log_control, 'membrane.V')
-    plot.state_occupancy_plot(fig.axs[2][0], log_control, model)
+# Load AP model
+APmodel = '../../math_model/ohara-cipa-v1-2017.mmt'
+APmodel, _, x = myokit.load(APmodel)
+AP_model = modelling.BindingKinetics(APmodel, current_head='ikr')
 
-    for d in range(len(drugs)):
-        log = drug_model.drug_simulation(drugs[d], drug_concs[d], repeats)
-        log_all.append(log)
+# Define current pulse
+pulse_time = 1000
+protocol = modelling.ProtocolLibrary().current_impulse(pulse_time)
+AP_model.protocol = protocol
 
-        log.save_csv(
-            saved_data_dir + short_label[d + 1] + '_current.csv')
+# Simulate AP for AP clamp protocol
+APclamp = AP_model.drug_simulation(drugs[1], drug_concs[1], repeats)
+APclamp.save_csv(data_dir + 'APclamp.csv')
 
-        plot.add_single(fig.axs[0][d + 1], log, 'membrane.V')
-        plot.state_occupancy_plot(fig.axs[2][d + 1], log, model, legend=False)
+# Set up AP clamp protocol
+times = APclamp['engine.time']
+voltages = APclamp['membrane.V']
+tmax = times[-1] + 1
 
-    for i in range(len(log_all)):
-        for j in range(len(log_all)):
-            if i == j:
-                plot.add_single(fig.axs[1][i], log_all[j], 'ikr.IKr')
-            else:
-                plot.add_single(fig.axs[1][i], log_all[j], 'ikr.IKr',
-                                color='grey', alpha=0.5)
-        fig.axs[1][i].text(24500, 0.65, drug_label[i], fontsize=8, ha='right')
+# Simulate SD model with AP clamp protocol under drug free condition
+log_control = current_model.drug_APclamp(drugs[0], 0, times, voltages,
+                                         tmax, repeats)
+log_control.save_csv(data_dir + short_label[0] + '_APclamp_current.csv')
 
-    fig.sharex(['Time (s)'] * (len(drugs) + 1),
-               [(0, pulse_time)] * (len(drugs) + 1))
-    fig.sharey(['Voltage (mV)', 'Current (A/F)', 'State occupancy'])
-    for i in range(len(log_all)):
-        fig.adjust_ticks(fig.axs[2][i], pulse_time)
-    fig.savefig(saved_fig_dir + "hERG_drug_state_occupancy.pdf")
-
-elif steady_state and not hERG_model:
-    repeats = 1000
-
-    fig = modelling.figures.FigureStructure(figsize=(8, 6), gridspec=(4, 3),
-                                            wspace=0.08)
-    plot = modelling.figures.FigurePlot()
-
-    log_all = []
-    log_control = AP_model.drug_simulation(drugs[0], 0, repeats, timestep=0.1)
-    log_all.append(log_control)
-
-    log_control.save_csv(
-        saved_data_dir + short_label[0] + '_AP.csv')
-
-    plot.add_single(fig.axs[0][0], log_control, 'stimulus.i_stim')
-    plot.state_occupancy_plot(fig.axs[3][0], log_control, APmodel)
-
-    for d in range(len(drugs)):
-        log = AP_model.drug_simulation(drugs[d], drug_concs[d], repeats)
-        log_all.append(log)
-
-        log.save_csv(
-            saved_data_dir + short_label[d + 1] + '_AP.csv')
-
-        plot.add_single(fig.axs[0][d + 1], log, 'stimulus.i_stim')
-        plot.state_occupancy_plot(fig.axs[3][d + 1], log,
-                                  APmodel, legend=False)
-
-    for i in range(len(log_all)):
-        for j in range(len(log_all)):
-            if i == j:
-                plot.add_single(fig.axs[1][i], log_all[j], 'membrane.V')
-                plot.add_single(fig.axs[2][i], log_all[j], 'ikr.IKr')
-            else:
-                plot.add_single(fig.axs[1][i], log_all[j], 'membrane.V',
-                                color='grey', alpha=0.5)
-                plot.add_single(fig.axs[2][i], log_all[j], 'ikr.IKr',
-                                color='grey', alpha=0.5)
-        fig.axs[1][i].text(900, 40, drug_label[i], fontsize=8, ha='right')
-
-    fig.sharex(['Time (ms)'] * (len(drugs) + 1),
-               [(0, pulse_time)] * (len(drugs) + 1))
-    fig.sharey(['Current\nstimulus', 'Voltage (mV)',
-                'Current (A/F)', 'State occupancy'])
-    fig.savefig(saved_fig_dir + "AP_drug_state_occupancy.pdf")
-
-else:
-    repeats = 10
-
-    fig = modelling.figures.FigureStructure(figsize=(7, 4), gridspec=(3, 1))
-    plot = modelling.figures.FigurePlot()
-
-    log_all = []
-    for d in range(len(drugs)):
-        log = drug_model.drug_simulation(drugs[d], drug_concs[d], repeats,
-                                         save_signal=repeats,
-                                         log_var=['engine.time', 'membrane.V',
-                                                  'ikr.IKr'])
-        if d == 0:
-            max_hERG = np.max(log['ikr.IKr', 0])
-        plot.add_continuous(fig.axs[d + 1][0], log, 'ikr.IKr')
-        log.save_csv(
-            saved_data_dir + short_label[d + 1] + '_current_transient.csv',
-            precision=myokit.DOUBLE_PRECISION)
-
-    plot.add_continuous(fig.axs[0][0], log, 'membrane.V')
-    fig.sharex(['Time (s)'], [(0, pulse_time * repeats)])
-    fig.sharey(['Voltage (mV)', 'Current (A/F)\ntrapped drug',
-                'Current (A/F)\nnontrapped drug'],
-               [None, (0, max_hERG + 0.05), (0, max_hERG + 0.05)])
-    fig.adjust_ticks(fig.axs[2][0], pulse_time * repeats)
-    fig.savefig(saved_fig_dir + "hERG_trapped_nontrapped.pdf")
+# Simulate the SD model under addition of drugs
+for d in range(len(drugs)):
+    log = current_model.drug_APclamp(drugs[d], drug_concs[d], times,
+                                     voltages, tmax, repeats)
+    log.save_csv(data_dir + short_label[d + 1] + '_APclamp_current.csv')

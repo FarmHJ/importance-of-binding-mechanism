@@ -7,7 +7,7 @@ import os
 import modelling
 
 # Define drug and protocol
-drug = 'dofetilide'
+drug = 'verapamil'
 protocol_name = 'Milnes'
 
 # Define directories to read data and save plotted figures
@@ -52,22 +52,16 @@ conductance_data_files = [f for f in os.listdir(data_dir) if
 conc_label = [fname[6:-4] for fname in trapping_data_files]
 drug_conc = [float(fname[6:-4]) for fname in trapping_data_files]
 
-# for verapamil
-# removing_ind = drug_conc.index(500.0)
-# drug_conc.pop(removing_ind)
-# trapping_data_files.pop(removing_ind)
-# conductance_data_files.pop(removing_ind)
-# conc_label.pop(removing_ind)
-# conc_label[-3] = r"$10^3$"
-# conc_label[-2] = r"$10^4$"
-# conc_label[-1] = r"$10^5$"
-
 # Sort in increasing order of drug concentration
 sort_ind = [i[0] for i in sorted(enumerate(drug_conc), key=lambda x:x[1])]
 drug_conc = sorted(drug_conc)
 trapping_data_files = [trapping_data_files[i] for i in sort_ind]
 conductance_data_files = [conductance_data_files[i] for i in sort_ind]
 conc_label = [conc_label[i] for i in sort_ind]
+
+if drug == 'verapamil':
+    conc_label[-2] = r"$10^4$"
+    conc_label[-1] = r"$10^5$"
 
 # Initiate constants and variables
 labels = [i + ' nM' for i in conc_label]
@@ -139,11 +133,6 @@ trapping_data_files = [f for f in os.listdir(data_dir) if
 conductance_data_files = [f for f in os.listdir(data_dir) if
                           f.startswith('CS_current_')]
 drug_conc = [float(fname[11:-4]) for fname in trapping_data_files]
-
-# # for verapamil
-# removing_ind = drug_conc.index(500.0)
-# trapping_data_files.pop(removing_ind)
-# conductance_data_files.pop(removing_ind)
 
 # Sort in increasing order of drug concentration
 trapping_data_files = [trapping_data_files[i] for i in sort_ind]
@@ -221,4 +210,4 @@ fig.fig.text(0.1, 0.905, '(A)', fontsize=11)
 fig.fig.text(0.1, 0.495, '(B)', fontsize=11)
 fig.fig.text(0.64, 0.495, '(C)', fontsize=11)
 
-fig.savefig(fig_dir + "model_compare_test.svg", format='svg')
+fig.savefig(fig_dir + "model_compare.svg", format='svg')

@@ -182,7 +182,8 @@ class FigurePlot(object):
                     label=label, color=color, zorder=-10)
 
     def add_multiple_continuous(self, ax, log, key, start_pulse=0,
-                                end_pulse=None, labels=None, cmap=None):
+                                end_pulse=None, labels=None, cmap=None,
+                                starting_pos=0):
 
         if end_pulse is None:
             num_keys = [x for x in log[0].keys() if x.endswith(key)]
@@ -195,26 +196,28 @@ class FigurePlot(object):
             for pulse in range(end_pulse - start_pulse):
                 for i in range(len(log)):
                     ax.plot(np.array(log[i].time()) +
-                            pulse * max(log[i].time()),
+                            (pulse + starting_pos) * max(log[i].time()),
                             log[i][key, pulse], label=str(labels[i]),
                             color=cmap(norm(i)), zorder=-10)
         elif cmap is not None:
             for pulse in range(end_pulse - start_pulse):
                 for i in range(len(log)):
                     ax.plot(np.array(log[i].time()) +
-                            pulse * max(log[i].time()),
+                            (pulse + starting_pos) * max(log[i].time()),
                             log[i][key, pulse], color=cmap(norm(i)),
                             zorder=-10)
         elif labels is not None:
             for pulse in range(end_pulse - start_pulse):
                 for i in range(len(log)):
-                    ax.plot(log[i].time() + pulse * max(log[i].time()),
+                    ax.plot(log[i].time() +
+                            (pulse + starting_pos) * max(log[i].time()),
                             log[i][key, pulse], label=str(labels[i]),
                             zorder=-10)
         else:
             for pulse in range(end_pulse - start_pulse):
                 for i in range(len(log)):
-                    ax.plot(log[i].time() + pulse * max(log[i].time()),
+                    ax.plot(log[i].time() +
+                            (pulse + starting_pos) * max(log[i].time()),
                             log[i][key, pulse], zorder=-10)
 
     def state_occupancy_plot(self, ax, signal_log, model, pulse=None,

@@ -101,7 +101,8 @@ drug_conc = drug_conc[1:]
 APD_conductance = []
 APD_trapping = []
 
-# Simulate the AP models for 300 pulses to show transition of APD to steady state
+# Simulate the AP models for 300 pulses to show transition of APD to steady
+# state
 repeats = 300
 save_signal = repeats
 

@@ -1,19 +1,16 @@
-# Calibrate the conductance reduction model from synthetic experimental data
-# (CiPA hERG model) and compare the APD90 at steady state and transient phase.
+# Calibrate the ionic conductance of the CS model from the SD model and
+# compare the APD90 at steady state.
 # Output:
-# 1. hERG current at various drug concentration simulated from CiPA hERG model.
-# 2. Normalised peak hERG current vs drug concentration in log scale.
-# 3. Fitted Hill curve over peak hERG current from CiPA hERG model.
-# 4. hERG current at various drug concentration simulated from conductance
+# 1. IKr at various drug concentration simulated from the SD model.
+# 2. Normalised peak IKr vs drug concentration in log scale.
+# 3. Fitted Hill curve over peak IKr from the SD model.
+# 4. IKr at various drug concentration simulated from conductance
 #    calibrated hERG model.
-# 5. Comparison of peak hERG current between both models, i.e. CiPA hERG model
+# 5. Comparison of peak IKr between both models, i.e. the SD model
 #    and conductance hERG model.
-# 6. Comparison of hERG current between both models.
+# 6. Comparison of IKr between both models.
 # 7. 2 pulses of action potential simulated from both models (steady state).
 # 8. APD90 of both pulses for both models (steady state).
-# 9. 10 pulses of action potentials simulated from both models
-#    (transient phase).
-# 10. APD90 of all pulses for both models (transient phase).
 
 import myokit
 import numpy as np

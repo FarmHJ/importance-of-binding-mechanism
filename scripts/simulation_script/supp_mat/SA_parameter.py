@@ -1,5 +1,5 @@
-# To plot the range of parameter values
-# Drug binding-related parameters
+# Check that when changing Hill coefficient of each synthetic drug, the range
+# of the RMSD between APD90s of the ORd-SD model and the ORd-CS model is small
 
 import myokit
 import numpy as np
@@ -9,41 +9,37 @@ import pints
 
 import modelling
 
-saved_data_dir = '../../simulation_data/sensitivity_analysis/N/'
+# Define directory to save simulation data
+data_dir = '../../simulation_data/supp_mat/APD90diff_N/'
+if not os.path.isdir(data_dir):
+    os.makedirs(data_dir)
 
-# Load IKr model
-model = '../../model/ohara-cipa-v1-2017-IKr.mmt'
+# Load IKr model and set up protocol
+model = '../../math_model/ohara-cipa-v1-2017-IKr.mmt'
 model, _, x = myokit.load(model)
+drug_model = modelling.BindingKinetics(model)
 
 protocol_params = modelling.ProtocolParameters()
-pulse_time = protocol_params.protocol_parameters['Milnes']['pulse_time']
 protocol = protocol_params.protocol_parameters['Milnes']['function']
-
-drug_model = modelling.BindingKinetics(model)
 drug_model.protocol = protocol
 
-# Set AP model
+# Load AP model
 APmodel = '../../model/ohara-cipa-v1-2017.mmt'
-
-# Load model
 APmodel, _, x = myokit.load(APmodel)
-
 AP_model = modelling.BindingKinetics(APmodel, current_head='ikr')
 pulse_time = 1000
 AP_model.protocol = modelling.ProtocolLibrary().current_impulse(pulse_time)
 base_conductance = APmodel.get('ikr.gKr').value()
 
+# Define parameters used in simulations
 offset = 50
-repeats_AP = 800
 save_signal = 2
 repeats = 1000
 APD_points = 20
 
+# Getn list of synthetic drugs and the name of parameters
 param_lib = modelling.BindingParameters()
 drug_list = param_lib.drug_compounds
-# # drug_list = ['dofetilide', 'verapamil', 'terfenadine',
-# #              'cisapride', 'quinidine', 'sotalol']
-# drug_list = ['cisapride', 'quinidine', 'sotalol']
 SA_model = modelling.SensitivityAnalysis()
 param_names = SA_model.param_names
 parameter_interest = 'N'
@@ -51,15 +47,17 @@ parameter_interest = 'N'
 
 def param_evaluation(param, param_values):
 
-    print('Running for parameter value: ', param)
+    # Define parameter values of virtual drug
     orig_half_effect_conc = param_values['EC50'][0]
     param_values[parameter_interest][0] = param
     param_values['EC50'][0] = 1
     ComparisonController.drug_param_values = param_values
 
+    # Calculate the normalising constant
     Hill_n = param_values['N'][0]
     norm_constant = np.power(orig_half_effect_conc, 1 / Hill_n)
 
+    # Compute Hill curve of the synthetic drug with the SD model
     Hill_curve_coefs, drug_conc_Hill, peaks_norm = \
         ComparisonController.compute_Hill(drug_model,
                                           norm_constant=norm_constant,
@@ -68,6 +66,8 @@ def param_evaluation(param, param_values):
     # drug concentration
     # Hill's coefficient remains the same but IC50 -> IC50/EC50
 
+    # Define drug concentration range similar to the drug concentration used
+    # to infer Hill curve
     drug_conc_AP = 10**np.linspace(np.log10(drug_conc_Hill[1]),
                                    np.log10(max(drug_conc_Hill)),
                                    APD_points)
@@ -79,13 +79,14 @@ def param_evaluation(param, param_values):
         RMSError = float("Nan")
         MAError = float("Nan")
     else:
-        # Simulate action potentials
         try:
+            # Simulate APs and APD90s of the ORd-SD model and the ORd-CS model
             APD_trapping, APD_conductance, drug_conc_AP = \
                 ComparisonController.APD_sim(
                     AP_model, Hill_curve_coefs, drug_conc=drug_conc_AP,
                     EAD=True)
 
+            # Calculate RMSD and MD of simulated APD90 of the two models
             RMSError = ComparisonController.compute_RMSE(APD_trapping,
                                                          APD_conductance)
             MAError = ComparisonController.compute_ME(APD_trapping,
@@ -119,9 +120,8 @@ def param_evaluation(param, param_values):
     return big_df
 
 
-drug_list = ['mexiletine']
 for drug in drug_list:
-    # print(drug)
+    # Get parameter values of each synthetic drug
     Vhalf = param_lib.binding_parameters[drug]['Vhalf']
     Kmax = param_lib.binding_parameters[drug]['Kmax']
     Ku = param_lib.binding_parameters[drug]['Ku']
@@ -130,17 +130,20 @@ for drug in drug_list:
 
     all_params = [Vhalf, Kmax, Ku, Hill_n, half_effect_conc]
 
+    # Define parameter values to the system
     orig_param_values = pd.DataFrame(all_params, index=param_names)
     orig_param_values = orig_param_values.T
     ComparisonController = modelling.ModelComparison(orig_param_values)
 
+    # Define the range of parameter values to explore
     param_values = orig_param_values
     param_range = SA_model.param_explore(parameter_interest, res_points=5)
     param_fullrange = SA_model.param_explore_gaps(param_range, 3, 'N')
 
-    filename = 'SA_' + drug + '_' + parameter_interest + '_test.csv'
-    if os.path.exists(saved_data_dir + filename):
-        saved_results_df = pd.read_csv(saved_data_dir + filename,
+    # Check for completed simulations to prevent repetition
+    filename = 'SA_' + drug + '_' + parameter_interest + '.csv'
+    if os.path.exists(data_dir + filename):
+        saved_results_df = pd.read_csv(data_dir + filename,
                                        header=[0, 1], index_col=[0],
                                        skipinitialspace=True)
         ran_values = saved_results_df['param_values'][
@@ -150,6 +153,8 @@ for drug in drug_list:
 
     param_fullrange = [i for i in param_fullrange if i not in ran_values]
 
+    # Evaluate the RMSD and MD between APD90s of a synthetic drug with
+    # changing Hill coefficient from the ORd-SD model and the ORd-CS model
     n_workers = 8
     evaluator = pints.ParallelEvaluator(param_evaluation,
                                         n_workers=n_workers,
@@ -160,8 +165,8 @@ for drug in drug_list:
         big_df = evaluator.evaluate(
             param_fullrange[i * n_workers: (i + 1) * n_workers])
 
-        if os.path.exists(saved_data_dir + filename):
-            combined_df = pd.read_csv(saved_data_dir + filename,
+        if os.path.exists(data_dir + filename):
+            combined_df = pd.read_csv(data_dir + filename,
                                       header=[0, 1], index_col=[0],
                                       skipinitialspace=True)
             for i in range(len(big_df)):
@@ -171,4 +176,4 @@ for drug in drug_list:
             for i in range(1, len(big_df)):
                 combined_df = pd.concat([combined_df, big_df[i].T])
 
-        combined_df.to_csv(saved_data_dir + filename)
+        combined_df.to_csv(data_dir + filename)

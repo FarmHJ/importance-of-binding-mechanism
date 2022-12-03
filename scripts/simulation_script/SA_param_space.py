@@ -12,7 +12,7 @@ import time
 
 import modelling
 
-# Define directories to save simulation data
+# Define directory to save simulation data
 data_filepath = '../../simulation_data/parameter_space_exploration/'
 if not os.path.exists(data_filepath):
     os.makedirs(data_filepath)

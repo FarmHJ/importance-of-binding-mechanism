@@ -73,8 +73,7 @@ line_pattern = ['solid', 'dashed', 'dotted', 'dashdot']
 for i in range(len(drugs)):
 
     # Load parameters of Hill curves
-    data_dir = '../../simulation_data/model_comparison/' + \
-        drugs[i] + '/'
+    data_dir = '../../simulation_data/model_comparison/' + drugs[i] + '/'
     Hill_coef_df = pd.read_csv(data_dir + 'Hill_curves.csv')
 
     conc_grid = 10.0**np.linspace(-1, max_drug_conc[i], 20)
@@ -115,17 +114,16 @@ for p, prot in enumerate(protocol_name):
     # Organise data for plotting
     drug_conc = APD['drug concentration'].values.tolist()
     APD = [max(APD.loc[i].values.tolist()[1:-1]) for i in range(APD.shape[0])]
-    EAD_marker = [1070 if (i >= 1000) else None for i in APD[1:]]
+    EAD_marker = [1070 if (i >= 1000) else None for i in APD]
 
     # Plot APD90 data for different protocols
     for q, _ in enumerate(protocol_name):
         if q == p:
-            panel3[0][p].plot(drug_conc[1:], APD[1:], '^', color='blue',
-                              zorder=5)
+            panel3[0][p].plot(drug_conc, APD, '^', color='blue', zorder=5)
         else:
-            panel3[0][q].plot(drug_conc[1:], APD[1:], '^', color='#cccccc',
+            panel3[0][q].plot(drug_conc, APD, '^', color='#cccccc',
                               alpha=0.9)
-    panel3[0][p].plot(drug_conc[1:], EAD_marker, 'o', color='k',
+    panel3[0][p].plot(drug_conc, EAD_marker, 'o', color='k',
                       marker=(5, 2), label='EAD-like AP')
     panel3[0][p].set_xscale("log", nonpositive='clip')
     panel3[0][p].set_xlabel('Drug concentration (nM)')

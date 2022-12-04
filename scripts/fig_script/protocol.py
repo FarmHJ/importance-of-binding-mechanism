@@ -1,3 +1,7 @@
+# Plots the protocols used in the study, the Hill curves of drugs when
+# stimulated with these protocols
+# Plots also the APD90 of the ORd-CS model when the ionic conductance is
+# scaled with the Hill curves
 import numpy as np
 import pandas as pd
 

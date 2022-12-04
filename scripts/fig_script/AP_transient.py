@@ -1,5 +1,5 @@
-# Compares the hERG current and action potential of state dependen drug block
-# and conductance scaling
+# Compares the IKr and AP of the ORd-SD model and the ORd-CS model at first
+# few pulses after addition of drugs
 import matplotlib
 import myokit
 import numpy as np

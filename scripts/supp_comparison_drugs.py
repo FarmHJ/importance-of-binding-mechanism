@@ -66,7 +66,7 @@ for p in range(len(protocols)):
                             'protocol': [protocol_list[p]]})
     Hill_coef_df = pd.concat([Hill_coef_df, Hill_df])
 
-# Save parameters of Hill curves 
+# Save parameters of Hill curves
 Hill_coef_df.to_csv(data_dir + 'Hill_curves.csv')
 
 # Get Hill curve of the drug stimulated with Milnes' protocol

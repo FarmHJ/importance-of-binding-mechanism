@@ -1,4 +1,4 @@
-# Compare the APD90 and 
+# Compare the AP and the APD90 of different Vhalf-trap values
 import matplotlib
 import matplotlib.pyplot as plt
 import numpy as np

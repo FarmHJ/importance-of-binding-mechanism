@@ -104,3 +104,4 @@ simulation_data/
 figures/
 exp_data/
 math_model/
+Makefile

@@ -13,13 +13,13 @@ import time
 import modelling
 
 # Define directory to save simulation data
-data_filepath = '../../simulation_data/parameter_space_exploration/'
+data_filepath = '../simulation_data/parameter_space_exploration/'
 if not os.path.exists(data_filepath):
     os.makedirs(data_filepath)
 
 # Model directory
-current_model_filepath = '../../math_model/ohara-cipa-v1-2017-IKr.mmt'
-AP_model_filepath = '../../math_model/ohara-cipa-v1-2017.mmt'
+current_model_filepath = '../math_model/ohara-cipa-v1-2017-IKr.mmt'
+AP_model_filepath = '../math_model/ohara-cipa-v1-2017.mmt'
 
 # Load current model and set Milnes' protocol
 model, _, x = myokit.load(current_model_filepath)

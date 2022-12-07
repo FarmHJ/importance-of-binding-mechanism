@@ -4,7 +4,7 @@ import os
 import pandas as pd
 
 # Read saved data from parameter space exploration
-data_dir = '../../simulation_data/SA_space/'
+data_dir = '../simulation_data/SA_space/'
 file_prefix = 'SA_allparam_'
 result_files = [data_dir + f for f in os.listdir(data_dir) if
                 f.startswith(file_prefix)]

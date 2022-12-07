@@ -36,14 +36,14 @@ elif drug == 'verapamil':
 repeats = 1000
 
 # Define directories to save simulated data
-data_dir = '../../simulation_data/model_comparison/' + \
+data_dir = '../simulation_data/model_comparison/' + \
     drug + '/' + protocol_name + '/'
 if not os.path.isdir(data_dir):
     os.makedirs(data_dir)
 result_filename = 'Hill_curve.txt'
 
 # Load IKr model
-model = '../../math_model/ohara-cipa-v1-2017-IKr.mmt'
+model = '../math_model/ohara-cipa-v1-2017-IKr.mmt'
 model, _, x = myokit.load(model)
 
 current_model = modelling.BindingKinetics(model)
@@ -93,7 +93,7 @@ for i in range(len(drug_conc)):
 
 # Propagate to action potential
 # Set AP model
-APmodel = '../../math_model/ohara-cipa-v1-2017.mmt'
+APmodel = '../math_model/ohara-cipa-v1-2017.mmt'
 APmodel, _, x = myokit.load(APmodel)
 AP_model = modelling.BindingKinetics(APmodel, current_head='ikr')
 

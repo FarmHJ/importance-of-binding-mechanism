@@ -18,12 +18,12 @@ import modelling
 drug = sys.argv[1]
 
 # Define directory to save data
-data_dir = '../../simulation_data/model_comparison/' + drug + '/'
+data_dir = '../simulation_data/model_comparison/' + drug + '/'
 if not os.path.isdir(data_dir):
     os.makedirs(data_dir)
 
 # Load IKr model
-model = '../../math_model/ohara-cipa-v1-2017-IKr.mmt'
+model = '../math_model/ohara-cipa-v1-2017-IKr.mmt'
 model, _, x = myokit.load(model)
 current_model = modelling.BindingKinetics(model)
 base_conductance = current_model.model.get('ikr.gKr').value()
@@ -74,7 +74,7 @@ Hill_eq = Hill_coef_df.loc[Hill_coef_df['protocol'] == protocol_list[0]]
 Hill_eq = Hill_eq.values.tolist()[0][:-1]
 
 # Load AP model and set current protocol
-APmodel = '../../math_model/ohara-cipa-v1-2017.mmt'
+APmodel = '../math_model/ohara-cipa-v1-2017.mmt'
 APmodel, _, x = myokit.load(APmodel)
 AP_model = modelling.BindingKinetics(APmodel, current_head='ikr')
 pulse_time = 1000

@@ -15,7 +15,7 @@ import pandas as pd
 import modelling
 
 # Load IKr model
-model = '../../math_model/ohara-cipa-v1-2017-IKr.mmt'
+model = '../math_model/ohara-cipa-v1-2017-IKr.mmt'
 model, _, x = myokit.load(model)
 current_model = modelling.BindingKinetics(model)
 current_model.current_head = current_model.model.get('ikr')
@@ -41,7 +41,7 @@ repeats = 1000
 drugs = ['dofetilide', 'verapamil']
 
 for drug in drugs:
-    data_dir = '../../simulation_data/model_comparison/' + drug + '/'
+    data_dir = '../simulation_data/model_comparison/' + drug + '/'
 
     # Set up drug concentration
     drug_conc = drug_conc_lib.drug_concentrations[drug]['coarse']
@@ -70,7 +70,7 @@ for drug in drugs:
     Hill_coef_df.to_csv(data_dir + 'Hill_curves.csv')
 
 # Load AP model
-APmodel = '../../math_model/ohara-cipa-v1-2017.mmt'
+APmodel = '../math_model/ohara-cipa-v1-2017.mmt'
 APmodel, _, x = myokit.load(APmodel)
 AP_model = modelling.BindingKinetics(APmodel, current_head='ikr')
 
@@ -87,7 +87,7 @@ offset = 50
 drug_conc = drug_conc_lib.drug_concentrations[drug]['fine']
 
 # Define directories to save data
-prot_dir = '../../simulation_data/model_comparison/' + drug + '/protocols/'
+prot_dir = '../simulation_data/model_comparison/' + drug + '/protocols/'
 if not os.path.isdir(prot_dir):
     os.makedirs(prot_dir)
 

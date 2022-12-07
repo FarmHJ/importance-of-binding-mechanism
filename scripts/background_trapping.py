@@ -8,7 +8,7 @@ drugs = ['dofetilide', 'verapamil']
 drug_concs = [30, 1000]  # nM
 short_label = ['drug_free', 'dofetilide', 'verapamil']
 
-data_dir = '../../simulation_data/background/'
+data_dir = '../simulation_data/background/'
 if not os.path.isdir(data_dir):
     os.makedirs(data_dir)
 
@@ -16,7 +16,7 @@ if not os.path.isdir(data_dir):
 # of a dofetilide-like drug and verapamil-like drug
 
 # Load hERG model
-model = '../../math_model/ohara-cipa-v1-2017-IKr.mmt'
+model = '../math_model/ohara-cipa-v1-2017-IKr.mmt'
 model, _, x = myokit.load(model)
 current_model = modelling.BindingKinetics(model)
 
@@ -67,7 +67,7 @@ for d in range(len(drugs)):
 # drug conditions
 
 # Load AP model
-APmodel = '../../math_model/ohara-cipa-v1-2017.mmt'
+APmodel = '../math_model/ohara-cipa-v1-2017.mmt'
 APmodel, _, x = myokit.load(APmodel)
 AP_model = modelling.BindingKinetics(APmodel, current_head='ikr')
 

@@ -22,21 +22,21 @@ elif drug == 'verapamil':
     drug_conc = [0, 1000, 10000]  # nM
 
 # Define directories to save simulated data
-root_dir = '../../simulation_data/model_comparison/'
+root_dir = '../simulation_data/model_comparison/'
 data_dir = root_dir + drug + '/' + protocol_name + '/'
 if not os.path.isdir(data_dir):
     os.makedirs(data_dir)
 result_filename = 'Hill_curve.txt'
 
 # Load IKr model
-model = '../../math_model/ohara-cipa-v1-2017-IKr.mmt'
+model = '../math_model/ohara-cipa-v1-2017-IKr.mmt'
 model, _, x = myokit.load(model)
 
 current_model = modelling.BindingKinetics(model)
 current_model.protocol = protocol
 
 # Load AP model
-APmodel = '../../math_model/ohara-cipa-v1-2017.mmt'
+APmodel = '../math_model/ohara-cipa-v1-2017.mmt'
 APmodel, _, x = myokit.load(APmodel)
 AP_model = modelling.BindingKinetics(APmodel, current_head='ikr')
 

@@ -15,16 +15,16 @@ import time
 import modelling
 
 # Define directories to save simulation data
-param_space_dir = '../../simulation_data/parameter_space_exploration/' + \
+param_space_dir = '../simulation_data/parameter_space_exploration/' + \
     'parameter_space/'
 if not os.path.isdir(param_space_dir):
     os.makedirs(param_space_dir)
-data_dir = '../../simulation_data/parameter_space_exploration/SA_curve/'
+data_dir = '../simulation_data/parameter_space_exploration/SA_curve/'
 if not os.path.isdir(data_dir):
     os.makedirs(data_dir)
 
 # Load current model and set Milnes' protocol
-model = '../../math_model/ohara-cipa-v1-2017-IKr.mmt'
+model = '../math_model/ohara-cipa-v1-2017-IKr.mmt'
 model, _, x = myokit.load(model)
 current_model = modelling.BindingKinetics(model)
 
@@ -33,7 +33,7 @@ protocol = protocol_params.protocol_parameters['Milnes']['function']
 current_model.protocol = protocol
 
 # Load AP model and set current protocol
-APmodel = '../../math_model/ohara-cipa-v1-2017.mmt'
+APmodel = '../math_model/ohara-cipa-v1-2017.mmt'
 APmodel, _, x = myokit.load(APmodel)
 AP_model = modelling.BindingKinetics(APmodel, current_head='ikr')
 pulse_time = 1000

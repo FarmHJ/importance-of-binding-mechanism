@@ -11,7 +11,7 @@ The `checking_script` folder contains all scripts used for data analysis but not
 [SA_param_space.py](./SA_param_space.py) - Explore the parameter space of drug-related parameters (Vhalf, Kmax and Ku) and compute the APD90 differences between the ORd-SD model and the ORd-CS model for a given virtual drug.
 [SA_curve.py](./SA_curve.py) - Compute the APD90 differences between the ORd-SD model and the ORd-CS model for the parameter space around the boundary surface where the APD90s are similar.
 [SA_drugs.py](./SA_drugs.py) - Compute the APD90 differences between the two AP models for all synthetic drugs.
-[combine_APD.py](./combine_APD.py) - Combine all simulated data of the parameter space with essential information for easy loading when plotting figures.
+[combine_APD.py](./combine_APD.py) - Combine all simulated data of the parameter space with essential information for easy loading when plotting figures. (Requires SA_param_space.py to be run first.)
 
 ## Supplementary materials
 [supp_comparison_drugs.py](./supp_comparison_drugs.py) - Compare the APD90 of the ORd-SD model and the ORd-CS model for each

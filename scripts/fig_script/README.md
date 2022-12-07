@@ -1,7 +1,7 @@
 # Organisation of the scripts
 
 ## Main figures
-[background.py](./background.py) - Plots figure that introduces the SD model and the trapping mechanism.
+[background.py](./background.py) - Plots figure that introduces the SD model and the trapping mechanism. (Experimental data used in this plot is taken from [FDA CiPA's GitHub repository](https://github.com/FDA/CiPA/tree/master/hERG_fitting/data).)
 [description_fig.py](./description_fig.py) - Plot the description of the fitting procedure of the CS model to the SD model.
 [AP_compare_drug.py](./AP_compare_drug.py) - Plot the comparison of the IKr, AP and APD90 between the SD model and the CS model.
 [AP_transient.py](./AP_transient.py) - Compares the IKr and AP of the ORd-SD model and the ORd-CS model at the first few pulses after addition of drugs.

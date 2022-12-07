@@ -100,8 +100,8 @@ venv.bak/
 *.toc
 
 # Results and figures
-simulation_data/
-figures/
+simulation_data/background/
+simulation_results/
 exp_data/
 math_model/
 Makefile

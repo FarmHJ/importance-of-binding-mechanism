@@ -14,12 +14,11 @@ if not os.path.isdir(fig_dir):
     os.makedirs(fig_dir)
 
 # Set up structure of the figure
-fig = modelling.figures.FigureStructure(
-    figsize=(10, 5),
-    gridspec=(2, 3), hspace=1,
-    wspace=0.9,
-    height_ratios=[1] * 2,
-    plot_in_subgrid=True)
+fig = modelling.figures.FigureStructure(figsize=(10, 5),
+                                        gridspec=(2, 3), hspace=1,
+                                        wspace=0.9,
+                                        height_ratios=[1] * 2,
+                                        plot_in_subgrid=True)
 plot = modelling.figures.FigurePlot()
 
 subgridspecs = [(1, 1)] * 5
@@ -34,19 +33,21 @@ axs = [[[fig.fig.add_subplot(subgs[k][i, j]) for j in range(
 # Choose an example
 drug = 'verapamil'
 protocol_name = 'Milnes'
-saved_data_dir = '../../simulation_data/binding_kinetics_comparison/' + \
-    drug + '/' + protocol_name + '/'
+data_dir = '../../simulation_data/model_comparison/' + drug + '/' + \
+    protocol_name + '/'
 
 # Showing hERG currents
 panel1 = axs[0]
 panel2 = axs[3]
 # Load hERG current data
-trapping_data_files = [f for f in os.listdir(saved_data_dir) if
-                       f.startswith('CiPA_hERG_')]
-conductance_data_files = [f for f in os.listdir(saved_data_dir) if
-                          f.startswith('conductance_hERG_')]
-conc_label = [fname[10:-4] for fname in trapping_data_files]
-drug_conc = [float(fname[10:-4]) for fname in trapping_data_files]
+SD_fileprefix = 'SD_current_'
+trapping_data_files = [f for f in os.listdir(data_dir) if
+                       f.startswith(SD_fileprefix)]
+conductance_data_files = [f for f in os.listdir(data_dir) if
+                          f.startswith('CS_current_')]
+conc_label = [fname[len(SD_fileprefix):-4] for fname in trapping_data_files]
+drug_conc = [float(fname[len(SD_fileprefix):-4]) for fname in
+             trapping_data_files]
 
 # Sort in increasing order of drug concentration
 sort_ind = [i[0] for i in sorted(enumerate(drug_conc), key=lambda x:x[1])]
@@ -55,19 +56,19 @@ trapping_data_files = [trapping_data_files[i] for i in sort_ind]
 conductance_data_files = [conductance_data_files[i] for i in sort_ind]
 conc_label = [conc_label[i] for i in sort_ind]
 
-CiPA_hERG_log = []
+trapping_hERG_log = []
 conductance_hERG_log = []
 for i in range(len(trapping_data_files)):
-    CiPA_hERG_log.append(myokit.DataLog.load_csv(
-        saved_data_dir + trapping_data_files[i]))
+    trapping_hERG_log.append(myokit.DataLog.load_csv(
+        data_dir + trapping_data_files[i]))
     conductance_hERG_log.append(myokit.DataLog.load_csv(
-        saved_data_dir + conductance_data_files[i]))
+        data_dir + conductance_data_files[i]))
 
 peaks = []
 peaks_pos = []
 peaks_firstpulse = []
 peaks_pos_firstpulse = []
-for log in CiPA_hERG_log:
+for log in trapping_hERG_log:
     peaks_firstpulse.append(np.max(log['ikr.IKr'][:250000]))
     peaks_pos_firstpulse.append(log.time()[np.argmax(log['ikr.IKr'][:250000])])
     peaks.append(np.max(log['ikr.IKr']))
@@ -79,7 +80,7 @@ pulse_time = 25e3
 cmap = matplotlib.cm.get_cmap('viridis')
 
 # Plot figure
-plot.add_multiple(panel1[0][0], CiPA_hERG_log, 'ikr.IKr', labels=labels,
+plot.add_multiple(panel1[0][0], trapping_hERG_log, 'ikr.IKr', labels=labels,
                   color=cmap)
 panel1[0][0].plot(peaks_pos_firstpulse[1:], peaks_firstpulse[1:], 'kx')
 plot.add_multiple(panel2[0][0], conductance_hERG_log, 'ikr.IKr',
@@ -111,7 +112,7 @@ panel3[0][0].set_xlabel('Drug concentration (nM)')
 panel3[0][0].set_ylabel('Normalised peak current')
 
 Hill_model = modelling.HillsModel()
-Hill_coef_df = pd.read_csv(saved_data_dir + '../Hill_curves.csv')
+Hill_coef_df = pd.read_csv(data_dir + '../Hill_curves.csv')
 
 drug_conc_lib = modelling.DrugConcentrations()
 conc_grid = drug_conc_lib.drug_concentrations[drug]['fine']
@@ -131,11 +132,13 @@ panel4[0][0].set_title('Fitted Hill curve')
 
 # Show example AP
 panel5 = axs[2]
-conductance_data_files = [f for f in os.listdir(saved_data_dir) if
-                          f.startswith('conductance_AP_') and not
-                          f.startswith('conductance_AP_transient')]
-conc_label = [fname[15:-4] for fname in conductance_data_files]
-drug_conc = [float(fname[15:-4]) for fname in conductance_data_files]
+CS_AP_prefix = 'CS_AP_'
+conductance_data_files = [f for f in os.listdir(data_dir) if
+                          f.startswith(CS_AP_prefix) and not
+                          f.startswith('CS_AP_transient')]
+conc_label = [fname[len(CS_AP_prefix):-4] for fname in conductance_data_files]
+drug_conc = [float(fname[len(CS_AP_prefix):-4]) for fname in
+             conductance_data_files]
 
 # Sort in increasing order of drug concentration
 sort_ind = [i[0] for i in sorted(enumerate(drug_conc), key=lambda x:x[1])]
@@ -147,7 +150,7 @@ labels = [i + ' nM' for i in conc_label]
 conductance_AP_log = []
 for i in range(len(conductance_data_files)):
     conductance_AP_log.append(myokit.DataLog.load_csv(
-        saved_data_dir + conductance_data_files[i]))
+        data_dir + conductance_data_files[i]))
 
 # Initiate constants and variables
 plotting_pulse_time = 1000 * 2
@@ -166,4 +169,4 @@ fig.sharey(['Voltage\n(mV)'],
 for i in range(5):
     axs[i][0][0].spines['top'].set_visible(False)
     axs[i][0][0].spines['right'].set_visible(False)
-fig.savefig(fig_dir + 'method_diagram2.svg', format='svg')
+fig.savefig(fig_dir + 'method_diagram.svg', format='svg')

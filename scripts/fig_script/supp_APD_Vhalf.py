@@ -105,7 +105,7 @@ fig.fig.text(0.38, 0.9, '(B)', fontsize=11)
 fig.fig.text(0.66, 0.9, '(C)', fontsize=11)
 
 # Save figure
-fig.savefig(fig_dir + 'APD_Vhalf.pdf')
+fig.savefig(fig_dir + 'APD_Vhalf.svg', format='svg')
 
 #
 # Show the signed RMSD value for three different Vhalf-trap values
@@ -126,8 +126,9 @@ for file in result_files:
     else:
         combined_df = pd.concat([combined_df, df])
 
-# Load APD90 data for parameter combinations that require smaller tolerance value
-nan_df = pd.read_csv(data_dir + 'SA_space/filling_nan.csv',
+# Load APD90 data for parameter combinations that require smaller tolerance
+# value
+nan_df = pd.read_csv(data_dir + '../supp_mat/filling_nan.csv',
                      header=[0, 1], index_col=[0],
                      skipinitialspace=True)
 combined_df = pd.concat([combined_df, nan_df])
@@ -193,4 +194,4 @@ fig.fig.text(0.37, 0.9, '(B)', fontsize=11)
 fig.fig.text(0.64, 0.9, '(C)', fontsize=11)
 
 # Save figure
-fig.savefig(fig_dir + 'SA_Vhalf_2D.pdf')
+fig.savefig(fig_dir + 'SA_Vhalf_2D.svg', format='svg')

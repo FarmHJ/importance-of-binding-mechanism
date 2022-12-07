@@ -43,7 +43,8 @@ panel2 = axs[0]
 pulse_time = 25e3
 repeats = 10
 
-control_log = myokit.DataLog.load_csv(data_dir + 'control_pulses10.csv')
+control_log = myokit.DataLog.load_csv(data_dir +
+                                      'control_Milnes_current_pulses10.csv')
 
 for i, drug in enumerate(drugs):
 
@@ -55,7 +56,7 @@ for i, drug in enumerate(drugs):
 
     # Load simulated data
     log = myokit.DataLog.load_csv(
-        data_dir + drug + '_conc' + str(drug_conc[i]) + '_pulses10.csv')
+        data_dir + drug + '_Milnes_current_pulses10.csv')
 
     max_sweeps = max(current['sweep'].values)
     for sweep in range(1, max_sweeps + 1):
@@ -216,4 +217,4 @@ fig.fig.text(0.5, 0.925, '(B)', fontsize=11)
 fig.fig.text(0.075, 0.525, '(C)', fontsize=11)
 fig.fig.text(0.5, 0.525, '(D)', fontsize=11)
 
-fig.savefig(fig_dir + "background_compile_test.svg", format='svg')
+fig.savefig(fig_dir + "background.svg", format='svg')

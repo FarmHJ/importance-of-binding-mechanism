@@ -239,4 +239,7 @@ fig.text(0.5, 0.75, '(B)', fontsize=11)
 
 # Save figure
 plt.subplots_adjust(hspace=0)
+fig_dir = '../../figures/supp_mat/'
+if not os.path.isdir(fig_dir):
+    os.makedirs(fig_dir)
 plt.savefig(fig_dir + 'FigS_SA_3D.png', bbox_inches='tight')

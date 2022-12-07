@@ -1,13 +1,14 @@
 # Compares the IKr, AP and APD90 of the SD model and the CS model
-import pandas as pd
 import matplotlib
 import myokit
 import os
+import pandas as pd
+import sys
 
 import modelling
 
 # Define drug and protocol
-drug = 'verapamil'
+drug = sys.argv[1]
 protocol_name = 'Milnes'
 
 # Define directories to read data and save plotted figures

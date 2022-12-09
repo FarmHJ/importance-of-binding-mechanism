@@ -101,7 +101,7 @@ venv.bak/
 
 # Results and figures
 simulation_data/background/
-simulation_results/
+testing_data/
+testing_figures/
 exp_data/
-math_model/
 Makefile

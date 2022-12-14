@@ -9,31 +9,28 @@ import pandas as pd
 
 import modelling
 
-saved_data_dir = '../../simulation_data/sensitivity_analysis/EC50/'
-saved_fig_dir = '../../figures/sensitivity_analysis/EC50/'
-check_plot = True
+data_dir = '../../testing_data/sensitivity_analysis/EC50/'
+fig_dir = '../../testing_figures/sensitivity_analysis/EC50/'
+
 
 # Load IKr model
-model = '../../model/ohara-cipa-v1-2017-IKr.mmt'
+model = '../../math_model/ohara-cipa-v1-2017-IKr.mmt'
 model, _, x = myokit.load(model)
+current_model = modelling.BindingKinetics(model)
 
 protocol_name = 'Milnes'
 protocol_params = modelling.ProtocolParameters()
 pulse_time = protocol_params.protocol_parameters[protocol_name]['pulse_time']
 protocol = protocol_params.protocol_parameters[protocol_name]['function']
 
-drug_model = modelling.BindingKinetics(model)
-drug_model.protocol = protocol
-hERG_base_conductance = drug_model.original_constants['gKr']
+current_model.protocol = protocol
+hERG_base_conductance = current_model.original_constants['gKr']
 
 repeats = 1000
 
 # Set AP model
 APmodel = '../../model/ohara-cipa-v1-2017.mmt'
-
-# Load model
 APmodel, _, x = myokit.load(APmodel)
-
 AP_model = modelling.BindingKinetics(APmodel, current_head='ikr')
 pulse_time_AP = 1000
 AP_model.protocol = modelling.ProtocolLibrary().current_impulse(pulse_time_AP)
@@ -54,9 +51,9 @@ SA_model = modelling.ParameterCategory()
 param_names = SA_model.param_names
 parameter_interest = 'EC50'
 
-filename = 'error.csv'
-if os.path.exists(saved_data_dir + filename):
-    previous_df = pd.read_csv(saved_data_dir + filename,
+filename = 'drug_normalisation_error.csv'
+if os.path.exists(data_dir + filename):
+    previous_df = pd.read_csv(data_dir + filename,
                               header=[0], index_col=[0],
                               skipinitialspace=True)
     ran_drugs = previous_df['drug'].values
@@ -83,11 +80,11 @@ for drug in drug_list:
 
     # Simulate with actual drug concentration
     Hill_curve_coefs, drug_conc_Hill, peaks_norm = \
-        ComparisonController.compute_Hill(drug_model)
+        ComparisonController.compute_Hill(current_model)
 
     total_log = []
     for i in range(len(drug_conc_Hill)):
-        log = drug_model.custom_simulation(
+        log = current_model.custom_simulation(
             orig_param_values, drug_conc_Hill[i], 1000,
             log_var=['engine.time', 'ikr.IKr'])
         total_log.append(log)
@@ -96,7 +93,7 @@ for drug in drug_list:
     for i in range(len(drug_conc_Hill)):
         reduction_scale = Hill_model.simulate(
             Hill_curve_coefs, drug_conc_Hill[i])
-        log = drug_model.conductance_simulation(
+        log = current_model.conductance_simulation(
             hERG_base_conductance * reduction_scale, 1000,
             log_var=['engine.time', 'ikr.IKr'])
         log_conductance.append(log)
@@ -112,12 +109,12 @@ for drug in drug_list:
 
     # Simulate with normalised drug concentration
     Hill_curve_coefs_norm, drug_conc_Hill_norm, peaks_norm2 = \
-        ComparisonController.compute_Hill(drug_model,
+        ComparisonController.compute_Hill(current_model,
                                           drug_conc=drug_conc_Hill_norm)
 
     log_norm = []
     for i in range(len(drug_conc_Hill_norm)):
-        log = drug_model.custom_simulation(
+        log = current_model.custom_simulation(
             param_values, drug_conc_Hill_norm[i], 1000,
             log_var=['engine.time', 'ikr.IKr'])
         log_norm.append(log)
@@ -126,7 +123,7 @@ for drug in drug_list:
     for i in range(len(drug_conc_Hill_norm)):
         reduction_scale = Hill_model.simulate(
             Hill_curve_coefs_norm, drug_conc_Hill_norm[i])
-        log = drug_model.conductance_simulation(
+        log = current_model.conductance_simulation(
             hERG_base_conductance * reduction_scale,
             1000, log_var=['engine.time', 'ikr.IKr'])
         log_conductance_norm.append(log)
@@ -146,7 +143,7 @@ for drug in drug_list:
     plt.xlabel('Drug concentration')
     plt.ylabel('Normalised peak current')
     plt.legend()
-    plt.savefig(saved_fig_dir + 'peak_compare_' + drug + '.pdf')
+    plt.savefig(fig_dir + 'peak_compare_' + drug + '.pdf')
     plt.close()
 
     # Plot hERG current simulated with actual drug concentration and
@@ -173,7 +170,7 @@ for drug in drug_list:
     fig.sharex(['Time (s)'] * 2, [(0, pulse_time)] * 2)
     fig.sharey(['Current (A/F)'] * 2)
     fig.adjust_ticks(fig.axs[1][0], pulse_time)
-    fig.savefig(saved_fig_dir + 'hERG_comparison_' + drug + '.pdf')
+    fig.savefig(fig_dir + 'hERG_comparison_' + drug + '.pdf')
 
     # Compare action potentials
     # Simulate AP with actual drug concentration
@@ -304,7 +301,7 @@ for drug in drug_list:
     #                      bbox_to_anchor=(1.45, 0.6))
     fig.sharex(['Time (ms)'] * 2, [(0, plotting_AP_pulse_time)] * 2)
     fig.sharey(['Voltage (mV)', 'Voltage (mV)'])
-    fig.savefig(saved_fig_dir + 'AP_comparison_' + drug + '.pdf')
+    fig.savefig(fig_dir + 'AP_comparison_' + drug + '.pdf')
 
     # Rescale normalised drug concentration for plotting purposes
     drug_conc_AP_rescale = [i * (np.power(half_effect_conc, 1 / Hill_n))
@@ -329,21 +326,21 @@ for drug in drug_list:
         fig.axs[0][i].set_xlabel('Drug concentration')
         fig.axs[0][i].set_ylabel(r'APD$_{90}$ (ms)')
         fig.axs[0][i].legend()
-    fig.savefig(saved_fig_dir + 'APD_compare_' + drug + '.pdf')
+    fig.savefig(fig_dir + 'APD_compare_' + drug + '.pdf')
     plt.close()
 
-    filename = 'error.csv'
+    filename = 'drug_normalisation_error.csv'
     error_df = pd.DataFrame([drug, RMSError_trap, MAError_trap,
                              RMSError_conductance, MAError_conductance],
                             index=['drug', 'RMSError_trap', 'MAError_trap',
                                    'RMSError_conductance',
                                    'MAError_conductance'])
     error_df = error_df.T
-    if os.path.exists(saved_data_dir + filename):
-        previous_df = pd.read_csv(saved_data_dir + filename,
+    if os.path.exists(data_dir + filename):
+        previous_df = pd.read_csv(data_dir + filename,
                                   header=[0], index_col=[0],
                                   skipinitialspace=True)
         comb_df = pd.concat([previous_df, error_df])
     else:
         comb_df = error_df
-    comb_df.to_csv(saved_data_dir + filename)
+    comb_df.to_csv(data_dir + filename)

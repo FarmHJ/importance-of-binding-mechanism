@@ -49,14 +49,16 @@ model, _, x = myokit.load(model)
 current_model = modelling.BindingKinetics(model)
 current_model.protocol = protocol
 
+abs_tol = 1e-7
+rel_tol = 1e-8
 # Simulate IKr of the SD model for a range of drug concentrations
 # Extract the peak of IKr
 peaks = []
 for i in range(len(drug_conc)):
     log = current_model.drug_simulation(
         drug, drug_conc[i], repeats,
-        log_var=['engine.time', 'membrane.V', 'ikr.IKr'], abs_tol=1e-7,
-        rel_tol=1e-8)
+        log_var=['engine.time', 'membrane.V', 'ikr.IKr'], abs_tol=abs_tol,
+        rel_tol=rel_tol)
     peak, _ = current_model.extract_peak(log, 'ikr.IKr')
     peaks.append(peak[-1])
 
@@ -86,8 +88,8 @@ for i in range(len(drug_conc)):
     reduction_scale = Hill_model.simulate(estimates[:2], drug_conc[i])
     d2 = current_model.conductance_simulation(
         base_conductance * reduction_scale, repeats,
-        log_var=['engine.time', 'membrane.V', 'ikr.IKr'], abs_tol=1e-7,
-        rel_tol=1e-8)
+        log_var=['engine.time', 'membrane.V', 'ikr.IKr'],
+        abs_tol=abs_tol, rel_tol=rel_tol)
 
     d2.save_csv(data_dir + 'CS_current_' + str(drug_conc[i]) + '.csv')
 

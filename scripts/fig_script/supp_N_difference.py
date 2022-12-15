@@ -3,6 +3,7 @@
 
 import matplotlib.pyplot as plt
 import numpy as np
+import os
 import pandas as pd
 
 # Read APD90 differences for all synthetic drug
@@ -91,7 +92,10 @@ fig.text(0.075, 0.9, '(A)', fontsize=11)
 fig.text(0.5, 0.9, '(B)', fontsize=11)
 
 # Save figure
-plt.savefig('../../figures/supp_mat/APD90diff_N/RMSD_N.pdf',
+fig_dir = '../../figures/supp_mat/APD90diff_N/'
+if not os.path.isdir(fig_dir):
+    os.makedirs(fig_dir)
+plt.savefig(fig_dir + 'RMSD_N.pdf',
             bbox_inches='tight')
 
 # Show mean and standard deviation of the histogram

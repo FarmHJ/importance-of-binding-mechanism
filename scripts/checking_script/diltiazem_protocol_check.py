@@ -5,10 +5,10 @@ import pandas as pd
 
 import modelling
 
-saved_data_dir = '../../simulation_data/binding_kinetics_comparison/diltiazem/'
+# saved_data_dir = '../../simulation_data/binding_kinetics_comparison/diltiazem/'
 
 # Load IKr model
-model = '../../model/ohara-cipa-v1-2017-IKr.mmt'
+model = '../../math_model/ohara-cipa-v1-2017-IKr.mmt'
 model, _, x = myokit.load(model)
 
 protocol_params = modelling.ProtocolParameters()
@@ -74,7 +74,7 @@ for prot in protocol_list:
                             'protocol': [prot]})
     Hill_coef_df = pd.concat([Hill_coef_df, Hill_df])
 
-Hill_coef_df.to_csv(saved_data_dir + 'Hill_curves.csv')
+# Hill_coef_df.to_csv(saved_data_dir + 'Hill_curves.csv')
 
     # Hill_model = modelling.HillsModel()
     # reduction_scale = Hill_model.simulate(Hill_curve_coefs, drug_conc_Hill)
@@ -85,10 +85,10 @@ Hill_coef_df.to_csv(saved_data_dir + 'Hill_curves.csv')
 
 # print(Hill_coef_df)
 
-    # plt.plot(drug_conc_Hill, peaks_norm, 'o')
+    plt.plot(drug_conc_Hill, peaks_norm, 'o')
 # plt.plot(drug_conc_Hill, reduction_scale, '-')
-# plt.xscale('log')
-# plt.savefig('../../figures/testing/Hill_error_diltiazem.pdf')
+plt.xscale('log')
+plt.savefig('../../testing_figures/testing/Hill_error_diltiazem.pdf')
 
 # combined_result_df = pd.concat([combined_result_df, result_df.T])
 

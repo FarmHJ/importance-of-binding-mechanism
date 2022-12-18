@@ -81,7 +81,6 @@ else:
 
 # Compare peak current
 base_conductance = model.get('ikr.gKr').value()
-print('conductance: ', base_conductance)
 
 current_model.current_head = current_model.model.get('ikr')
 for i in range(len(drug_conc)):

@@ -43,7 +43,7 @@ if not os.path.isdir(data_dir):
 result_filename = 'Hill_curve.txt'
 
 # Load IKr model
-model = '../math_model/ohara-cipa-v1-2017-IKr.mmt'
+model = '../math_model/ohara-cipa-v1-2017-IKr-opt.mmt'
 model, _, x = myokit.load(model)
 
 current_model = modelling.BindingKinetics(model)
@@ -81,6 +81,7 @@ else:
 
 # Compare peak current
 base_conductance = model.get('ikr.gKr').value()
+print('conductance: ', base_conductance)
 
 current_model.current_head = current_model.model.get('ikr')
 for i in range(len(drug_conc)):
@@ -95,7 +96,7 @@ for i in range(len(drug_conc)):
 
 # Propagate to action potential
 # Set AP model
-APmodel = '../math_model/ohara-cipa-v1-2017.mmt'
+APmodel = '../math_model/ohara-cipa-v1-2017-opt.mmt'
 APmodel, _, x = myokit.load(APmodel)
 AP_model = modelling.BindingKinetics(APmodel, current_head='ikr')
 

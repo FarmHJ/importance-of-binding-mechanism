@@ -18,8 +18,8 @@ if not os.path.exists(data_filepath):
     os.makedirs(data_filepath)
 
 # Model directory
-current_model_filepath = '../math_model/ohara-cipa-v1-2017-IKr.mmt'
-AP_model_filepath = '../math_model/ohara-cipa-v1-2017.mmt'
+current_model_filepath = '../math_model/ohara-cipa-v1-2017-IKr-opt.mmt'
+AP_model_filepath = '../math_model/ohara-cipa-v1-2017-opt.mmt'
 
 # Load current model and set Milnes' protocol
 model, _, x = myokit.load(current_model_filepath)
@@ -137,7 +137,7 @@ def param_evaluation(param_values):
 # Save defined parameter space or load previously saved parameter space
 if not os.path.isdir(data_filepath + 'parameter_space/'):
     os.makedirs(data_filepath + 'parameter_space/')
-sample_filepath = data_filepath + 'parameter_space/parameter_space_check.csv'
+sample_filepath = data_filepath + 'parameter_space/parameter_space_1.csv'
 
 param_space = []
 if os.path.exists(sample_filepath):
@@ -167,7 +167,7 @@ samples_split_n = int(np.ceil(total_samples / samples_per_save))
 total_saving_file_num = np.arange(samples_split_n)
 
 # Determine completed simulations so that it is not repeated
-file_prefix = 'SA_allparam_'
+file_prefix = 'SA_allparam_opt_'
 data_dir = data_filepath + 'SA_space/'
 if not os.path.isdir(data_dir):
     os.makedirs(data_dir)

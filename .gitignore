@@ -100,11 +100,7 @@ venv.bak/
 *.toc
 
 # Results and figures
-simulation_data/
-simulation_results/
-figures/
 simulation_data/background/
 testing_data/
 testing_figures/
 exp_data/
-Makefile

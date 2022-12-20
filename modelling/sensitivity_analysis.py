@@ -153,6 +153,26 @@ class SensitivityAnalysis(object):
 
         return param_range
 
+    def param_explore_uniform(self, param, res_points=20):
+
+        param_lib = modelling.BindingParameters()
+
+        interest_param_list = []
+        for i in param_lib.drug_compounds:
+            interest_param_list.append(param_lib.binding_parameters[i][param])
+
+        min_value = min(interest_param_list)
+        max_value = max(interest_param_list)
+
+        if param in ['Kmax', 'Ku', 'EC50']:
+            param_range = np.linspace(np.log10(min_value), np.log10(max_value),
+                                      res_points)
+            param_range = 10**param_range
+        else:
+            param_range = np.linspace(min_value, max_value, res_points)
+
+        return param_range
+
     def comparison_evaluation(self, param_values, hERG_model, AP_model,
                               log_transform=True, APD_points=20):
 

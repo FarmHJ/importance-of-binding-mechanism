@@ -46,14 +46,18 @@ SA_model = modelling.SensitivityAnalysis()
 param_names = SA_model.param_names
 
 # Define parameter space
-res = 5
-Vhalf_range = SA_model.param_explore('Vhalf', res)
-Kmax_range = SA_model.param_explore('Kmax', res)
-Ku_range = SA_model.param_explore('Ku', res)
+# res = 5
+# Vhalf_range = SA_model.param_explore('Vhalf', res)
+# Kmax_range = SA_model.param_explore('Kmax', res)
+# Ku_range = SA_model.param_explore('Ku', res)
 
-Vhalf_fullrange = SA_model.param_explore_gaps(Vhalf_range, 3, 'Vhalf')
-Kmax_fullrange = SA_model.param_explore_gaps(Kmax_range, 3, 'Kmax')
-Ku_fullrange = SA_model.param_explore_gaps(Ku_range, 3, 'Ku')
+# Vhalf_fullrange = SA_model.param_explore_gaps(Vhalf_range, 3, 'Vhalf')
+# Kmax_fullrange = SA_model.param_explore_gaps(Kmax_range, 3, 'Kmax')
+# Ku_fullrange = SA_model.param_explore_gaps(Ku_range, 3, 'Ku')
+
+Vhalf_fullrange = SA_model.param_explore_uniform('Vhalf')
+Kmax_fullrange = SA_model.param_explore_uniform('Kmax')
+Ku_fullrange = SA_model.param_explore_uniform('Ku')
 
 starting_param_df = pd.DataFrame([1] * 5, index=param_names).T
 ComparisonController = modelling.ModelComparison(starting_param_df)
@@ -137,7 +141,7 @@ def param_evaluation(param_values):
 # Save defined parameter space or load previously saved parameter space
 if not os.path.isdir(data_filepath + 'parameter_space/'):
     os.makedirs(data_filepath + 'parameter_space/')
-sample_filepath = data_filepath + 'parameter_space/parameter_space_1.csv'
+sample_filepath = data_filepath + 'parameter_space/parameter_space_uniform.csv'
 
 param_space = []
 if os.path.exists(sample_filepath):
@@ -167,11 +171,11 @@ samples_split_n = int(np.ceil(total_samples / samples_per_save))
 total_saving_file_num = np.arange(samples_split_n)
 
 # Determine completed simulations so that it is not repeated
-file_prefix = 'SA_allparam_opt_'
+file_prefix = 'SA_allparam_uniform_opt_'
 data_dir = data_filepath + 'SA_space/'
 if not os.path.isdir(data_dir):
     os.makedirs(data_dir)
-evaluation_result_files = [f for f in os.listdir(data_filepath) if
+evaluation_result_files = [f for f in os.listdir(data_dir) if
                            f.startswith(file_prefix)]
 if len(evaluation_result_files) == 0:
     file_id_dict = {}
@@ -212,7 +216,7 @@ else:
 n_workers = 8
 evaluator = pints.ParallelEvaluator(param_evaluation,
                                     n_workers=n_workers)
-for file_num in saving_file_dict['file_num']:
+for file_num in np.flip(saving_file_dict['file_num']):
     print('Starting function evaluation for file number: ', file_num)
     current_time = time.strftime("%H:%M:%S", time.localtime())
     print('Starting time: ', current_time)

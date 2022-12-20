@@ -28,11 +28,9 @@ protocol_params = modelling.ProtocolParameters()
 pulse_time = protocol_params.protocol_parameters[protocol_name]['pulse_time']
 protocol = protocol_params.protocol_parameters[protocol_name]['function']
 
-# Define drug concentration range for each drug of interest
-if drug == 'dofetilide':
-    drug_conc = [0, 0.1, 1, 10, 30, 100, 300, 500, 1000]  # nM
-elif drug == 'verapamil':
-    drug_conc = [0, 0.1, 1, 30, 300, 1000, 10000, 100000]  # nM
+# Define the range of drug concentration for a given drug
+drug_conc_lib = modelling.DrugConcentrations()
+drug_conc = drug_conc_lib.drug_concentrations[drug]['coarse']
 repeats = 1000
 
 # Define directories to save simulated data
@@ -110,7 +108,7 @@ save_signal = 2
 if drug == 'dofetilide':
     repeats_SD = 1000 + 1
     repeats_CS = 1000
-elif drug == 'verapamil':
+else:
     repeats_SD = 1000
     repeats_CS = 1000
 
@@ -125,8 +123,8 @@ for i in range(len(drug_conc)):
     print('simulating concentration: ' + str(drug_conc[i]))
     log = AP_model.drug_simulation(
         drug, drug_conc[i], repeats_SD, save_signal=save_signal,
-        log_var=['engine.time', 'membrane.V', 'ikr.IKr'], abs_tol=1e-7,
-        rel_tol=1e-8)
+        log_var=['engine.time', 'membrane.V', 'ikr.IKr'], abs_tol=abs_tol,
+        rel_tol=rel_tol)
     log.save_csv(data_dir + 'SD_AP_' + str(drug_conc[i]) + '.csv')
 
     APD_trapping_pulse = []
@@ -141,8 +139,8 @@ for i in range(len(drug_conc)):
     d2 = AP_model.conductance_simulation(
         base_conductance * reduction_scale, repeats_CS,
         save_signal=save_signal,
-        log_var=['engine.time', 'membrane.V', 'ikr.IKr'], abs_tol=1e-7,
-        rel_tol=1e-8)
+        log_var=['engine.time', 'membrane.V', 'ikr.IKr'], abs_tol=abs_tol,
+        rel_tol=rel_tol)
     d2.save_csv(data_dir + 'CS_AP_' + str(drug_conc[i]) + '.csv')
 
     APD_conductance_pulse = []
@@ -168,10 +166,7 @@ APD_conductance_df.to_csv(data_dir + 'CS_APD_pulses' +
 
 # Define drug concentration range for steady state APD90 comparison between
 # models
-if drug == 'dofetilide':
-    drug_conc = 10.0**np.linspace(-1, 2.5, 20)
-elif drug == 'verapamil':
-    drug_conc = 10.0**np.linspace(-1, 5, 20)
+drug_conc = drug_conc_lib.drug_concentrations[drug]['fine']
 repeats = 1000
 save_signal = 2
 

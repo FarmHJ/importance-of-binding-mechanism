@@ -42,7 +42,8 @@ class ModelComparison(object):
         for i in range(len(drug_conc)):
             log = BKmodel.custom_simulation(
                 self.drug_param_values, drug_conc[i], steady_state_pulse,
-                log_var=['engine.time', 'ikr.IKr'])
+                log_var=['engine.time', 'ikr.IKr'],
+                abs_tol=1e-7, rel_tol=1e-8)
             peak, _ = BKmodel.extract_peak(log, 'ikr.IKr')
             peaks.append(peak[-1])
 
@@ -56,7 +57,8 @@ class ModelComparison(object):
             drug_conc.insert(1, drug_conc[1] / np.sqrt(10))
             log = BKmodel.custom_simulation(
                 self.drug_param_values, drug_conc[1], steady_state_pulse,
-                log_var=['engine.time', 'ikr.IKr'])
+                log_var=['engine.time', 'ikr.IKr'],
+                abs_tol=1e-7, rel_tol=1e-8)
             peak, _ = BKmodel.extract_peak(log, 'ikr.IKr')
             peaks.insert(1, peak[-1])
             peaks_norm = (peaks - min(peaks)) / (max(peaks) - min(peaks))
@@ -75,7 +77,8 @@ class ModelComparison(object):
             drug_conc = drug_conc + [max(drug_conc) * np.sqrt(10)]
             log = BKmodel.custom_simulation(
                 self.drug_param_values, drug_conc[-1], steady_state_pulse,
-                log_var=['engine.time', 'ikr.IKr'])
+                log_var=['engine.time', 'ikr.IKr'],
+                abs_tol=1e-7, rel_tol=1e-8)
             peak, _ = BKmodel.extract_peak(log, 'ikr.IKr')
             peaks.append(peak[-1])
             peaks_norm = (peaks - min(peaks)) / (max(peaks) - min(peaks))

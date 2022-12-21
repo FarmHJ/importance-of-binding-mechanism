@@ -107,6 +107,7 @@ def param_evaluation(param_values):
             APD_conductance = [float("Nan")] * APD_points
             RMSError = float("Nan")
             MAError = float("Nan")
+            print('simulation error')
 
     # Create dataframe to save results
     conc_Hill_ind = ['conc_' + str(i) for i, _ in

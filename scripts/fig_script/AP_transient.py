@@ -183,7 +183,7 @@ fig.sharey([r"APD$_{90}$ (ms)"],
            axs=panel5, subgridspec=subgridspecs[4])
 
 # Read file names of AP data for both AP models with verapamil-like drug
-drug = 'verapamil'
+drug = 'bepridil'
 data_dir = root_dir + drug + '/' + protocol_name + '/'
 
 trapping_data_files = [f for f in os.listdir(data_dir) if
@@ -200,6 +200,8 @@ drug_conc = sorted(drug_conc)
 trapping_data_files = [trapping_data_files[i] for i in sort_ind]
 conductance_data_files = [conductance_data_files[i] for i in sort_ind]
 conc_label = [conc_label[i] for i in sort_ind]
+conc_label = [r"$10^{:d}$".format(int(np.log10(float(i)))) if float(i) >= 1e4
+              else i for i in conc_label]
 
 # Load AP data
 trapping_AP_log = []
@@ -212,7 +214,6 @@ for i in range(len(trapping_data_files)):
 
 # Initiate constants and variables
 labels = [i + ' nM' for i in conc_label]
-labels[-1] = r"$10^4$ nM"
 plotting_pulse_time = 1000 * 7
 
 # Top right panel
@@ -331,4 +332,4 @@ fig.fig.text(0.1, 0.325, '(E)', fontsize=11)
 fig.fig.text(0.535, 0.325, '(F)', fontsize=11)
 
 # Save figure
-fig.savefig(fig_dir + "AP_transient_paced.pdf")
+fig.savefig(fig_dir + "AP_transient_paced_test.pdf")

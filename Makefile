@@ -40,7 +40,8 @@ Figure4:
 # Figure 5 (AP comparison at initial phases)
 Figure5:
 	cd scripts/; \
-	python3 AP_simulation.py; \
+	python3 AP_simulation.py dofetilide; \
+	python3 AP_simulation.py verapamil; \
 	cd fig_script/; \
 	python3 AP_transient.py; \
 

@@ -15,7 +15,7 @@ import pandas as pd
 import modelling
 
 # Load IKr model
-model = '../math_model/ohara-cipa-v1-2017-IKr.mmt'
+model = '../math_model/ohara-cipa-v1-2017-IKr-opt.mmt'
 model, _, x = myokit.load(model)
 current_model = modelling.BindingKinetics(model)
 current_model.current_head = current_model.model.get('ikr')
@@ -38,7 +38,7 @@ abs_tol = 1e-7
 rel_tol = 1e-8
 repeats = 1000
 
-drugs = ['dofetilide', 'verapamil']
+drugs = ['dofetilide', 'bepridil']
 
 for drug in drugs:
     data_dir = '../simulation_data/model_comparison/' + drug + '/'
@@ -70,7 +70,7 @@ for drug in drugs:
     Hill_coef_df.to_csv(data_dir + 'Hill_curves.csv')
 
 # Load AP model
-APmodel = '../math_model/ohara-cipa-v1-2017.mmt'
+APmodel = '../math_model/ohara-cipa-v1-2017-opt.mmt'
 APmodel, _, x = myokit.load(APmodel)
 AP_model = modelling.BindingKinetics(APmodel, current_head='ikr')
 
@@ -80,7 +80,7 @@ AP_model.protocol = modelling.ProtocolLibrary().current_impulse(pulse_time)
 base_conductance = APmodel.get('ikr.gKr').value()
 
 # Define constants and variables for APD90 simulation of ORd-CS model
-drug = 'verapamil'
+drug = 'bepridil'
 repeats = 1000
 save_signal = 2
 offset = 50

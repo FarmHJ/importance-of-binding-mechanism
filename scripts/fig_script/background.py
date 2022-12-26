@@ -7,9 +7,9 @@ import pandas as pd
 
 import modelling
 
-drugs = ['dofetilide', 'verapamil']
-drug_conc = [30, 1000]
-drug_label = ['drug free', 'dofetilide-like\ndrug', 'verapamil-like\ndrug']
+drugs = ['dofetilide', 'bepridil']
+drug_conc = [30, 300]
+drug_label = ['drug free', 'dofetilide-like\ndrug', 'bepridil-like\ndrug']
 
 fig_dir = '../../figures/background/'
 if not os.path.isdir(fig_dir):
@@ -37,7 +37,7 @@ axs = [[[fig.fig.add_subplot(subgs[k + 1][i, j]) for j in range(
 
 # Top right panel
 # Shows the fractional current of the SD model for first 10 pulses after the
-# addition of a dofetilide-like drug and a verapamil-like drug
+# addition of a dofetilide-like drug and a bepridil-like drug
 panel2 = axs[0]
 
 pulse_time = 25e3
@@ -108,7 +108,7 @@ for i, drug in enumerate(drugs):
 
 # Add description text
 panel2[1][0].text(248000, 0.9, 'dofetilide-like drug', fontsize=8, ha='right')
-panel2[2][0].text(248000, 0.9, 'verapamil-like drug', fontsize=8, ha='right')
+panel2[2][0].text(248000, 0.9, 'bepridil-like drug', fontsize=8, ha='right')
 
 # Adjust axes
 fig.sharex(['Time (s)'], [(0, pulse_time * repeats)],
@@ -121,17 +121,17 @@ fig.adjust_ticks(panel2[2][0], pulse_time * repeats)
 panel3 = axs[1]
 
 # Load steady state IKr data for drug free, addition of a dofetilide-like drug
-# and a verapamil-like drug conditions (Milnes' protocol)
+# and a bepridil-like drug conditions (Milnes' protocol)
 drug_free_log = myokit.DataLog.load_csv(
     data_dir + 'drug_free_Milnes_current.csv')
 trapped_log = myokit.DataLog.load_csv(
     data_dir + 'dofetilide_Milnes_current.csv')
 nontrapped_log = myokit.DataLog.load_csv(
-    data_dir + 'verapamil_Milnes_current.csv')
+    data_dir + 'bepridil_Milnes_current.csv')
 log_all = [drug_free_log, trapped_log, nontrapped_log]
 
 # Load hERG channel model
-model = '../../math_model/ohara-cipa-v1-2017-IKr.mmt'
+model = '../../math_model/ohara-cipa-v1-2017-IKr-opt.mmt'
 model, _, x = myokit.load(model)
 
 # Plot state occupancies of the hERG channel
@@ -151,7 +151,7 @@ for i in range(len(log_all)):
         else:
             plot.add_single(panel3[1][i], log_all[j], 'ikr.IKr',
                             color='grey', alpha=0.5)
-    panel3[1][i].text(24500, 0.75, drug_label[i], fontsize=8,
+    panel3[1][i].text(24500, 0.8, drug_label[i], fontsize=8,
                       ha='right', va='top')
 
 # Adjust axes
@@ -170,17 +170,17 @@ for i in range(len(log_all)):
 panel4 = axs[2]
 
 # Load steady state IKr data for drug free, addition of a dofetilide-like drug
-# and a verapamil-like drug conditions (AP clamp protocol)
+# and a bepridil-like drug conditions (AP clamp protocol)
 drug_free_log = myokit.DataLog.load_csv(
     data_dir + 'drug_free_APclamp_current.csv')
 trapped_log = myokit.DataLog.load_csv(
     data_dir + 'dofetilide_APclamp_current.csv')
 nontrapped_log = myokit.DataLog.load_csv(
-    data_dir + 'verapamil_APclamp_current.csv')
+    data_dir + 'bepridil_APclamp_current.csv')
 log_all = [drug_free_log, trapped_log, nontrapped_log]
 
 # Load AP model
-APmodel = '../../math_model/ohara-cipa-v1-2017.mmt'
+APmodel = '../../math_model/ohara-cipa-v1-2017-opt.mmt'
 APmodel, _, x = myokit.load(APmodel)
 pulse_time = 1000
 
@@ -197,7 +197,7 @@ for i in range(len(log_all)):
         else:
             plot.add_single(panel4[1][i], log_all[j], 'ikr.IKr',
                             color='grey', alpha=0.5)
-    panel4[1][i].text(980, 0.8, drug_label[i], fontsize=8,
+    panel4[1][i].text(980, 0.9, drug_label[i], fontsize=8,
                       ha='right', va='top')
 
 # Adjust axes
@@ -217,4 +217,4 @@ fig.fig.text(0.5, 0.925, '(B)', fontsize=11)
 fig.fig.text(0.075, 0.525, '(C)', fontsize=11)
 fig.fig.text(0.5, 0.525, '(D)', fontsize=11)
 
-fig.savefig(fig_dir + "background.svg", format='svg')
+fig.savefig(fig_dir + "background_dof_bep.svg", format='svg')

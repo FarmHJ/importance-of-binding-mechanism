@@ -18,8 +18,10 @@ protocol = protocol_params.protocol_parameters[protocol_name]['function']
 # Define drug concentration range for each drug of interest
 if drug == 'dofetilide':
     drug_conc = [0, 100, 200]  # nM
-elif drug == 'verapamil' or 'quinidine':
+elif drug == 'verapamil':
     drug_conc = [0, 1000, 10000]  # nM
+elif drug == 'bepridil':
+    drug_conc = [0, 1000, 5000]  # nM
 
 # Define directories to save simulated data
 root_dir = '../simulation_data/model_comparison/'

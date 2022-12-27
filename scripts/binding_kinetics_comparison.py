@@ -173,8 +173,8 @@ save_signal = 2
 APD_conductance = []
 APD_trapping = []
 
-abs_tol = 1e-7
-rel_tol = 1e-10
+# abs_tol = 1e-7
+# rel_tol = 1e-8
 
 for i in range(len(drug_conc)):
     print('simulating concentration: ' + str(drug_conc[i]))

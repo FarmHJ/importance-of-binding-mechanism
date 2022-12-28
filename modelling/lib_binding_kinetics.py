@@ -23,7 +23,8 @@ class BindingParameters(object):
         self.drug_compounds = ['dofetilide', 'bepridil', 'terfenadine',
                                'cisapride', 'verapamil', 'ranolazine',
                                'quinidine', 'sotalol', 'chlorpromazine',
-                               'ondansetron', 'diltiazem', 'mexiletine']
+                               'ondansetron', 'diltiazem', 'mexiletine',
+                               'droperidol']
         self.binding_parameters = {
             'dofetilide': {
                 'Kmax': 1e8,
@@ -97,7 +98,6 @@ class BindingParameters(object):
                 'Vhalf': -199.5,
                 'Cmax': 2.6
             },
-
             'verapamil': {
                 'Kmax': 4.646e4,
                 'Ku': 7.927e-4,
@@ -162,6 +162,14 @@ class BindingParameters(object):
                 'Vhalf': -90.89,
                 'Cmax': 122
             },
+            'droperidol': {
+                'Kmax': 14.21,
+                'Ku': 1.256e-3,
+                'EC50': 116.5,
+                'N': 0.578,
+                'Vhalf': -78.68,
+                'Cmax': 6.33
+            },
         }
         self.Hill_curve = {
             'dofetilide': {
@@ -213,7 +221,8 @@ class DrugConcentrations(object):
         self.drug_compounds = ['dofetilide', 'bepridil', 'terfenadine',
                                'cisapride', 'verapamil', 'ranolazine',
                                'quinidine', 'sotalol', 'chlorpromazine',
-                               'ondansetron', 'diltiazem', 'mexiletine']
+                               'ondansetron', 'diltiazem', 'mexiletine',
+                               'droperidol']
         self.drug_concentrations = {
             'dofetilide': {
                 'coarse': [0, 0.1, 1, 10, 30, 100, 300, 500, 1000],

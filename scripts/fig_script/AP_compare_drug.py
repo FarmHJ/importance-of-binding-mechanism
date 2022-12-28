@@ -1,6 +1,7 @@
 # Compares the IKr, AP and APD90 of the SD model and the CS model
 import matplotlib
 import myokit
+import numpy as np
 import os
 import pandas as pd
 import sys
@@ -59,10 +60,8 @@ drug_conc = sorted(drug_conc)
 trapping_data_files = [trapping_data_files[i] for i in sort_ind]
 conductance_data_files = [conductance_data_files[i] for i in sort_ind]
 conc_label = [conc_label[i] for i in sort_ind]
-
-if drug == 'verapamil':
-    conc_label[-2] = r"$10^4$"
-    conc_label[-1] = r"$10^5$"
+conc_label = [r"$10^{:d}$".format(int(np.log10(float(i)))) if float(i) >= 1e4
+              else i for i in conc_label]
 
 # Initiate constants and variables
 labels = [i + ' nM' for i in conc_label]

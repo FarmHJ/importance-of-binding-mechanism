@@ -226,13 +226,13 @@ class DrugConcentrations(object):
                 'lit_default': [30, 100, 300, 1000]
             },
             'bepridil': {
-                'coarse': [0, 0.1, 1, 10, 30, 100, 300, 500, 1000, 10000],
-                'fine': 10.0**np.linspace(-1, 3.5, 20),
+                'coarse': [0, 0.1, 1, 30, 100, 300, 1000, 10000],
+                'fine': 10.0**np.linspace(-1, 5, 20),
                 'lit_default': [10, 30, 100, 300]
             },
             'terfenadine': {
                 'coarse': [0, 0.1, 1, 10, 30, 100, 300, 500, 1000, 10000],
-                'fine': 10.0**np.linspace(-1, 3.5, 20),
+                'fine': 10.0**np.linspace(-1, 5, 20),
                 'lit_default': [3, 10, 30, 100]
             },
             'cisapride': {

@@ -217,7 +217,7 @@ else:
 n_workers = 8
 evaluator = pints.ParallelEvaluator(param_evaluation,
                                     n_workers=n_workers)
-for file_num in np.flip(saving_file_dict['file_num']):
+for file_num in saving_file_dict['file_num']:
     print('Starting function evaluation for file number: ', file_num)
     current_time = time.strftime("%H:%M:%S", time.localtime())
     print('Starting time: ', current_time)

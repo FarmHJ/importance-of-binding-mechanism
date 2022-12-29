@@ -51,42 +51,68 @@ param_names = SA_model.param_names
 
 # Define parameter combinations around the boundary surface (where the ORd-SD
 # model and the ORd-CS model give similar APD90s) at higher resolution
-res = 5
-Vhalf_fullrange = SA_model.param_explore('Vhalf', res)
-Vhalf_fullrange = SA_model.param_explore_gaps(Vhalf_fullrange, 3, 'Vhalf')
-Vhalf_range = sorted(Vhalf_fullrange)
+# res = 5
+# Vhalf_fullrange = SA_model.param_explore('Vhalf', res)
+# Vhalf_fullrange = SA_model.param_explore_gaps(Vhalf_fullrange, 3, 'Vhalf')
+# Vhalf_range = sorted(Vhalf_fullrange)
 
-# remove -100.6775 as it is close to -100
-Vhalf_range.pop(11)
+# # remove -100.6775 as it is close to -100
+# Vhalf_range.pop(11)
 
-Kmax_fullrange = SA_model.param_explore('Kmax', res)
-Kmax_fullrange = SA_model.param_explore_gaps(Kmax_fullrange, 3, 'Kmax')
+# Kmax_fullrange = SA_model.param_explore('Kmax', res)
+# Kmax_fullrange = SA_model.param_explore_gaps(Kmax_fullrange, 3, 'Kmax')
+# Kmax_fullrange = np.log10(sorted(Kmax_fullrange))
+
+# Ku_fullrange = SA_model.param_explore('Ku', res)
+# Ku_fullrange = SA_model.param_explore_gaps(Ku_fullrange, 3, 'Ku')
+# Ku_fullrange = np.log10(sorted(Ku_fullrange))
+
+# Kmax_range1 = np.linspace(Kmax_fullrange[3], Kmax_fullrange[4], 3 + 2)[1:-1]
+# Kmax_range1 = 10**Kmax_range1
+
+# Ku_range1 = np.concatenate((np.linspace(Ku_fullrange[4], Ku_fullrange[7], 9),
+#                             Ku_fullrange[7:]))
+# Ku_range1 = 10**Ku_range1
+
+# Kmax_range2 = np.concatenate((
+#     np.linspace(Kmax_fullrange[3], Kmax_fullrange[4], 3 + 2)[1:-1],
+#     np.linspace(Kmax_fullrange[4], Kmax_fullrange[7], 7 + 2)[1:-1]))
+# Kmax_range2 = 10**Kmax_range2
+
+# Ku_range2 = np.concatenate((
+#     np.linspace(Ku_fullrange[2], Ku_fullrange[4], 5 + 2)[1:-1],
+#     np.linspace(Ku_fullrange[0], Ku_fullrange[2], 7 + 2)[1:-1]))
+# Ku_range2 = 10**Ku_range2
+
+# Kmax_range3 = Kmax_fullrange[6:]
+# Kmax_range3 = 10**Kmax_range3
+# Ku_range3 = np.linspace(-5, Ku_fullrange[0], 3 + 2)[:-1]
+# Ku_range3 = 10**Ku_range3
+
+Vhalf_range = SA_model.param_explore_uniform('Vhalf')
+
+Kmax_fullrange = SA_model.param_explore_uniform('Kmax')
 Kmax_fullrange = np.log10(sorted(Kmax_fullrange))
-
-Ku_fullrange = SA_model.param_explore('Ku', res)
-Ku_fullrange = SA_model.param_explore_gaps(Ku_fullrange, 3, 'Ku')
+Ku_fullrange = SA_model.param_explore_uniform('Ku')
 Ku_fullrange = np.log10(sorted(Ku_fullrange))
 
-Kmax_range1 = np.linspace(Kmax_fullrange[3], Kmax_fullrange[4], 3 + 2)[1:-1]
+Kmax_range1 = np.linspace(Kmax_fullrange[0], Kmax_fullrange[1], 1 + 2)[1:-1]
 Kmax_range1 = 10**Kmax_range1
-
-Ku_range1 = np.concatenate((np.linspace(Ku_fullrange[4], Ku_fullrange[7], 9),
-                            Ku_fullrange[7:]))
+Ku_range1 = Ku_fullrange[3:]
 Ku_range1 = 10**Ku_range1
 
-Kmax_range2 = np.concatenate((
-    np.linspace(Kmax_fullrange[3], Kmax_fullrange[4], 3 + 2)[1:-1],
-    np.linspace(Kmax_fullrange[4], Kmax_fullrange[7], 7 + 2)[1:-1]))
+Kmax_range2 = np.linspace(Kmax_fullrange[1], Kmax_fullrange[4], 4 + 3)[1:-1]
+Kmax_range2 = np.delete(Kmax_range2, 1)
+Kmax_range2 = np.delete(Kmax_range2, 2)
 Kmax_range2 = 10**Kmax_range2
-
-Ku_range2 = np.concatenate((
-    np.linspace(Ku_fullrange[2], Ku_fullrange[4], 5 + 2)[1:-1],
-    np.linspace(Ku_fullrange[0], Ku_fullrange[2], 7 + 2)[1:-1]))
+Ku_range2 = Ku_fullrange[:8]
 Ku_range2 = 10**Ku_range2
 
-Kmax_range3 = Kmax_fullrange[6:]
+Kmax_range3 = Kmax_fullrange[3:]
 Kmax_range3 = 10**Kmax_range3
-Ku_range3 = np.linspace(-5, Ku_fullrange[0], 3 + 2)[:-1]
+Ku_gap = Ku_fullrange[1] - Ku_fullrange[0]
+Ku_range3 = np.arange(Ku_fullrange[0] - Ku_gap, Ku_fullrange[0] - 3 * Ku_gap,
+                      -Ku_gap)
 Ku_range3 = 10**Ku_range3
 
 starting_param_df = pd.DataFrame([1] * 5, index=param_names).T
@@ -169,7 +195,8 @@ def param_evaluation(param_values):
 # For simplicity, let N = 1.
 
 # Save defined parameter space or load previously saved parameter space
-sample_filepath = param_space_dir + 'parameter_space_curve.csv'
+param_space_filename = 'parameter_space_uniform_curve.csv'
+sample_filepath = param_space_dir + param_space_filename
 param_space = []
 if os.path.exists(sample_filepath):
     param_values_df = pd.read_csv(sample_filepath,
@@ -179,7 +206,7 @@ if os.path.exists(sample_filepath):
         param_space.append(param_values_df.iloc[[i]])
 else:
     # Define parameter combinations around boundary surface
-    counter = 20000
+    counter = 10000
     param_values_df = pd.DataFrame(columns=param_names)
     for Kmax_rangei, Ku_rangei in zip([Kmax_range1, Kmax_range2, Kmax_range3],
                                       [Ku_range1, Ku_range2, Ku_range3]):
@@ -192,88 +219,87 @@ else:
             param_space.append(param_values)
             param_values_df = pd.concat([param_values_df, param_values])
             counter += 1
-    param_values_df.to_csv(param_space_dir +
-                           'parameter_space_curve.csv')
+    param_values_df.to_csv(param_space_dir + param_space_filename)
 
-# Set up variables for data saving
-total_samples = len(param_space)
-samples_per_save = 1000
-samples_split_n = int(np.ceil(total_samples / samples_per_save))
-total_saving_file_num = np.arange(samples_split_n)
+# # Set up variables for data saving
+# total_samples = len(param_space)
+# samples_per_save = 1000
+# samples_split_n = int(np.ceil(total_samples / samples_per_save))
+# total_saving_file_num = np.arange(samples_split_n)
 
-# Determine completed simulations so that it is not repeated
-file_prefix = 'SA_curve_'
-evaluation_result_files = [f for f in os.listdir(data_dir) if
-                           f.startswith(file_prefix)]
-if len(evaluation_result_files) == 0:
-    file_id_dict = {}
-    for i in range(samples_split_n):
-        file_id_dict[i] = param_values_df['param_id'].values[
-            i * samples_per_save: (i + 1) * samples_per_save]
-    saving_file_dict = {'file_num': total_saving_file_num,
-                        'sample_id_each_file': file_id_dict}
-else:
-    # Check for missing results file
-    result_files_num = [int(fname[len(file_prefix):-4]) for fname in
-                        evaluation_result_files]
-    file_num_to_run = []
-    file_id_dict = {}
-    missing_file = [i for i in total_saving_file_num
-                    if i not in result_files_num]
-    for i in missing_file:
-        file_id_dict[i] = param_values_df['param_id'].values[
-            i * samples_per_save: (i + 1) * samples_per_save]
-        file_num_to_run.append(i)
-    for file in evaluation_result_files:
-        file_num = int(file[len(file_prefix):-4])
-        saved_results_df = pd.read_csv(data_dir + file,
-                                       header=[0, 1], index_col=[0],
-                                       skipinitialspace=True)
-        ran_values = saved_results_df['param_id']['param_id'].values
-        expected_ids = param_values_df['param_id'].values[
-            file_num * samples_per_save: (file_num + 1) * samples_per_save]
-        param_space_id = [i for i in expected_ids if i not in ran_values]
-        if len(param_space) != 0:
-            file_num_to_run.append(file_num)
-            file_id_dict[file_num] = param_space_id
-    saving_file_dict = {'file_num': sorted(file_num_to_run),
-                        'sample_id_each_file': file_id_dict}
+# # Determine completed simulations so that it is not repeated
+# file_prefix = 'SA_curve_'
+# evaluation_result_files = [f for f in os.listdir(data_dir) if
+#                            f.startswith(file_prefix)]
+# if len(evaluation_result_files) == 0:
+#     file_id_dict = {}
+#     for i in range(samples_split_n):
+#         file_id_dict[i] = param_values_df['param_id'].values[
+#             i * samples_per_save: (i + 1) * samples_per_save]
+#     saving_file_dict = {'file_num': total_saving_file_num,
+#                         'sample_id_each_file': file_id_dict}
+# else:
+#     # Check for missing results file
+#     result_files_num = [int(fname[len(file_prefix):-4]) for fname in
+#                         evaluation_result_files]
+#     file_num_to_run = []
+#     file_id_dict = {}
+#     missing_file = [i for i in total_saving_file_num
+#                     if i not in result_files_num]
+#     for i in missing_file:
+#         file_id_dict[i] = param_values_df['param_id'].values[
+#             i * samples_per_save: (i + 1) * samples_per_save]
+#         file_num_to_run.append(i)
+#     for file in evaluation_result_files:
+#         file_num = int(file[len(file_prefix):-4])
+#         saved_results_df = pd.read_csv(data_dir + file,
+#                                        header=[0, 1], index_col=[0],
+#                                        skipinitialspace=True)
+#         ran_values = saved_results_df['param_id']['param_id'].values
+#         expected_ids = param_values_df['param_id'].values[
+#             file_num * samples_per_save: (file_num + 1) * samples_per_save]
+#         param_space_id = [i for i in expected_ids if i not in ran_values]
+#         if len(param_space) != 0:
+#             file_num_to_run.append(file_num)
+#             file_id_dict[file_num] = param_space_id
+#     saving_file_dict = {'file_num': sorted(file_num_to_run),
+#                         'sample_id_each_file': file_id_dict}
 
-# Use PINTS' parallel evaluator to evaluate the APD90 difference for each
-# virtual drugs in the parameter space
-n_workers = 8
-evaluator = pints.ParallelEvaluator(param_evaluation,
-                                    n_workers=n_workers)
-for file_num in saving_file_dict['file_num']:
-    print('Starting function evaluation for file number: ', file_num)
-    current_time = time.strftime("%H:%M:%S", time.localtime())
-    print('Starting time: ', current_time)
-    samples_to_run = saving_file_dict['sample_id_each_file'][file_num]
-    samples_num = len(samples_to_run)
-    filename = file_prefix + str(file_num) + '.csv'
+# # Use PINTS' parallel evaluator to evaluate the APD90 difference for each
+# # virtual drugs in the parameter space
+# n_workers = 8
+# evaluator = pints.ParallelEvaluator(param_evaluation,
+#                                     n_workers=n_workers)
+# for file_num in saving_file_dict['file_num']:
+#     print('Starting function evaluation for file number: ', file_num)
+#     current_time = time.strftime("%H:%M:%S", time.localtime())
+#     print('Starting time: ', current_time)
+#     samples_to_run = saving_file_dict['sample_id_each_file'][file_num]
+#     samples_num = len(samples_to_run)
+#     filename = file_prefix + str(file_num) + '.csv'
 
-    for i in range(int(np.ceil(samples_num / n_workers))):
-        subset_samples_to_run = samples_to_run[
-            n_workers * i:n_workers * (i + 1)]
-        print('Running samples ', int(subset_samples_to_run[0]), ' to ',
-              int(subset_samples_to_run[-1]))
-        subset_param_space = param_values_df.loc[
-            param_values_df['param_id'].isin(subset_samples_to_run)]
-        param_space = []
-        for i in range(len(subset_param_space.index)):
-            param_space.append(subset_param_space.iloc[[i]])
+#     for i in range(int(np.ceil(samples_num / n_workers))):
+#         subset_samples_to_run = samples_to_run[
+#             n_workers * i:n_workers * (i + 1)]
+#         print('Running samples ', int(subset_samples_to_run[0]), ' to ',
+#               int(subset_samples_to_run[-1]))
+#         subset_param_space = param_values_df.loc[
+#             param_values_df['param_id'].isin(subset_samples_to_run)]
+#         param_space = []
+#         for i in range(len(subset_param_space.index)):
+#             param_space.append(subset_param_space.iloc[[i]])
 
-        big_df = evaluator.evaluate(param_space)
+#         big_df = evaluator.evaluate(param_space)
 
-        if os.path.exists(data_dir + filename):
-            combined_df = pd.read_csv(data_dir + filename,
-                                      header=[0, 1], index_col=[0],
-                                      skipinitialspace=True)
-            for i in range(len(big_df)):
-                combined_df = pd.concat([combined_df, big_df[i].T])
-        else:
-            combined_df = big_df[0].T
-            for i in range(1, len(big_df)):
-                combined_df = pd.concat([combined_df, big_df[i].T])
+#         if os.path.exists(data_dir + filename):
+#             combined_df = pd.read_csv(data_dir + filename,
+#                                       header=[0, 1], index_col=[0],
+#                                       skipinitialspace=True)
+#             for i in range(len(big_df)):
+#                 combined_df = pd.concat([combined_df, big_df[i].T])
+#         else:
+#             combined_df = big_df[0].T
+#             for i in range(1, len(big_df)):
+#                 combined_df = pd.concat([combined_df, big_df[i].T])
 
-        combined_df.to_csv(data_dir + filename)
+#         combined_df.to_csv(data_dir + filename)

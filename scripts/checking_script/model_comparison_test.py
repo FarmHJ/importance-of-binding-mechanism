@@ -7,7 +7,7 @@ import pints
 
 import modelling
 
-drug = 'droperidol'
+drug = 'pimozide'
 protocol_name = 'Milnes'
 
 # Define directories to save simulated data
@@ -94,25 +94,3 @@ plt.plot(drug_conc_AP, APD_trapping)
 plt.plot(drug_conc_AP, APD_conductance)
 plt.xscale('log')
 plt.savefig(fig_dir + 'APDs.pdf')
-
-print(drug_conc_AP)
-# # Create dataframe to save results
-# conc_Hill_ind = ['conc_' + str(i) for i, _ in
-#                     enumerate(drug_conc_Hill)]
-# conc_AP_ind = ['conc_' + str(i) for i, _ in enumerate(drug_conc_AP)]
-# index_dict = {'param_id': ['param_id'],
-#                 'drug_conc_Hill': conc_Hill_ind,
-#                 'peak_current': conc_Hill_ind,
-#                 'Hill_curve': ['Hill_coef', 'IC50'],
-#                 'param_values': param_names, 'drug_conc_AP': conc_AP_ind,
-#                 'APD_trapping': conc_AP_ind,
-#                 'APD_conductance': conc_AP_ind, 'RMSE': ['RMSE'],
-#                 'ME': ['ME']}
-# all_index = [(i, j) for i in index_dict.keys() for j in index_dict[i]]
-# index = pd.MultiIndex.from_tuples(all_index)
-
-# big_df = pd.DataFrame(
-#     [param_id] + drug_conc_Hill + list(peaks_norm) +
-#     list(Hill_curve_coefs) + list(param_values.values[0]) +
-#     list(drug_conc_AP) + APD_trapping + APD_conductance +
-#     [RMSError] + [MAError], index=index)

@@ -170,6 +170,14 @@ class BindingParameters(object):
                 'Vhalf': -78.68,
                 'Cmax': 6.33
             },
+            'pimozide': {
+                'Kmax': 10.07,
+                'Ku': 4.576e-5,
+                'EC50': 5.601,
+                'N': 0.8714,
+                'Vhalf': -78.68,
+                'Cmax': 0.431
+            },
         }
         self.Hill_curve = {
             'dofetilide': {

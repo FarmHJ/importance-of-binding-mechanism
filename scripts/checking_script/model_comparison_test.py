@@ -1,7 +1,9 @@
+import matplotlib.pyplot as plt
 import myokit
 import numpy as np
 import os
 import pandas as pd
+import pints
 
 import modelling
 
@@ -9,15 +11,15 @@ drug = 'droperidol'
 protocol_name = 'Milnes'
 
 # Define directories to save simulated data
-data_dir = '../simulation_data/model_comparison/' + \
+data_dir = '../../simulation_data/model_comparison/' + \
     drug + '/' + protocol_name + '/'
 if not os.path.isdir(data_dir):
     os.makedirs(data_dir)
 result_filename = 'Hill_curve.txt'
 
 # Model directory
-current_model_filepath = '../math_model/ohara-cipa-v1-2017-IKr-opt.mmt'
-AP_model_filepath = '../math_model/ohara-cipa-v1-2017-opt.mmt'
+current_model_filepath = '../../math_model/ohara-cipa-v1-2017-IKr-opt.mmt'
+AP_model_filepath = '../../math_model/ohara-cipa-v1-2017-opt.mmt'
 
 # Load current model and set Milnes' protocol
 model, _, x = myokit.load(current_model_filepath)
@@ -43,53 +45,57 @@ APD_points = 20
 SA_model = modelling.SensitivityAnalysis()
 param_names = SA_model.param_names
 
-starting_param_df = pd.DataFrame([1] * 5, index=param_names).T
-print(starting_param_df)
-ComparisonController = modelling.ModelComparison(starting_param_df)
+# Define parameter values of virtual drug
+param_lib = modelling.BindingParameters()
+param_values = param_lib.binding_parameters[drug]
+param_values = pd.DataFrame(param_values, index=[0])
+ComparisonController = modelling.ModelComparison(param_values)
 
-# # Define parameter values of virtual drug
-# param_values = param_values.drop(columns=['param_id'])
+# Compute Hill curve of the virtual drug with the SD model
+Hill_curve_coefs, drug_conc_Hill, peaks_norm = \
+    ComparisonController.compute_Hill(current_model)
+# parameters of Hill curve are based on normalised drug concentration
 
-# ComparisonController.drug_param_values = param_values
+with open(data_dir + result_filename, 'w') as f:
+    for x in Hill_curve_coefs:
+        f.write(pints.strfloat(x) + '\n')
 
-# # Compute Hill curve of the virtual drug with the SD model
-# Hill_curve_coefs, drug_conc_Hill, peaks_norm = \
-#     ComparisonController.compute_Hill(current_model,
-#                                         parallel=False)
-# # parameters of Hill curve are based on normalised drug concentration
+plt.figure()
+plt.plot(drug_conc_Hill, peaks_norm)
+plt.xscale('log')
+fig_dir = '../../figures/model_comparison/' + drug + '/' + \
+    protocol_name + '/'
+if not os.path.isdir(fig_dir):
+    os.makedirs(fig_dir)
+plt.savefig(fig_dir + 'Hill_curve.pdf')
 
-# # Define drug concentration range similar to the drug concentration used
-# # to infer Hill curve
-# drug_conc_AP = 10**np.linspace(np.log10(drug_conc_Hill[1]),
-#                                 np.log10(max(drug_conc_Hill)),
-#                                 APD_points)
+print(drug_conc_Hill)
 
-# if isinstance(Hill_curve_coefs, str):
-#     Hill_curve_coefs = [float("nan")] * 2
-#     APD_trapping = [float("Nan")] * APD_points
-#     APD_conductance = [float("Nan")] * APD_points
-#     RMSError = float("Nan")
-#     MAError = float("Nan")
-# else:
-#     try:
-#         # Simulate APs and APD90s of the ORd-SD model and the ORd-CS model
-#         APD_trapping, APD_conductance, drug_conc_AP = \
-#             ComparisonController.APD_sim(
-#                 AP_model, Hill_curve_coefs, drug_conc=drug_conc_AP,
-#                 EAD=True)
+# Define drug concentration range similar to the drug concentration used
+# to infer Hill curve
+drug_conc_AP = 10**np.linspace(np.log10(drug_conc_Hill[1]),
+                               np.log10(max(drug_conc_Hill)),
+                               APD_points)
 
-#         # Calculate RMSD and MD of simulated APD90 of the two models
-#         RMSError = ComparisonController.compute_RMSE(APD_trapping,
-#                                                         APD_conductance)
-#         MAError = ComparisonController.compute_ME(APD_trapping,
-#                                                     APD_conductance)
-#     except myokit.SimulationError:
-#         APD_trapping = [float("Nan")] * APD_points
-#         APD_conductance = [float("Nan")] * APD_points
-#         RMSError = float("Nan")
-#         MAError = float("Nan")
-#         print('simulation error')
+# Simulate APs and APD90s of the ORd-SD model and the ORd-CS model
+APD_trapping, APD_conductance, drug_conc_AP = \
+    ComparisonController.APD_sim(
+        AP_model, Hill_curve_coefs, drug_conc=drug_conc_AP,
+        EAD=True)
 
+# Calculate RMSD and MD of simulated APD90 of the two models
+RMSError = ComparisonController.compute_RMSE(APD_trapping,
+                                             APD_conductance)
+MAError = ComparisonController.compute_ME(APD_trapping,
+                                          APD_conductance)
+
+plt.figure()
+plt.plot(drug_conc_AP, APD_trapping)
+plt.plot(drug_conc_AP, APD_conductance)
+plt.xscale('log')
+plt.savefig(fig_dir + 'APDs.pdf')
+
+print(drug_conc_AP)
 # # Create dataframe to save results
 # conc_Hill_ind = ['conc_' + str(i) for i, _ in
 #                     enumerate(drug_conc_Hill)]

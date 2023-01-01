@@ -15,7 +15,7 @@ if not os.path.isdir(data_dir):
     os.makedirs(data_dir)
 
 # Load IKr model and set up protocol
-model = '../math_model/ohara-cipa-v1-2017-IKr.mmt'
+model = '../math_model/ohara-cipa-v1-2017-IKr-opt.mmt'
 model, _, x = myokit.load(model)
 drug_model = modelling.BindingKinetics(model)
 
@@ -24,7 +24,7 @@ protocol = protocol_params.protocol_parameters['Milnes']['function']
 drug_model.protocol = protocol
 
 # Load AP model
-APmodel = '../math_model/ohara-cipa-v1-2017.mmt'
+APmodel = '../math_model/ohara-cipa-v1-2017-opt.mmt'
 APmodel, _, x = myokit.load(APmodel)
 AP_model = modelling.BindingKinetics(APmodel, current_head='ikr')
 pulse_time = 1000

@@ -44,8 +44,10 @@ Error_drug = np.array(RMSError_drug) * np.array(MError_drug) / \
     np.abs(np.array(MError_drug))
 
 # Read simulated data of virtual drugs in the parameter space
-data_dir = root_dir + 'parameter_space_exploration/'
-file_prefix = 'SA_APD'
+# data_dir = root_dir + 'parameter_space_exploration/'
+# file_prefix = 'SA_APD'
+data_dir = root_dir + 'parameter_space_exploration/SA_space/'
+file_prefix = 'SA_allparam_uniform_opt'
 result_files = [data_dir + f for f in os.listdir(data_dir)
                 if f.startswith(file_prefix)]
 
@@ -100,8 +102,8 @@ Ku_chosen = combined_chosen_df['param_values']['Ku'].values
 
 # Read simulated data of virtual drugs in the parameter space around the
 # surface where the RMSD value is small
-data_dir = data_dir + 'SA_curve/'
-file_prefix = 'SA_curve'
+data_dir = data_dir + '../SA_curve/'
+file_prefix = 'SA_curve_uniform_opt'
 result_files2 = [data_dir + f for f in os.listdir(data_dir)
                  if f.startswith(file_prefix)]
 
@@ -184,7 +186,7 @@ fig.text(0.5, 0.75, '(B)', fontsize=11)
 
 # Save figure
 plt.subplots_adjust(hspace=0)
-plt.savefig(fig_dir + 'Fig_SA_3D.png', bbox_inches='tight')
+plt.savefig(fig_dir + 'Fig_SA_3D_opt.png', bbox_inches='tight')
 
 #
 # Plot previous figures at different angles (for supplementary materials)
@@ -242,4 +244,4 @@ plt.subplots_adjust(hspace=0)
 fig_dir = '../../figures/supp_mat/'
 if not os.path.isdir(fig_dir):
     os.makedirs(fig_dir)
-plt.savefig(fig_dir + 'FigS_SA_3D.png', bbox_inches='tight')
+plt.savefig(fig_dir + 'FigS_SA_3D_opt.png', bbox_inches='tight')

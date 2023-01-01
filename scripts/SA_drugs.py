@@ -12,7 +12,7 @@ import modelling
 data_dir = '../simulation_data/'
 
 # Load current model and set Milnes' protocol
-model = '../math_model/ohara-cipa-v1-2017-IKr.mmt'
+model = '../math_model/ohara-cipa-v1-2017-IKr-opt.mmt'
 model, _, x = myokit.load(model)
 drug_model = modelling.BindingKinetics(model)
 
@@ -21,7 +21,7 @@ protocol = protocol_params.protocol_parameters['Milnes']['function']
 drug_model.protocol = protocol
 
 # Load AP model and set current protocol
-APmodel = '../math_model/ohara-cipa-v1-2017.mmt'
+APmodel = '../math_model/ohara-cipa-v1-2017-opt.mmt'
 APmodel, _, x = myokit.load(APmodel)
 AP_model = modelling.BindingKinetics(APmodel, current_head='ikr')
 pulse_time = 1000
@@ -114,7 +114,7 @@ def param_evaluation(param_values, drug):
 
 
 # Determine completed simulations so that we don't repeat the same simulations
-filename = 'SA_alldrugs.csv'
+filename = 'SA_alldrugs_opt.csv'
 if os.path.exists(data_dir + filename):
     results_df = pd.read_csv(data_dir + filename, header=[0, 1], index_col=[0],
                              skipinitialspace=True)

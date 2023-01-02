@@ -27,7 +27,7 @@ ComparisonController = modelling.ModelComparison(starting_param_df)
 
 # Read simulated data for synthetic drugs
 root_dir = '../../simulation_data/'
-filename = 'SA_alldrugs.csv'
+filename = 'SA_alldrugs_opt.csv'
 df = pd.read_csv(root_dir + filename, header=[0, 1], index_col=[0],
                  skipinitialspace=True)
 

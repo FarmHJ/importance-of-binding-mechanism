@@ -8,12 +8,12 @@ import pandas as pd
 
 # Read APD90 differences for all synthetic drug
 data_dir = '../../simulation_data/'
-filename = 'SA_alldrugs.csv'
+filename = 'SA_alldrugs_opt.csv'
 drug_df = pd.read_csv(data_dir + filename,
                       header=[0, 1], index_col=[0],
                       skipinitialspace=True)
 drug_list = drug_df[('drug', 'drug')].values
-print(drug_list)
+drug_list = drug_list[:-1]
 
 # Define directories and variables
 data_dir = '../../simulation_data/supp_mat/APD90diff_N/'

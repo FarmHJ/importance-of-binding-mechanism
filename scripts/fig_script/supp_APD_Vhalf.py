@@ -157,7 +157,6 @@ scale_map = matplotlib.cm.ScalarMappable(norm=cmap_norm, cmap=cmap)
 Vhalf_list = combined_df['param_values']['Vhalf'].values
 Vhalf_list = [Vhalf_list[i] for i in range(len(Vhalf_list)) if Vhalf_list[i]
               not in Vhalf_list[:i]]
-print(Vhalf_list)
 
 # Choose three Vhalf-trap values and extract data from the dataframe
 chosen_Vhalf_value = [-199.5, -105.543, -22.026]  #  -1.147]

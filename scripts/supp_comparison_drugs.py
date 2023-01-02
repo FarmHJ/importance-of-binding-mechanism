@@ -46,6 +46,8 @@ optimiser = modelling.HillsModelOpt(Hill_model)
 
 Hill_coef_df = pd.DataFrame(columns=['Hill coefficient', 'IC50', 'protocol'])
 repeats = 1000
+abs_tol = 1e-7
+rel_tol = 1e-8
 
 for p in range(len(protocols)):
     current_model.protocol = protocols[p]
@@ -53,7 +55,8 @@ for p in range(len(protocols)):
     # Simulate IKr and compute the peak current
     peaks = []
     for i in range(len(drug_conc)):
-        log = current_model.drug_simulation(drug, drug_conc[i], repeats)
+        log = current_model.drug_simulation(drug, drug_conc[i], repeats,
+                                            abs_tol=abs_tol, rel_tol=rel_tol)
         peak, _ = current_model.extract_peak(log, 'ikr.IKr')
         peaks.append(peak[-1])
 
@@ -88,9 +91,6 @@ drug_conc = drug_conc_lib.drug_concentrations[drug]['fine']
 
 APD_conductance = []
 APD_trapping = []
-
-abs_tol = 1e-7
-rel_tol = 1e-10
 
 for i, conc in enumerate(drug_conc):
     # Simulate AP of the ORd-SD model

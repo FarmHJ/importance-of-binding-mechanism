@@ -13,6 +13,7 @@ drug_df = pd.read_csv(data_dir + filename,
                       header=[0, 1], index_col=[0],
                       skipinitialspace=True)
 drug_list = drug_df[('drug', 'drug')].values
+print(drug_list)
 
 # Define directories and variables
 data_dir = '../../simulation_data/supp_mat/APD90diff_N/'

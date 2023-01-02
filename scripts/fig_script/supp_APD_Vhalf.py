@@ -16,7 +16,7 @@ SA_model = modelling.SensitivityAnalysis()
 
 # Define directory to load simulated results and save figures
 data_dir = '../../simulation_data/parameter_space_exploration/SA_space/'
-file_prefix = 'SA_allparam'
+file_prefix = 'SA_allparam_uniform'
 result_files = [data_dir + f for f in os.listdir(data_dir)
                 if f.startswith(file_prefix)]
 fig_dir = '../../figures/supp_mat/'
@@ -44,12 +44,13 @@ Ku_range = combined_df['param_values']['Ku'].values
 RMSE_range = combined_df['RMSE']['RMSE'].values
 
 # Set up structure of figures
+cmap_SD = matplotlib.cm.get_cmap('Oranges')
+cmap_CS = matplotlib.cm.get_cmap('Blues')
+
 fig = modelling.figures.FigureStructure(figsize=(10, 2.5),
                                         gridspec=(1, 3),
                                         wspace=0.3)
 plot = modelling.figures.FigurePlot()
-cmap_SD = matplotlib.cm.get_cmap('Oranges')
-cmap_CS = matplotlib.cm.get_cmap('Blues')
 
 previous_i = 0
 
@@ -59,10 +60,11 @@ for i in range(1, int(len(Kmax_range))):
     if Kmax_range[i] != Kmax_range[i - 1]:
         changing_Kmax_ids.append(i)
 chosen_Kmax_id = []
-for choice in [10, 200, 400]:
+for choice in [370]:
     chosen_Kmax_id.append((changing_Kmax_ids[choice - 1],
                            changing_Kmax_ids[choice]))
-previous_i, i = chosen_Kmax_id[1]
+
+previous_i, i = chosen_Kmax_id[0]
 norm = matplotlib.colors.Normalize(0, i - previous_i)
 
 # For chosen Ku and Kmax combination, choose 3 different Vhalf-trap values
@@ -73,6 +75,7 @@ Vhalf_chosen_id = [previous_i, int((i - previous_i) / 2 + previous_i + 1),
 # parameter combinations
 for i in range(len(Vhalf_chosen_id)):
     for num, r in enumerate(Vhalf_chosen_id):
+
         drug_conc = combined_df.iloc[[r]]['drug_conc_AP'].values[0]
         APD_trapping = combined_df.iloc[[r]]['APD_trapping'].values[0]
         APD_conductance = combined_df.iloc[[r]]['APD_conductance'].values[0]
@@ -112,8 +115,8 @@ fig.savefig(fig_dir + 'APD_Vhalf.svg', format='svg')
 #
 
 # Load APD90 data
-data_dir = '../../simulation_data/parameter_space_exploration/'
-file_prefix = 'SA_APD'
+data_dir = '../../simulation_data/parameter_space_exploration/SA_space/'
+file_prefix = 'SA_allparam_uniform'
 result_files = [data_dir + f for f in os.listdir(data_dir)
                 if f.startswith(file_prefix)]
 first_iter = True
@@ -128,10 +131,10 @@ for file in result_files:
 
 # Load APD90 data for parameter combinations that require smaller tolerance
 # value
-nan_df = pd.read_csv(data_dir + '../supp_mat/filling_nan.csv',
-                     header=[0, 1], index_col=[0],
-                     skipinitialspace=True)
-combined_df = pd.concat([combined_df, nan_df])
+# nan_df = pd.read_csv(data_dir + '../supp_mat/filling_nan.csv',
+#                      header=[0, 1], index_col=[0],
+#                      skipinitialspace=True)
+# combined_df = pd.concat([combined_df, nan_df])
 
 RMSError = combined_df['RMSE']['RMSE'].values
 MError = combined_df['ME']['ME'].values
@@ -151,8 +154,13 @@ cmap = plt.get_cmap('rainbow')
 cmap_norm = matplotlib.colors.Normalize(cmin, cmax)
 scale_map = matplotlib.cm.ScalarMappable(norm=cmap_norm, cmap=cmap)
 
+Vhalf_list = combined_df['param_values']['Vhalf'].values
+Vhalf_list = [Vhalf_list[i] for i in range(len(Vhalf_list)) if Vhalf_list[i]
+              not in Vhalf_list[:i]]
+print(Vhalf_list)
+
 # Choose three Vhalf-trap values and extract data from the dataframe
-chosen_Vhalf_value = [-219.45, -100, -1.147]
+chosen_Vhalf_value = [-199.5, -105.543, -22.026]  #  -1.147]
 for i in range(3):
     # Extract from the dataframe with Vhalf-trap values close to the chosen value
     chosen_Vhalf_df = combined_df[np.abs(combined_df[('param_values', 'Vhalf')]

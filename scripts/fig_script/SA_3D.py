@@ -48,6 +48,7 @@ Error_drug = np.array(RMSError_drug) * np.array(MError_drug) / \
 # file_prefix = 'SA_APD'
 data_dir = root_dir + 'parameter_space_exploration/SA_space/'
 file_prefix = 'SA_allparam_uniform_opt'
+# file_prefix = 'SA_allparam'
 result_files = [data_dir + f for f in os.listdir(data_dir)
                 if f.startswith(file_prefix)]
 
@@ -138,7 +139,8 @@ fig = plt.figure(figsize=(10, 5))
 gs = fig.add_gridspec(1, 2, wspace=0.1)
 axs = [fig.add_subplot(gs[0, j], projection='3d') for j in range(2)]
 
-cmap = plt.get_cmap('rainbow')
+# cmap = plt.get_cmap('rainbow')
+cmap = plt.get_cmap('RdYlBu_r')
 cmap_norm = matplotlib.colors.Normalize(cmin, cmax)
 scale_map = matplotlib.cm.ScalarMappable(norm=cmap_norm, cmap=cmap)
 

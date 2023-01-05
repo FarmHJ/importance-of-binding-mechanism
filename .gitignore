@@ -101,6 +101,8 @@ venv.bak/
 
 # Results and figures
 simulation_data/background/
+simulation_data/model_comparison/steady_state_control.csv
 testing_data/
 testing_figures/
 exp_data/
+qNet/

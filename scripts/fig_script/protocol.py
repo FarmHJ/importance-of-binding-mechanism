@@ -63,12 +63,12 @@ fig.sharex(['Time (s)'] * 4, [(0, 25e3)] + [(0, 5400)] * 3,
            axs=panel1, subgridspec=subgridspecs[0])
 
 # Middle panel
-# Plot Hill curves for dofetilide-like drug and bepridil-like drug under
+# Plot Hill curves for dofetilide-like drug and verapamil-like drug under
 # Milnes' protocol, Pneg80, P0 and P40 protocols
 panel2 = axs[1]
 
 # Set up variables
-drugs = ['dofetilide', 'bepridil']
+drugs = ['dofetilide', 'verapamil']
 max_drug_conc = [3, 5]
 Hill_model = modelling.HillsModel()
 color = ['orange', 'blue', 'red', 'green']
@@ -100,13 +100,13 @@ for i in range(len(drugs)):
     panel2[0][i].legend(handlelength=3)
 
 # Bottom panel
-# Plot APD90s of the ORd-CS model with bepridil-like drug
+# Plot APD90s of the ORd-CS model with verapamil-like drug
 # The ionic conductance of the ORd-CS model is scaled with Hill curves
 # generated from different protocols
 panel3 = axs[2]
 
-# Plot for bepridil-like drug
-drug = 'bepridil'
+# Plot for verapamil-like drug
+drug = 'verapamil'
 
 prot_dir = '../../simulation_data/model_comparison/' + drug + '/protocols/'
 

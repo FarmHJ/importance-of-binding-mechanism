@@ -14,13 +14,17 @@ current_list = ['inal.INaL', 'ical.ICaL', 'ikr.IKr', 'iks.IKs', 'ik1.IK1',
 drug = sys.argv[1]
 
 # Define the range of drug concentration for a given drug
-drug_conc_lib = modelling.DrugConcentrations()
-drug_conc = drug_conc_lib.drug_concentrations[drug]['fine']
+# drug_conc_lib = modelling.DrugConcentrations()
+# drug_conc = drug_conc_lib.drug_concentrations[drug]['fine']
+
+param_lib = modelling.BindingParameters()
+Cmax = param_lib.binding_parameters[drug]['Cmax']
+drug_conc = np.linspace(0.5, 25, 12) * Cmax
+
 prepace = 1000
 
 # Get Hill curve coefficient
-data_dir = '../simulation_data/model_comparison/' + \
-    drug + '/Milnes/'
+data_dir = '../simulation_data/model_comparison/' + drug + '/Milnes/'
 result_filename = 'Hill_curve.txt'
 Hill_coefs = np.loadtxt(data_dir + result_filename, unpack=True)
 Hill_coefs = np.array(Hill_coefs)

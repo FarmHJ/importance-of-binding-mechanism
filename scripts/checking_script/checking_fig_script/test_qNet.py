@@ -13,9 +13,8 @@ protocol_name = 'Milnes'
 # Define directories to read data and save plotted figures
 data_dir = '../../simulation_data/model_comparison/' + \
     drug + '/' + protocol_name + '/qNet/'
-# fig_dir = '../../figures/model_comparison/' + drug + '/' + \
-#     protocol_name + '/qNet/'
-fig_dir = '../../testing_figures/testing/'
+fig_dir = '../../figures/model_comparison/' + drug + '/' + \
+    protocol_name + '/qNet/'
 if not os.path.isdir(fig_dir):
     os.makedirs(fig_dir)
 

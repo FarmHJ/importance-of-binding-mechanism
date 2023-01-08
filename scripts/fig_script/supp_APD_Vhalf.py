@@ -159,7 +159,7 @@ Vhalf_list = [Vhalf_list[i] for i in range(len(Vhalf_list)) if Vhalf_list[i]
               not in Vhalf_list[:i]]
 
 # Choose three Vhalf-trap values and extract data from the dataframe
-chosen_Vhalf_value = [-199.5, -105.543, -22.026]  #  -1.147]
+chosen_Vhalf_value = [-199.5, -105.543, -1.147]  #  -22.026]
 for i in range(3):
     # Extract from the dataframe with Vhalf-trap values close to the chosen value
     chosen_Vhalf_df = combined_df[np.abs(combined_df[('param_values', 'Vhalf')]
@@ -201,4 +201,4 @@ fig.fig.text(0.37, 0.9, '(B)', fontsize=11)
 fig.fig.text(0.64, 0.9, '(C)', fontsize=11)
 
 # Save figure
-fig.savefig(fig_dir + 'SA_Vhalf_2D.svg', format='svg')
+fig.savefig(fig_dir + 'SA_Vhalf_2D_2.svg', format='svg')

@@ -139,8 +139,8 @@ fig = plt.figure(figsize=(10, 5))
 gs = fig.add_gridspec(1, 2, wspace=0.1)
 axs = [fig.add_subplot(gs[0, j], projection='3d') for j in range(2)]
 
-# cmap = plt.get_cmap('rainbow')
-cmap = plt.get_cmap('RdYlBu_r')
+cmap = plt.get_cmap('rainbow')
+# cmap = plt.get_cmap('RdYlBu_r')
 cmap_norm = matplotlib.colors.Normalize(cmin, cmax)
 scale_map = matplotlib.cm.ScalarMappable(norm=cmap_norm, cmap=cmap)
 

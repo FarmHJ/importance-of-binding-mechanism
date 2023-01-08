@@ -183,7 +183,7 @@ fig.sharey([r"APD$_{90}$ (ms)"],
            axs=panel5, subgridspec=subgridspecs[4])
 
 # Read file names of AP data for both AP models with verapamil-like drug
-drug = 'bepridil'
+drug = 'verapamil'
 data_dir = root_dir + drug + '/' + protocol_name + '/'
 
 trapping_data_files = [f for f in os.listdir(data_dir) if

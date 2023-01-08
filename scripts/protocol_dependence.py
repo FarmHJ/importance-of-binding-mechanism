@@ -38,7 +38,7 @@ abs_tol = 1e-7
 rel_tol = 1e-8
 repeats = 1000
 
-drugs = ['dofetilide', 'bepridil']
+drugs = ['dofetilide', 'verapamil']
 
 for drug in drugs:
     data_dir = '../simulation_data/model_comparison/' + drug + '/'
@@ -80,7 +80,7 @@ AP_model.protocol = modelling.ProtocolLibrary().current_impulse(pulse_time)
 base_conductance = APmodel.get('ikr.gKr').value()
 
 # Define constants and variables for APD90 simulation of ORd-CS model
-drug = 'bepridil'
+drug = 'verapamil'
 repeats = 1000
 save_signal = 2
 offset = 50
@@ -106,13 +106,13 @@ for p in protocol_name:
 
         reduction_scale = Hill_model.simulate(Hill_eq, drug_conc[i])
         d2 = AP_model.conductance_simulation(
-            base_conductance * reduction_scale, repeats,
+            base_conductance * reduction_scale, repeats, timestep=0.01,
             save_signal=save_signal, abs_tol=abs_tol, rel_tol=rel_tol,
             log_var=['engine.time', 'membrane.V'])
 
         APD_conductance_pulse = []
         for pulse in range(save_signal):
-            apd90 = AP_model.APD90(d2['membrane.V', pulse], offset, 0.1)
+            apd90 = AP_model.APD90(d2['membrane.V', pulse], offset, 0.01)
             APD_conductance_pulse.append(apd90)
 
         APD_conductance.append(APD_conductance_pulse)

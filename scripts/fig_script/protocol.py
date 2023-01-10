@@ -1,6 +1,6 @@
 # Plots the protocols used in the study, the Hill curves of drugs when
 # stimulated with these protocols
-# Plots also the APD90 of the ORd-CS model when the ionic conductance is
+# Plots also the APD90 of the AP-CS model when the ionic conductance is
 # scaled with the Hill curves
 import numpy as np
 import pandas as pd
@@ -57,18 +57,22 @@ for i in range(len(protocol_name)):
     panel1[0][i].set_ylabel('Voltage (mV)')
     panel1[0][i].spines['top'].set_visible(False)
     panel1[0][i].spines['right'].set_visible(False)
-    fig.adjust_ticks(panel1[0][i], pulse_time)
 
 fig.sharex(['Time (s)'] * 4, [(0, 25e3)] + [(0, 5400)] * 3,
            axs=panel1, subgridspec=subgridspecs[0])
+for i in range(len(protocol_name)):
+    pulse_time = protocol_params.protocol_parameters[protocol_name[i]][
+        'pulse_time']
+    fig.adjust_ticks(panel1[0][i], pulse_time)
 
 # Middle panel
-# Plot Hill curves for dofetilide-like drug and verapamil-like drug under
+# Plot Hill curves for example drug T and example drug N under
 # Milnes' protocol, Pneg80, P0 and P40 protocols
 panel2 = axs[1]
 
 # Set up variables
 drugs = ['dofetilide', 'verapamil']
+drug_labels = ['T', 'N']
 max_drug_conc = [3, 5]
 Hill_model = modelling.HillsModel()
 color = ['orange', 'blue', 'red', 'green']
@@ -94,18 +98,18 @@ for i in range(len(drugs)):
 
     # Adjust figure details
     panel2[0][i].set_xscale("log", nonpositive='clip')
-    panel2[0][i].set_title(drugs[i] + '-like drug')
+    panel2[0][i].set_title('example drug ' + drug_labels[i])
     panel2[0][i].set_xlabel('Drug concentration (nM)')
     panel2[0][i].set_ylabel('Normalised\npeak current')
     panel2[0][i].legend(handlelength=3)
 
 # Bottom panel
-# Plot APD90s of the ORd-CS model with verapamil-like drug
-# The ionic conductance of the ORd-CS model is scaled with Hill curves
+# Plot APD90s of the AP-CS model with example drug N
+# The ionic conductance of the AP-CS model is scaled with Hill curves
 # generated from different protocols
 panel3 = axs[2]
 
-# Plot for verapamil-like drug
+# Plot for example drug N
 drug = 'verapamil'
 
 prot_dir = '../../simulation_data/model_comparison/' + drug + '/protocols/'
@@ -143,4 +147,4 @@ fig.fig.text(0.075, 0.675, '(B)', fontsize=11)
 fig.fig.text(0.535, 0.675, '(C)', fontsize=11)
 fig.fig.text(0.075, 0.355, '(D)', fontsize=11)
 
-fig.savefig(fig_dir + "protocol_dependence_dof_bep.pdf")
+fig.savefig(fig_dir + "protocol_dependence_dof_ver.pdf")

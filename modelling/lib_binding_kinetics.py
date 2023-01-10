@@ -181,8 +181,41 @@ class BindingParameters(object):
         }
         self.Hill_curve = {
             'dofetilide': {
-                'Hill_coef': 1.002,
-                'IC50': 6.187}}
+                'Hill_coef': 0.9,
+                'IC50': 4.9},
+            'bepridil': {
+                'Hill_coef': 0.9,
+                'IC50': 50},
+            'terfenadine': {
+                'Hill_coef': 0.6,
+                'IC50': 23},
+            'cisapride': {
+                'Hill_coef': 0.7,
+                'IC50': 10.1},
+            'verapamil': {
+                'Hill_coef': 1,
+                'IC50': 288},
+            'ranolazine': {
+                'Hill_coef': 0.9,
+                'IC50': 8270},
+            'mexiletine': {
+                'Hill_coef': 0.9,
+                'IC50': 28880},
+            'quinidine': {
+                'Hill_coef': 0.8,
+                'IC50': 992},
+            'sotalol': {
+                'Hill_coef': 0.8,
+                'IC50': 11060},
+            'chlorpromazine': {
+                'Hill_coef': 0.8,
+                'IC50': 929.2},
+            'ondansetron': {
+                'Hill_coef': 0.9,
+                'IC50': 1320},
+            'diltiazem': {
+                'Hill_coef': 0.9,
+                'IC50': 13150},}
 
 
 class ProtocolParameters(object):

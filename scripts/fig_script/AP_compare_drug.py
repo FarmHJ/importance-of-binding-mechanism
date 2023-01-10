@@ -43,8 +43,8 @@ axs = [[[fig.fig.add_subplot(subgs[k][i, j]) for j in range(
        for k in range(len(subgs))]
 
 # Bottom left panel
-# Plot action potentials and the corresponding IKr of the ORd-SD model and the
-# ORd-CS model stimulated to steady state
+# Plot action potentials and the corresponding IKr of the AP-SD model and the
+# AP-CS model stimulated to steady state
 panel2 = axs[2]
 
 # Read files name of action potential data
@@ -117,8 +117,8 @@ plot.add_multiple_continuous(panel2[0][1], AP_conductance_plot,
                              labels=labels)
 plot.add_multiple_continuous(panel2[1][1], AP_conductance_plot,
                              'ikr.IKr', cmap=cmap, labels=labels)
-panel2[0][0].set_title('ORd-state dependent model')
-panel2[0][1].set_title('ORd-conductance scaling model')
+panel2[0][0].set_title('AP-state dependent model')
+panel2[0][1].set_title('AP-conductance scaling model')
 
 # Adjust axes
 fig.sharex(['Time (ms)'] * 2, [(0, plotting_pulse_time)] * 2,
@@ -199,9 +199,9 @@ EAD_marker = [1050 if (i >= 1000 or j >= 1000) else None for (i, j)
 
 # Plot APD90 of both models
 panel3[0][0].plot(drug_conc, APD_trapping, 'o', color='orange',
-                  label='ORd-SD model')
+                  label='AP-SD model')
 panel3[0][0].plot(drug_conc, APD_conductance, '^', color='blue',
-                  label='ORd-CS model', alpha=0.8)
+                  label='AP-CS model', alpha=0.8)
 panel3[0][0].scatter(drug_conc, EAD_marker, marker=(5, 2),
                      color='k', label='EAD-like AP')
 panel3[0][0].set_xscale("log", nonpositive='clip')
@@ -221,16 +221,16 @@ param_lib = modelling.BindingParameters()
 Cmax = param_lib.binding_parameters[drug]['Cmax']
 
 drug_conc = qNets['drug_conc']
-drug_conc_multiple = drug_conc / Cmax
+# drug_conc_multiple = drug_conc / Cmax
 SD_qNet = qNets['SD']
 CS_qNet = qNets['CS']
 # Plot APD90 of both models
-panel4[0][0].plot(drug_conc_multiple, SD_qNet, 'o', color='orange',
-                  label='ORd-SD model')
-panel4[0][0].plot(drug_conc_multiple, CS_qNet, '^', color='blue',
-                  label='ORd-CS model', alpha=0.8)
-panel4[0][0].set_xlabel(
-    r"Drug concentration ($\times \mathrm{C}_\mathrm{max}$)")
+panel4[0][0].plot(drug_conc, SD_qNet, 'o', color='orange',
+                  label='AP-SD model')
+panel4[0][0].plot(drug_conc, CS_qNet, '^', color='blue',
+                  label='AP-CS model', alpha=0.8)
+panel4[0][0].set_xlabel("Drug concentration (nM)")
+    # r"Drug concentration ($\times \mathrm{C}_\mathrm{max}$)")
 panel4[0][0].set_ylabel('qNet (C/F)')
 panel4[0][0].legend(handlelength=1)
 

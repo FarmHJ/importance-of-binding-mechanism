@@ -159,7 +159,7 @@ plotting_pulse_time = 1000 * 2
 plot.add_multiple_continuous(panel5[0][0], conductance_AP_log,
                              'membrane.V', cmap=cmap,
                              labels=labels)
-panel5[0][0].set_title('ORd-conductance scaling')
+panel5[0][0].set_title('AP-conductance scaling')
 
 fig.sharex(['Time (ms)'], [(0, plotting_pulse_time)],
            axs=panel5, subgridspec=subgridspecs[2])

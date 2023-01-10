@@ -13,9 +13,6 @@ current_list = ['inal.INaL', 'ical.ICaL', 'ikr.IKr', 'iks.IKs', 'ik1.IK1',
 param_lib = modelling.BindingParameters()
 # Define drug
 drug_list = param_lib.drug_compounds[:-1]
-# drug_list.remove('dofetilide')
-# drug_list.remove('verapamil')
-# drug_list = drug_list[5:]
 
 drug_conc_multiple = np.linspace(0.5, 25, 12)
 prepace = 1000
@@ -27,7 +24,8 @@ AP_model = modelling.BindingKinetics(APmodel, current_head='ikr')
 
 # Define current protocol
 pulse_time = 2000
-AP_model.protocol = modelling.ProtocolLibrary().current_impulse(pulse_time)
+AP_model.protocol = modelling.ProtocolLibrary().current_impulse(pulse_time,
+                                                                offset=0)
 base_conductance = APmodel.get('ikr.gKr').value()
 
 # Define Hill model

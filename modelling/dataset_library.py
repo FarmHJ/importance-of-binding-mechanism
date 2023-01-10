@@ -120,8 +120,8 @@ class ProtocolLibrary(object):
 
         return protocol
 
-    def current_impulse(self, t_max):
-        return myokit.pacing.blocktrain(t_max, 1, offset=50)
+    def current_impulse(self, t_max, offset=50):
+        return myokit.pacing.blocktrain(t_max, 1, offset=offset)
 
     def validation3(self, t_max):
         protocol = myokit.Protocol()

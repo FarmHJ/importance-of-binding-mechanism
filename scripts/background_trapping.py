@@ -4,9 +4,9 @@ import os
 
 import modelling
 
-drugs = ['dofetilide', 'bepridil']
-drug_concs = [30, 300]  # nM
-short_label = ['drug_free', 'dofetilide', 'bepridil']
+drugs = ['dofetilide', 'verapamil']
+drug_concs = [30, 1000]  # nM
+short_label = ['drug_free', 'dofetilide', 'verapamil']
 
 data_dir = '../simulation_data/background/'
 if not os.path.isdir(data_dir):

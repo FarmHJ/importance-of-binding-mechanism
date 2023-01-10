@@ -1,4 +1,4 @@
-# Compares the IKr and AP of the ORd-SD model and the ORd-CS model at first
+# Compares the IKr and AP of the AP-SD model and the AP-CS model at first
 # few pulses after addition of drugs
 import matplotlib
 import myokit
@@ -31,8 +31,9 @@ axs = [[[fig.fig.add_subplot(subgs[k][i, j]) for j in range(
 control_log = myokit.DataLog.load_csv(root_dir + 'steady_state_control.csv')
 
 # Read file names of action potential data for both AP models with
-# dofetilide-like drug
+# example drug T
 drug = 'dofetilide'
+drug_label = 'T'
 protocol_name = 'Milnes'
 data_dir = root_dir + drug + '/' + protocol_name + '/'
 
@@ -69,8 +70,8 @@ cmap = matplotlib.colors.ListedColormap(
     matplotlib.cm.get_cmap('tab10')(range(3)))
 
 # Top left panel
-# Plot the action potential and IKr of the ORd-SD model with various
-# concentrations of a dofetilide-like drug
+# Plot the action potential and IKr of the AP-SD model with various
+# concentrations of an example drug T
 panel1 = axs[0]
 # Plot AP and IKr at steady state of control condition
 plot.add_single(panel1[0][0], control_log, 'membrane.V', color=cmap(0))
@@ -95,11 +96,11 @@ fig.sharex(['Time (s)'], [(0, plotting_pulse_time)],
 fig.sharey(['Voltage\n(mV)', 'Current (A/F)'],
            axs=panel1, subgridspec=subgridspecs[0])
 fig.adjust_ticks(panel1[1][0], plotting_pulse_time)
-panel1[0][0].set_title(drug + "-like drug, ORd-SD model", y=1.25)
+panel1[0][0].set_title("example drug " + drug_label + ", AP-SD model", y=1.25)
 
 # Second row, left panel
-# Plot the action potential and IKr of the ORd-CS model with various
-# concentrations of a dofetilide-like drug
+# Plot the action potential and IKr of the AP-CS model with various
+# concentrations of an example drug T
 panel3 = axs[2]
 # Plot AP and IKr at steady state of control condition
 plot.add_single(panel3[0][0], control_log, 'membrane.V', color=cmap(0))
@@ -124,13 +125,13 @@ fig.sharex(['Time (s)'], [(0, plotting_pulse_time)],
 fig.sharey(['Voltage\n(mV)', 'Current (A/F)'],
            axs=panel3, subgridspec=subgridspecs[2])
 fig.adjust_ticks(panel3[1][0], plotting_pulse_time)
-panel3[0][0].set_title(drug + "-like drug, ORd-CS model", y=1.25)
+panel3[0][0].set_title("example drug " + drug_label + ", AP-CS model", y=1.25)
 
 # Third row, left panel
-# Plot the APD90 of the AP models with dofetilide-like drug for 300 pulses
+# Plot the APD90 of the AP models with example drug T for 300 pulses
 panel5 = axs[4]
 
-# Load APD values of the first 300 pulses for dofetilide-like drug
+# Load APD values of the first 300 pulses for example drug T
 APD_trapping = pd.read_csv(data_dir + 'SD_APD_transient_paced.csv')
 APD_conductance = pd.read_csv(data_dir + 'CS_APD_transient_paced.csv')
 
@@ -152,17 +153,17 @@ for i in range(len(drug_conc)):
         columns='drug concentration').values.tolist()[0][1:]
     APD_conductance_concs.append(APD_conc)
 
-# Plot APD of both models for the first 300 pulses (dofetilide-like drug)
+# Plot APD of both models for the first 300 pulses (example drug T)
 for i in range(len(drug_conc)):
     APD_plot = [APD_conductance_concs[i][ind] for ind in
                 range(len(APD_conductance_concs[i])) if ind % 2 == 0]
     panel5[0][i].plot(np.arange(saved_signal / 2) * 2, APD_plot, 'o', ms=0.9,
-                      label='ORd-CS model', color='blue')
+                      label='AP-CS model', color='blue')
 
     APD_plot = [APD_trapping_concs[i][ind] for ind in
                 range(len(APD_trapping_concs[i])) if ind % 2 == 1]
     panel5[0][i].plot(np.arange(saved_signal / 2) * 2, APD_plot, 'o', ms=0.9,
-                      label='ORd-SD model', color='orange')
+                      label='AP-SD model', color='orange')
     panel5[0][i].set_title(str(drug_conc[i]) + ' nM')
 
 # Adjust figure details
@@ -182,8 +183,9 @@ fig.sharex(['Pulses'] * 2,
 fig.sharey([r"APD$_{90}$ (ms)"],
            axs=panel5, subgridspec=subgridspecs[4])
 
-# Read file names of AP data for both AP models with verapamil-like drug
+# Read file names of AP data for both AP models with example drug N
 drug = 'verapamil'
+drug_label = 'N'
 data_dir = root_dir + drug + '/' + protocol_name + '/'
 
 trapping_data_files = [f for f in os.listdir(data_dir) if
@@ -217,8 +219,8 @@ labels = [i + ' nM' for i in conc_label]
 plotting_pulse_time = 1000 * 7
 
 # Top right panel
-# Plot the action potential and IKr of the ORd-SD model with various
-# concentrations of a verapamil-like drug
+# Plot the action potential and IKr of the AP-SD model with various
+# concentrations of an example drug N
 panel2 = axs[1]
 # Plot AP and IKr at steady state of control condition
 plot.add_single(panel2[0][0], control_log, 'membrane.V', color=cmap(0))
@@ -243,10 +245,10 @@ fig.sharex(['Time (s)'], [(0, plotting_pulse_time)],
 fig.sharey(['Voltage\n(mV)', 'Current (A/F)'],
            axs=panel2, subgridspec=subgridspecs[1])
 fig.adjust_ticks(panel2[1][0], plotting_pulse_time)
-panel2[0][0].set_title(drug + "-like drug, ORd-SD model", y=1.25)
+panel2[0][0].set_title("example drug " + drug_label + ", AP-SD model", y=1.25)
 
 # Second row, right panel
-# Plot the action potential and IKr of the ORd-CS model with various
+# Plot the action potential and IKr of the AP-CS model with various
 # concentrations of a verapamikl-like drug
 panel4 = axs[3]
 # Plot AP and IKr at steady state of control condition
@@ -272,13 +274,13 @@ fig.sharex(['Time (s)'], [(0, plotting_pulse_time)],
 fig.sharey(['Voltage\n(mV)', 'Current (A/F)'],
            axs=panel4, subgridspec=subgridspecs[3])
 fig.adjust_ticks(panel4[1][0], plotting_pulse_time)
-panel4[0][0].set_title(drug + "-like drug, ORd-CS model", y=1.25)
+panel4[0][0].set_title("example drug " + drug_label + ", AP-CS model", y=1.25)
 
 # Third row, right panel
-# Plot the APD90 of the AP models with verapamil-like drug for 300 pulses
+# Plot the APD90 of the AP models with example drug N for 300 pulses
 panel6 = axs[5]
 
-# Load APD values of the first 300 pulses for verapamil-like drug
+# Load APD values of the first 300 pulses for example drug N
 APD_trapping = pd.read_csv(data_dir + 'SD_APD_transient_paced.csv')
 APD_conductance = pd.read_csv(data_dir + 'CS_APD_transient_paced.csv')
 
@@ -300,14 +302,14 @@ for i in range(len(drug_conc)):
         columns='drug concentration').values.tolist()[0][1:]
     APD_conductance_concs.append(APD_conc)
 
-# Plot APD of both models for the first 300 pulses (verapamil-like drug)
+# Plot APD of both models for the first 300 pulses (example drug N)
 for i in range(len(drug_conc)):
     APD_plot = [APD_trapping_concs[i][ind] for ind in
                 range(len(APD_trapping_concs[i])) if ind % 2 == 0]
     panel6[0][i].plot(np.arange(saved_signal / 2) * 2, APD_plot, 'o', ms=0.9,
-                      label='ORd-SD model', color='orange')
+                      label='AP-SD model', color='orange')
     panel6[0][i].plot(np.arange(saved_signal), APD_conductance_concs[i], 'o',
-                      ms=0.9, label='ORd-CS model', color='blue')
+                      ms=0.9, label='AP-CS model', color='blue')
     panel6[0][i].set_title(str(drug_conc[i]) + ' nM')
 
 # Adjust figure details

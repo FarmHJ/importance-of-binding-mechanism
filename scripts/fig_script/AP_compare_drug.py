@@ -22,7 +22,7 @@ if not os.path.isdir(fig_dir):
 
 # Set up structure of the figure
 fig = modelling.figures.FigureStructure(figsize=(10, 5), gridspec=(2, 2),
-                                        height_ratios=[3, 4], hspace=0.4,
+                                        height_ratios=[1, 1], hspace=0.4,
                                         width_ratios=[2.5, 1.2],
                                         plot_in_subgrid=True)
 plot = modelling.figures.FigurePlot()
@@ -34,15 +34,18 @@ subgs.append(fig.gs[0].subgridspec(*subgridspecs[0], wspace=0.08,
 for i in range(1, 2 * 2):
     subgs.append(fig.gs[i].subgridspec(*subgridspecs[i], wspace=0.08,
                                        hspace=0.08))
+# axs = [[[fig.fig.add_subplot(subgs[k][i, j]) for j in range(
+#          subgridspecs[k][1])] for i in range(subgridspecs[k][0])]
+#        for k in [0, 2]]
+# axs.append([[fig.fig.add_subplot(subgs[3][0, 0])]])
 axs = [[[fig.fig.add_subplot(subgs[k][i, j]) for j in range(
          subgridspecs[k][1])] for i in range(subgridspecs[k][0])]
-       for k in [0, 2]]
-axs.append([[fig.fig.add_subplot(subgs[3][0, 0])]])
+       for k in range(len(subgs))]
 
 # Bottom left panel
 # Plot action potentials and the corresponding IKr of the ORd-SD model and the
 # ORd-CS model stimulated to steady state
-panel2 = axs[1]
+panel2 = axs[2]
 
 # Read files name of action potential data
 trapping_data_files = [f for f in os.listdir(data_dir) if
@@ -60,7 +63,7 @@ drug_conc = sorted(drug_conc)
 trapping_data_files = [trapping_data_files[i] for i in sort_ind]
 conductance_data_files = [conductance_data_files[i] for i in sort_ind]
 conc_label = [conc_label[i] for i in sort_ind]
-conc_label = [r"$10^{:d}$".format(int(np.log10(float(i)))) if float(i) >= 1e4
+conc_label = [r"$10^{:d}$".format(int(np.log10(float(i)))) if float(i) >= 1e3
               else i for i in conc_label]
 
 # Initiate constants and variables
@@ -173,13 +176,15 @@ fig.sharex(['Time (s)'] * 2, [(0, pulse_time)] * 2,
 fig.sharey(['Voltage (mV)', 'Current (A/F)'],
            axs=panel1, subgridspec=subgridspecs[0])
 for i in range(2):
+    panel1[i][0].spines[['right', 'top']].set_visible(False)
+    panel1[i][1].spines[['right', 'top']].set_visible(False)
     fig.adjust_ticks(panel1[i][0], pulse_time)
     fig.adjust_ticks(panel1[i][1], pulse_time)
 
-# Bottom right panel
+# Top right panel
 # Plots the APD90 calculated for both models with drugs at various drug
 # concentrations
-panel3 = axs[2]
+panel3 = axs[1]
 
 # Load APD data
 APD_trapping = pd.read_csv(data_dir + 'SD_APD_fine.csv')
@@ -204,10 +209,36 @@ panel3[0][0].set_xlabel('Drug concentration (nM)')
 panel3[0][0].set_ylabel(r'APD$_{90}$ (ms)')
 panel3[0][0].legend(handlelength=1)
 
+# Bottom right panel
+# Plots the qNet calculated for both models with drugs at a range of 0.5 to 25
+# multiples of Cmax
+panel4 = axs[3]
+
+# Load qNets data
+qNets = pd.read_csv(data_dir + 'qNet/qNets.csv')
+
+param_lib = modelling.BindingParameters()
+Cmax = param_lib.binding_parameters[drug]['Cmax']
+
+drug_conc = qNets['drug_conc']
+drug_conc_multiple = drug_conc / Cmax
+SD_qNet = qNets['SD']
+CS_qNet = qNets['CS']
+# Plot APD90 of both models
+panel4[0][0].plot(drug_conc_multiple, SD_qNet, 'o', color='orange',
+                  label='ORd-SD model')
+panel4[0][0].plot(drug_conc_multiple, CS_qNet, '^', color='blue',
+                  label='ORd-CS model', alpha=0.8)
+panel4[0][0].set_xlabel(
+    r"Drug concentration ($\times \mathrm{C}_\mathrm{max}$)")
+panel4[0][0].set_ylabel('qNet (C/F)')
+panel4[0][0].legend(handlelength=1)
+
 # Add panel letter
 fig.fig.set_size_inches(10, 5.5)
 fig.fig.text(0.1, 0.905, '(A)', fontsize=11)
-fig.fig.text(0.1, 0.495, '(B)', fontsize=11)
-fig.fig.text(0.64, 0.495, '(C)', fontsize=11)
+fig.fig.text(0.1, 0.455, '(B)', fontsize=11)
+fig.fig.text(0.64, 0.905, '(C)', fontsize=11)
+fig.fig.text(0.64, 0.455, '(D)', fontsize=11)
 
-fig.savefig(fig_dir + "model_compare.svg", format='svg')
+fig.savefig(fig_dir + "model_compare_qNets.svg", format='svg')

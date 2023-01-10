@@ -9,7 +9,7 @@ import modelling
 
 drugs = ['dofetilide', 'verapamil']
 drug_conc = [30, 1000]
-drug_label = ['drug free', 'dofetilide-like\ndrug', 'verapamil-like\ndrug']
+drug_label = ['drug free', 'dofetilide', 'verapamil']
 
 fig_dir = '../../figures/background/'
 if not os.path.isdir(fig_dir):
@@ -37,7 +37,7 @@ axs = [[[fig.fig.add_subplot(subgs[k + 1][i, j]) for j in range(
 
 # Top right panel
 # Shows the fractional current of the SD model for first 10 pulses after the
-# addition of a dofetilide-like drug and a verapamil-like drug
+# addition of dofetilide and verapamil
 panel2 = axs[0]
 
 pulse_time = 25e3
@@ -107,8 +107,8 @@ for i, drug in enumerate(drugs):
         panel2[i][0].set_rasterization_zorder(0)
 
 # Add description text
-panel2[1][0].text(248000, 0.9, 'dofetilide-like drug', fontsize=8, ha='right')
-panel2[2][0].text(248000, 0.9, 'verapamil-like drug', fontsize=8, ha='right')
+panel2[1][0].text(248000, 0.9, 'dofetilide', fontsize=8, ha='right')
+panel2[2][0].text(248000, 0.9, 'verapamil', fontsize=8, ha='right')
 
 # Adjust axes
 fig.sharex(['Time (s)'], [(0, pulse_time * repeats)],
@@ -120,8 +120,8 @@ fig.adjust_ticks(panel2[2][0], pulse_time * repeats)
 # Bottom left panel
 panel3 = axs[1]
 
-# Load steady state IKr data for drug free, addition of a dofetilide-like drug
-# and a verapamil-like drug conditions (Milnes' protocol)
+# Load steady state IKr data for drug free, addition of dofetilide
+# and verapamil conditions (Milnes' protocol)
 drug_free_log = myokit.DataLog.load_csv(
     data_dir + 'drug_free_Milnes_current.csv')
 trapped_log = myokit.DataLog.load_csv(

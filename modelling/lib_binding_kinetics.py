@@ -379,14 +379,71 @@ class BindingParameters(object):
                     'Hill_coef': 1.2,
                     'IC50': 4221856}, },
             'chlorpromazine': {
-                'Hill_coef': 0.8,
-                'IC50': 929.2},
+                'IKr': {
+                    'Hill_coef': 0.8,
+                    'IC50': 929.2},
+                'INaL': {
+                    'Hill_coef': 0.9,
+                    'IC50': 4559.6},
+                'ICaL': {
+                    'Hill_coef': 0.8,
+                    'IC50': 8191.9},
+                'INa': {
+                    'Hill_coef': 2,
+                    'IC50': 4535.6},
+                'Ito': {
+                    'Hill_coef': 0.4,
+                    'IC50': 17616711},
+                'IK1': {
+                    'Hill_coef': 0.7,
+                    'IC50': 9269.9},
+                'IKs': {
+                    'Hill_coef': 0,
+                    'IC50': 0}, },
             'ondansetron': {
-                'Hill_coef': 0.9,
-                'IC50': 1320},
+                'IKr': {
+                    'Hill_coef': 0.9,
+                    'IC50': 1320},
+                'INaL': {
+                    'Hill_coef': 1,
+                    'IC50': 19180.8},
+                'ICaL': {
+                    'Hill_coef': 0.8,
+                    'IC50': 22551.4},
+                'INa': {
+                    'Hill_coef': 1,
+                    'IC50': 57666.4},
+                'Ito': {
+                    'Hill_coef': 1,
+                    'IC50': 1023378},
+                'IK1': {
+                    'Hill_coef': 0,
+                    'IC50': 0},
+                'IKs': {
+                    'Hill_coef': 0.7,
+                    'IC50': 569807}, },
             'diltiazem': {
-                'Hill_coef': 0.9,
-                'IC50': 13150}, }
+                'IKr': {
+                    'Hill_coef': 0.9,
+                    'IC50': 13150},
+                'INaL': {
+                    'Hill_coef': 0.7,
+                    'IC50': 21868.5},
+                'ICaL': {
+                    'Hill_coef': 0.7,
+                    'IC50': 112.1},
+                'INa': {
+                    'Hill_coef': 0.7,
+                    'IC50': 110859},
+                'Ito': {
+                    'Hill_coef': 0.2,
+                    'IC50': 2.82e9},
+                'IK1': {
+                    'Hill_coef': 0,
+                    'IC50': 0},
+                'IKs': {
+                    'Hill_coef': 0,
+                    'IC50': 0}, }, }
 
 
 class ProtocolParameters(object):

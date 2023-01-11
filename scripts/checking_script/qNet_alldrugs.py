@@ -101,8 +101,6 @@ rel_tol = 1e-8
 #     qNet_df = pd.DataFrame(data=qNet_data)
 #     qNet_df.to_csv(data_dir + 'qNets_stdHill.csv')
 
-drug_list = ['dofetilide', 'bepridil', 'terfenadine', 'verapamil',
-             'ranolazine', 'mexiletine']
 for drug in drug_list:
     print(drug)
 
@@ -128,7 +126,6 @@ for drug in drug_list:
             Hill_coef = np.array(Hill_coef)
             reduction_scale = Hill_model.simulate(Hill_coef, drug_conc[i])
             if reduction_scale == 0:
-                print('no effect')
                 reduction_scale = 1
             multiion_scale[current] = reduction_scale
 
@@ -150,8 +147,6 @@ for drug in drug_list:
 
         qNet = np.trapz(inet, x=log.time()) * 1e-3  # pA/pF*s
         qNet_SD_arr.append(qNet)
-
-        # print('done concentration: ' + str(drug_conc[i]))
 
     qNet_data = {'drug_conc': drug_conc, 'SD': qNet_SD_arr}
     qNet_df = pd.DataFrame(data=qNet_data)

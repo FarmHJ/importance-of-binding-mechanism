@@ -120,12 +120,14 @@ marker_color_dict = {
     'ranolazine': {'m': 's', 'c': 'green'},
     'verapamil': {'m': '^', 'c': 'green'}}
 
-drug_list.remove('quinidine')
+# drug_list.remove('quinidine')
+drug_list = ['dofetilide', 'bepridil', 'terfenadine', 'verapamil',
+             'ranolazine', 'mexiletine']
 for drug in drug_list:
     # Load qNets data
     data_dir = '../../simulation_data/model_comparison/' + \
         drug + '/' + protocol_name + '/qNet/'
-    qNets = pd.read_csv(data_dir + 'qNets.csv')
+    qNets = pd.read_csv(data_dir + 'qNets_multiion.csv')
 
     Cmax = param_lib.binding_parameters[drug]['Cmax']
 
@@ -147,4 +149,4 @@ fig.axs[0][0].set_xlabel(r"Drug concentration ($\times \mathrm{C}_\mathrm{max}$)
 fig.axs[0][0].set_ylabel('qNet (As/F)')
 fig.axs[0][0].legend(handlelength=1)
 
-fig.savefig(fig_dir + 'qnet.pdf')
+fig.savefig(fig_dir + 'qnet_multiion.pdf')

@@ -181,32 +181,203 @@ class BindingParameters(object):
         }
         self.Hill_curve = {
             'dofetilide': {
-                'Hill_coef': 0.9,
-                'IC50': 4.9},
+                'IKr': {
+                    'Hill_coef': 0.9,
+                    'IC50': 4.9},
+                'INaL': {
+                    'Hill_coef': 0.3,
+                    'IC50': 75316.4},
+                'ICaL': {
+                    'Hill_coef': 1.2,
+                    'IC50': 260.3},
+                'INa': {
+                    'Hill_coef': 0.9,
+                    'IC50': 380.5},
+                'Ito': {
+                    'Hill_coef': 0.8,
+                    'IC50': 18.8},
+                'IK1': {
+                    'Hill_coef': 0.8,
+                    'IC50': 394.3},
+                'IKs': {
+                    'Hill_coef': 0,
+                    'IC50': 0}, },
             'bepridil': {
-                'Hill_coef': 0.9,
-                'IC50': 50},
+                'IKr': {
+                    'Hill_coef': 0.9,
+                    'IC50': 50},
+                'INaL': {
+                    'Hill_coef': 1.4,
+                    'IC50': 1813.9},
+                'ICaL': {
+                    'Hill_coef': 0.6,
+                    'IC50': 2808.1},
+                'INa': {
+                    'Hill_coef': 1.2,
+                    'IC50': 2929.3},
+                'Ito': {
+                    'Hill_coef': 3.5,
+                    'IC50': 8594},
+                'IK1': {
+                    'Hill_coef': 0,
+                    'IC50': 0},
+                'IKs': {
+                    'Hill_coef': 0.7,
+                    'IC50': 28628.3}, },
             'terfenadine': {
-                'Hill_coef': 0.6,
-                'IC50': 23},
+                'IKr': {
+                    'Hill_coef': 0.6,
+                    'IC50': 23},
+                'INaL': {
+                    'Hill_coef': 0.6,
+                    'IC50': 20056},
+                'ICaL': {
+                    'Hill_coef': 0.7,
+                    'IC50': 700.4},
+                'INa': {
+                    'Hill_coef': 1,
+                    'IC50': 4803.2},
+                'Ito': {
+                    'Hill_coef': 0.3,
+                    'IC50': 239960.8},
+                'IK1': {
+                    'Hill_coef': 0,
+                    'IC50': 0},
+                'IKs': {
+                    'Hill_coef': 0.5,
+                    'IC50': 399754}, },
             'cisapride': {
-                'Hill_coef': 0.7,
-                'IC50': 10.1},
+                'IKr': {
+                    'Hill_coef': 0.7,
+                    'IC50': 10.1},
+                'INaL': {
+                    'Hill_coef': 0,
+                    'IC50': 0},
+                'ICaL': {
+                    'Hill_coef': 0.4,
+                    'IC50': 9258076},
+                'INa': {
+                    'Hill_coef': 0,
+                    'IC50': 0},
+                'Ito': {
+                    'Hill_coef': 0.2,
+                    'IC50': 219112.4},
+                'IK1': {
+                    'Hill_coef': 0.5,
+                    'IC50': 29498},
+                'IKs': {
+                    'Hill_coef': 0.3,
+                    'IC50': 81192862}, },
             'verapamil': {
-                'Hill_coef': 1,
-                'IC50': 288},
+                'IKr': {
+                    'Hill_coef': 1,
+                    'IC50': 288},
+                'INaL': {
+                    'Hill_coef': 1,
+                    'IC50': 7028},
+                'ICaL': {
+                    'Hill_coef': 1.1,
+                    'IC50': 201.8},
+                'INa': {
+                    'Hill_coef': 0,
+                    'IC50': 0},
+                'Ito': {
+                    'Hill_coef': 0.8,
+                    'IC50': 13429.2},
+                'IK1': {
+                    'Hill_coef': 0.3,
+                    'IC50': 3.49e8},
+                'IKs': {
+                    'Hill_coef': 0,
+                    'IC50': 0}, },
             'ranolazine': {
-                'Hill_coef': 0.9,
-                'IC50': 8270},
+                'IKr': {
+                    'Hill_coef': 0.9,
+                    'IC50': 8270},
+                'INaL': {
+                    'Hill_coef': 0.9,
+                    'IC50': 7884.5},
+                'ICaL': {
+                    'Hill_coef': 0,
+                    'IC50': 0},
+                'INa': {
+                    'Hill_coef': 1.4,
+                    'IC50': 68774},
+                'Ito': {
+                    'Hill_coef': 0,
+                    'IC50': 0},
+                'IK1': {
+                    'Hill_coef': 0,
+                    'IC50': 0},
+                'IKs': {
+                    'Hill_coef': 0.5,
+                    'IC50': 36155020}, },
             'mexiletine': {
-                'Hill_coef': 0.9,
-                'IC50': 28880},
+                'IKr': {
+                    'Hill_coef': 0.9,
+                    'IC50': 28880},
+                'INaL': {
+                    'Hill_coef': 1.4,
+                    'IC50': 8956.8},
+                'ICaL': {
+                    'Hill_coef': 1,
+                    'IC50': 38243.6},
+                'INa': {
+                    'Hill_coef': 0,
+                    'IC50': 0},
+                'Ito': {
+                    'Hill_coef': 0,
+                    'IC50': 0},
+                'IK1': {
+                    'Hill_coef': 0,
+                    'IC50': 0},
+                'IKs': {
+                    'Hill_coef': 0,
+                    'IC50': 0}, },
             'quinidine': {
-                'Hill_coef': 0.8,
-                'IC50': 992},
+                'IKr': {
+                    'Hill_coef': 0.8,
+                    'IC50': 992},
+                'INaL': {
+                    'Hill_coef': 1.3,
+                    'IC50': 9417},
+                'ICaL': {
+                    'Hill_coef': 0.6,
+                    'IC50': 51592.3},
+                'INa': {
+                    'Hill_coef': 1.5,
+                    'IC50': 12329},
+                'Ito': {
+                    'Hill_coef': 1.3,
+                    'IC50': 3487.4},
+                'IK1': {
+                    'Hill_coef': 0.4,
+                    'IC50': 39589919},
+                'IKs': {
+                    'Hill_coef': 1.4,
+                    'IC50': 4898.9}, },
             'sotalol': {
-                'Hill_coef': 0.8,
-                'IC50': 11060},
+                'IKr': {
+                    'Hill_coef': 0.8,
+                    'IC50': 110600},
+                'INaL': {
+                    'Hill_coef': 0,
+                    'IC50': 0},
+                'ICaL': {
+                    'Hill_coef': 0.9,
+                    'IC50': 7061527},
+                'INa': {
+                    'Hill_coef': 0.5,
+                    'IC50': 1.14e9},
+                'Ito': {
+                    'Hill_coef': 0.7,
+                    'IC50': 43143455},
+                'IK1': {
+                    'Hill_coef': 1.2,
+                    'IC50': 3050260},
+                'IKs': {
+                    'Hill_coef': 1.2,
+                    'IC50': 4221856}, },
             'chlorpromazine': {
                 'Hill_coef': 0.8,
                 'IC50': 929.2},
@@ -215,7 +386,7 @@ class BindingParameters(object):
                 'IC50': 1320},
             'diltiazem': {
                 'Hill_coef': 0.9,
-                'IC50': 13150},}
+                'IC50': 13150}, }
 
 
 class ProtocolParameters(object):

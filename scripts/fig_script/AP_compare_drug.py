@@ -48,21 +48,24 @@ axs = [[[fig.fig.add_subplot(subgs[k][i, j]) for j in range(
 panel2 = axs[2]
 
 # Read files name of action potential data
-trapping_data_files = [f for f in os.listdir(data_dir) if
-                       f.startswith('SD_AP_') and not
-                       f.startswith('SD_AP_tran')]
-conductance_data_files = [f for f in os.listdir(data_dir) if
-                          f.startswith('CS_AP_') and not
-                          f.startswith('CS_AP_tran')]
-conc_label = [fname[6:-4] for fname in trapping_data_files]
-drug_conc = [float(fname[6:-4]) for fname in trapping_data_files]
+SD_data_files = [f for f in os.listdir(data_dir) if
+                 f.startswith('SD_AP_') and not
+                 f.startswith('SD_AP_tran')]
+CS_data_files = [f for f in os.listdir(data_dir) if
+                 f.startswith('CS_AP_') and not
+                 f.startswith('CS_AP_tran')]
+conc_label_SD = [fname[6:-4] for fname in SD_data_files]
+drug_conc_SD = [float(fname[6:-4]) for fname in SD_data_files]
+conc_label_CS = [fname[6:-4] for fname in CS_data_files]
+drug_conc_CS = [float(fname[6:-4]) for fname in CS_data_files]
 
 # Sort in increasing order of drug concentration
-sort_ind = [i[0] for i in sorted(enumerate(drug_conc), key=lambda x:x[1])]
-drug_conc = sorted(drug_conc)
-trapping_data_files = [trapping_data_files[i] for i in sort_ind]
-conductance_data_files = [conductance_data_files[i] for i in sort_ind]
-conc_label = [conc_label[i] for i in sort_ind]
+sort_ind = [i[0] for i in sorted(enumerate(drug_conc_SD), key=lambda x:x[1])]
+sort_ind_CS = [i[0] for i in sorted(enumerate(drug_conc_CS), key=lambda x:x[1])]
+drug_conc = sorted(drug_conc_SD)
+trapping_data_files = [SD_data_files[i] for i in sort_ind]
+conductance_data_files = [CS_data_files[i] for i in sort_ind_CS]
+conc_label = [conc_label_SD[i] for i in sort_ind]
 conc_label = [r"$10^{:d}$".format(int(np.log10(float(i)))) if float(i) >= 1e3
               else i for i in conc_label]
 
@@ -131,15 +134,18 @@ fig.sharey(['Voltage (mV)', 'Current (A/F)'],
 # concentration for both the SD model and the CS model
 panel1 = axs[0]
 # Read files name of IKr data
-trapping_data_files = [f for f in os.listdir(data_dir) if
-                       f.startswith('SD_current_')]
-conductance_data_files = [f for f in os.listdir(data_dir) if
-                          f.startswith('CS_current_')]
-drug_conc = [float(fname[11:-4]) for fname in trapping_data_files]
+SD_data_files = [f for f in os.listdir(data_dir) if
+                 f.startswith('SD_current_')]
+CS_data_files = [f for f in os.listdir(data_dir) if
+                 f.startswith('CS_current_')]
+drug_conc_SD = [float(fname[11:-4]) for fname in SD_data_files]
+drug_conc_CS = [float(fname[11:-4]) for fname in CS_data_files]
 
 # Sort in increasing order of drug concentration
-trapping_data_files = [trapping_data_files[i] for i in sort_ind]
-conductance_data_files = [conductance_data_files[i] for i in sort_ind]
+sort_ind = [i[0] for i in sorted(enumerate(drug_conc_SD), key=lambda x:x[1])]
+sort_ind_CS = [i[0] for i in sorted(enumerate(drug_conc_CS), key=lambda x:x[1])]
+trapping_data_files = [SD_data_files[i] for i in sort_ind]
+conductance_data_files = [CS_data_files[i] for i in sort_ind_CS]
 
 # Load IKr data
 trapping_hERG_log = []
@@ -209,6 +215,8 @@ panel3[0][0].set_xlabel('Drug concentration (nM)')
 panel3[0][0].set_ylabel(r'APD$_{90}$ (ms)')
 panel3[0][0].legend(handlelength=1)
 
+l_lim, r_lim = panel3[0][0].get_xlim()
+
 # Bottom right panel
 # Plots the qNet calculated for both models with drugs at a range of 0.5 to 25
 # multiples of Cmax
@@ -220,10 +228,17 @@ qNets = pd.read_csv(data_dir + 'qNet/qNets.csv')
 param_lib = modelling.BindingParameters()
 Cmax = param_lib.binding_parameters[drug]['Cmax']
 
-drug_conc = qNets['drug_conc']
+drug_conc = np.array(qNets['drug_conc'])
 # drug_conc_multiple = drug_conc / Cmax
-SD_qNet = qNets['SD']
-CS_qNet = qNets['CS']
+SD_qNet = np.array(qNets['SD'])
+CS_qNet = np.array(qNets['CS'])
+
+# EAD_indicator = np.array([1 if i is None else None for i in EAD_marker])
+SD_qNet = [None if APD_trapping[i] >= 1000 else SD_qNet[i] for i in
+           range(len(SD_qNet))]
+CS_qNet = [None if APD_conductance[i] >= 1000 else CS_qNet[i] for i in
+           range(len(CS_qNet))]
+
 # Plot APD90 of both models
 panel4[0][0].plot(drug_conc, SD_qNet, 'o', color='orange',
                   label='AP-SD model')
@@ -231,6 +246,8 @@ panel4[0][0].plot(drug_conc, CS_qNet, '^', color='blue',
                   label='AP-CS model', alpha=0.8)
 panel4[0][0].set_xlabel("Drug concentration (nM)")
     # r"Drug concentration ($\times \mathrm{C}_\mathrm{max}$)")
+panel4[0][0].set_xscale("log", nonpositive='clip')
+panel4[0][0].set_xlim(left=l_lim, right=r_lim)
 panel4[0][0].set_ylabel('qNet (C/F)')
 panel4[0][0].legend(handlelength=1)
 

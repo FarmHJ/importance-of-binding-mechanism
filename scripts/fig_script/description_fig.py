@@ -41,20 +41,23 @@ panel1 = axs[0]
 panel2 = axs[3]
 # Load hERG current data
 SD_fileprefix = 'SD_current_'
-trapping_data_files = [f for f in os.listdir(data_dir) if
-                       f.startswith(SD_fileprefix)]
-conductance_data_files = [f for f in os.listdir(data_dir) if
-                          f.startswith('CS_current_')]
-conc_label = [fname[len(SD_fileprefix):-4] for fname in trapping_data_files]
+CS_fileprefix = 'CS_current_'
+SD_data_files = [f for f in os.listdir(data_dir) if
+                 f.startswith(SD_fileprefix)]
+CS_data_files = [f for f in os.listdir(data_dir) if
+                 f.startswith(CS_fileprefix)]
 drug_conc = [float(fname[len(SD_fileprefix):-4]) for fname in
-             trapping_data_files]
+             SD_data_files]
+drug_conc_CS = [float(fname[len(CS_fileprefix):-4]) for fname in
+                CS_data_files]
 
 # Sort in increasing order of drug concentration
 sort_ind = [i[0] for i in sorted(enumerate(drug_conc), key=lambda x:x[1])]
+sort_ind_CS = [i[0] for i in sorted(enumerate(drug_conc_CS),
+               key=lambda x:x[1])]
 drug_conc = sorted(drug_conc)
-trapping_data_files = [trapping_data_files[i] for i in sort_ind]
-conductance_data_files = [conductance_data_files[i] for i in sort_ind]
-conc_label = [conc_label[i] for i in sort_ind]
+trapping_data_files = [SD_data_files[i] for i in sort_ind]
+conductance_data_files = [CS_data_files[i] for i in sort_ind_CS]
 
 trapping_hERG_log = []
 conductance_hERG_log = []
@@ -75,16 +78,13 @@ for log in trapping_hERG_log:
     peaks_pos.append(log.time()[np.argmax(log['ikr.IKr'])])
 
 # Initiate constants and variables
-labels = [i + ' nM' for i in conc_label]
 pulse_time = 25e3
 cmap = matplotlib.cm.get_cmap('viridis')
 
 # Plot figure
-plot.add_multiple(panel1[0][0], trapping_hERG_log, 'ikr.IKr', labels=labels,
-                  color=cmap)
+plot.add_multiple(panel1[0][0], trapping_hERG_log, 'ikr.IKr', color=cmap)
 panel1[0][0].plot(peaks_pos_firstpulse[1:], peaks_firstpulse[1:], 'kx')
-plot.add_multiple(panel2[0][0], conductance_hERG_log, 'ikr.IKr',
-                  labels=labels, color=cmap)
+plot.add_multiple(panel2[0][0], conductance_hERG_log, 'ikr.IKr', color=cmap)
 
 # panel1[1][0].legend()
 panel1[0][0].set_title('State-dependent drug block')
@@ -136,7 +136,6 @@ CS_AP_prefix = 'CS_AP_'
 conductance_data_files = [f for f in os.listdir(data_dir) if
                           f.startswith(CS_AP_prefix) and not
                           f.startswith('CS_AP_transient')]
-conc_label = [fname[len(CS_AP_prefix):-4] for fname in conductance_data_files]
 drug_conc = [float(fname[len(CS_AP_prefix):-4]) for fname in
              conductance_data_files]
 
@@ -144,8 +143,6 @@ drug_conc = [float(fname[len(CS_AP_prefix):-4]) for fname in
 sort_ind = [i[0] for i in sorted(enumerate(drug_conc), key=lambda x:x[1])]
 drug_conc = sorted(drug_conc)
 conductance_data_files = [conductance_data_files[i] for i in sort_ind]
-conc_label = [conc_label[i] for i in sort_ind]
-labels = [i + ' nM' for i in conc_label]
 
 conductance_AP_log = []
 for i in range(len(conductance_data_files)):
@@ -157,8 +154,7 @@ plotting_pulse_time = 1000 * 2
 
 # Plot figure
 plot.add_multiple_continuous(panel5[0][0], conductance_AP_log,
-                             'membrane.V', cmap=cmap,
-                             labels=labels)
+                             'membrane.V', cmap=cmap)
 panel5[0][0].set_title('AP-conductance scaling')
 
 fig.sharex(['Time (ms)'], [(0, plotting_pulse_time)],

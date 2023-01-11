@@ -37,7 +37,9 @@ setup(
     # Version
     version=get_version(),
 
-    description='This is a repository for all the modelling in my DPhil project.',  # noqa
+    description='Code and figures for "Importance of modelling hERG binding in'\
+                ' predicting drug-induced action potential prolongations for'\
+                ' drug safety assessment".',  # noqa
 
     long_description=get_readme(),
 

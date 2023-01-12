@@ -43,79 +43,79 @@ panel2 = axs[0]
 pulse_time = 25e3
 repeats = 10
 
-control_log = myokit.DataLog.load_csv(data_dir +
-                                      'control_Milnes_current_pulses10.csv')
+# control_log = myokit.DataLog.load_csv(data_dir +
+#                                       'control_Milnes_current_pulses10.csv')
 
-for i, drug in enumerate(drugs):
+# for i, drug in enumerate(drugs):
 
-    # Load experimental data
-    df = pd.read_csv(expdata_dir + drug + '.csv',
-                     header=[0], index_col=[0],
-                     skipinitialspace=True)
-    current = df.loc[df['conc'] == drug_conc[i]]
+#     # Load experimental data
+#     df = pd.read_csv(expdata_dir + drug + '.csv',
+#                      header=[0], index_col=[0],
+#                      skipinitialspace=True)
+#     current = df.loc[df['conc'] == drug_conc[i]]
 
-    # Load simulated data
-    log = myokit.DataLog.load_csv(
-        data_dir + drug + '_Milnes_current_pulses10.csv')
+#     # Load simulated data
+#     log = myokit.DataLog.load_csv(
+#         data_dir + drug + '_Milnes_current_pulses10.csv')
 
-    max_sweeps = max(current['sweep'].values)
-    for sweep in range(1, max_sweeps + 1):
+#     max_sweeps = max(current['sweep'].values)
+#     for sweep in range(1, max_sweeps + 1):
 
-        current_sweep = current.loc[current['sweep'] == sweep]
-        max_exp = max(current['exp'].values)
-        exp_repeats = []
-        for exp in range(1, max_exp):
-            current_exp = current_sweep.loc[current_sweep['exp'] == exp]
-            exp_repeats.append(current_exp['frac'].values[11:])
+#         current_sweep = current.loc[current['sweep'] == sweep]
+#         max_exp = max(current['exp'].values)
+#         exp_repeats = []
+#         for exp in range(1, max_exp):
+#             current_exp = current_sweep.loc[current_sweep['exp'] == exp]
+#             exp_repeats.append(current_exp['frac'].values[11:])
 
-        min_time = min(current_exp.index[11:])
-        max_time = max(current_exp.index[11:])
-        log_range_min = np.argmin(np.abs(np.array(log.time()) - min_time))
-        log_range_max = np.argmin(np.abs(np.array(log.time()) - max_time))
+#         min_time = min(current_exp.index[11:])
+#         max_time = max(current_exp.index[11:])
+#         log_range_min = np.argmin(np.abs(np.array(log.time()) - min_time))
+#         log_range_max = np.argmin(np.abs(np.array(log.time()) - max_time))
 
-        # Organise simulated data
-        log_plot = log['ikr.IKr', sweep - 1][
-            log_range_min + 1:log_range_max + 1]
-        control_log_plot = control_log['ikr.IKr', sweep - 1][
-            log_range_min + 1:log_range_max + 1]
+#         # Organise simulated data
+#         log_plot = log['ikr.IKr', sweep - 1][
+#             log_range_min + 1:log_range_max + 1]
+#         control_log_plot = control_log['ikr.IKr', sweep - 1][
+#             log_range_min + 1:log_range_max + 1]
 
-        # Plot experimental data
-        panel2[i + 1][0].plot(
-            current_exp.index[11:] + (sweep - 1) * pulse_time,
-            np.mean(exp_repeats, axis=0), 'o', ms=1.2,
-            zorder=-10, color='orange', label=str(drug_conc[i]) + ' nM')
-        panel2[i + 1][0].fill_between(
-            current_exp.index[11:] + (sweep - 1) * pulse_time,
-            np.mean(exp_repeats, axis=0) - np.std(exp_repeats, axis=0),
-            np.mean(exp_repeats, axis=0) + np.std(exp_repeats, axis=0),
-            color='orange', alpha=.3, zorder=-10)
+#         # Plot experimental data
+#         panel2[i + 1][0].plot(
+#             current_exp.index[11:] + (sweep - 1) * pulse_time,
+#             np.mean(exp_repeats, axis=0), 'o', ms=1.2,
+#             zorder=-10, color='orange', label=str(drug_conc[i]) + ' nM')
+#         panel2[i + 1][0].fill_between(
+#             current_exp.index[11:] + (sweep - 1) * pulse_time,
+#             np.mean(exp_repeats, axis=0) - np.std(exp_repeats, axis=0),
+#             np.mean(exp_repeats, axis=0) + np.std(exp_repeats, axis=0),
+#             color='orange', alpha=.3, zorder=-10)
 
-        # Plot the voltage-clamp protocol
-        if i == 0:
-            panel2[i][0].plot(np.array(log.time()) + (sweep - 1) * pulse_time,
-                              log['membrane.V', sweep - 1], zorder=1,
-                              color='k')
+#         # Plot the voltage-clamp protocol
+#         if i == 0:
+#             panel2[i][0].plot(np.array(log.time()) + (sweep - 1) * pulse_time,
+#                               log['membrane.V', sweep - 1], zorder=1,
+#                               color='k')
 
-        # Plot simulated data
-        panel2[i + 1][0].plot(
-            np.array(log.time()[log_range_min + 1:log_range_max + 1]) +
-            (sweep - 1) * pulse_time,
-            np.array(log_plot) / np.array(control_log_plot),
-            zorder=1, color='b')
+#         # Plot simulated data
+#         panel2[i + 1][0].plot(
+#             np.array(log.time()[log_range_min + 1:log_range_max + 1]) +
+#             (sweep - 1) * pulse_time,
+#             np.array(log_plot) / np.array(control_log_plot),
+#             zorder=1, color='b')
 
-        panel2[i + 1][0].set_ylim(0, 1.1)
-        panel2[i][0].set_rasterization_zorder(0)
+#         panel2[i + 1][0].set_ylim(0, 1.1)
+#         panel2[i][0].set_rasterization_zorder(0)
 
-# Add description text
-panel2[1][0].text(248000, 0.9, 'dofetilide', fontsize=8, ha='right')
-panel2[2][0].text(248000, 0.9, 'verapamil', fontsize=8, ha='right')
+# # Add description text
+# panel2[1][0].text(248000, 0.9, 'dofetilide', fontsize=8, ha='right')
+# panel2[2][0].text(248000, 0.9, 'verapamil', fontsize=8, ha='right')
 
-# Adjust axes
-fig.sharex(['Time (s)'], [(0, pulse_time * repeats)],
-           axs=panel2, subgridspec=(3, 1))
-fig.sharey(['Voltage\n(mV)', 'Fractional\ncurrent', 'Fractional\ncurrent'],
-           axs=panel2, subgridspec=(3, 1))
-fig.adjust_ticks(panel2[2][0], pulse_time * repeats)
+# # Adjust axes
+# fig.sharex(['Time (s)'], [(0, pulse_time * repeats)],
+#            axs=panel2, subgridspec=(3, 1))
+# fig.sharey(['Voltage\n(mV)', 'Fractional\ncurrent', 'Fractional\ncurrent'],
+#            axs=panel2, subgridspec=(3, 1))
+# fig.adjust_ticks(panel2[2][0], pulse_time * repeats)
 
 # Bottom left panel
 panel3 = axs[1]
@@ -135,13 +135,17 @@ model = '../../math_model/ohara-cipa-v1-2017-IKr-opt.mmt'
 model, _, x = myokit.load(model)
 
 # Plot state occupancies of the hERG channel
+color_seq = ['#7e7e7e', '#8a7272', '#8a8a72', '#8a7289', '#80728a',
+             '#728a75', '#74a9cf', '#045a8d', '#2b8cbe']
+
 for d in range(len(drugs) + 1):
     plot.add_single(panel3[0][d], log_all[d], 'membrane.V')
     if d == 2:
-        plot.state_occupancy_plot(panel3[2][d], log_all[d], model)
+        plot.state_occupancy_plot(panel3[2][d], log_all[d], model,
+                                  color_seq=color_seq)
     else:
         plot.state_occupancy_plot(panel3[2][d], log_all[d],
-                                  model, legend=False)
+                                  model, legend=False, color_seq=color_seq)
 
 # Plot IKr
 for i in range(len(log_all)):
@@ -187,7 +191,7 @@ pulse_time = 1000
 # Plot state occupancies of the hERG channel
 for d in range(len(drugs) + 1):
     plot.state_occupancy_plot(panel4[2][d], log_all[d],
-                              APmodel, legend=False)
+                              APmodel, legend=False, color_seq=color_seq)
 
 for i in range(len(log_all)):
     for j in range(len(log_all)):

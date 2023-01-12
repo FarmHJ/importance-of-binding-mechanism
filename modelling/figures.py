@@ -221,7 +221,7 @@ class FigurePlot(object):
                             log[i][key, pulse], zorder=-10)
 
     def state_occupancy_plot(self, ax, signal_log, model, pulse=None,
-                             legend=True, legend_names=None):
+                             legend=True, legend_names=None, color_seq=None):
 
         if pulse is None:
             ax.stackplot(signal_log.time(),
@@ -229,14 +229,14 @@ class FigurePlot(object):
                          if str(s.parent()) == 'ikr' and s.name() != 'D'],
                          labels=[s.name() for s in model.states()
                          if str(s.parent()) == 'ikr' and s.name() != 'D'],
-                         zorder=-10)
+                         colors=color_seq, zorder=-10)
         else:
             ax.stackplot(signal_log.time(),
                          *[signal_log[s, pulse] for s in model.states()
                          if str(s.parent()) == 'ikr' and s.name() != 'D'],
                          labels=[s.name() for s in model.states()
                          if str(s.parent()) == 'ikr' and s.name() != 'D'],
-                         zorder=-10)
+                         colors=color_seq, zorder=-10)
 
         ax.set_xlabel('Time (ms)')
 

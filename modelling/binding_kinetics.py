@@ -332,3 +332,75 @@ class BindingKinetics(object):
         # self.sim.reset()
 
         return d2
+
+    def drug_multiion_CS_sim(self, ion_scale, repeats,
+                             timestep=0.1, save_signal=1, log_var=None,
+                             abs_tol=1e-6, rel_tol=1e-4):
+        # param_lib = modelling.BindingParameters()
+
+        # Vhalf = param_lib.binding_parameters[drug]['Vhalf']
+        # Kmax = param_lib.binding_parameters[drug]['Kmax']
+        # Ku = param_lib.binding_parameters[drug]['Ku']
+        # N = param_lib.binding_parameters[drug]['N']
+        # EC50 = param_lib.binding_parameters[drug]['EC50']
+
+        t_max = self.protocol.characteristic_time()
+
+        # concentration = self.model.get('ikr.D')
+        # concentration.set_state_value(drug_conc)
+
+        self.sim = myokit.Simulation(self.model, self.protocol)
+        self.sim.reset()
+        self.sim.set_tolerance(abs_tol=abs_tol, rel_tol=rel_tol)
+        # if set_state:
+        #     set_state['ikr.D'][-1] = drug_conc
+        #     self.sim.set_state(set_state)
+
+        # self.sim.set_constant(self.current_head.var('Vhalf'), Vhalf)
+        # self.sim.set_constant(self.current_head.var('Kmax'), Kmax)
+        # self.sim.set_constant(self.current_head.var('Ku'), Ku)
+        # self.sim.set_constant(self.current_head.var('n'), N)
+        # self.sim.set_constant(self.current_head.var('halfmax'), EC50)
+        # self.sim.set_constant(self.current_head.var('Kt'), 3.5e-5)
+        # self.sim.set_constant(self.current_head.var('gKr'),
+        #                       self.original_constants["gKr"])
+
+        # Scale conductace of ion channels other than hERG
+        self.sim.set_constant(
+            self.model.get('ikr').var('gKr'),
+            self.original_constants["gKr"] * ion_scale['IKr'])
+        base_conductance = self.model.get(self.model.get('inal').var(
+            'gNaL')).eval()
+        self.sim.set_constant(self.model.get('inal').var('gNaL'),
+                              base_conductance * ion_scale['INaL'])
+        base_conductance = self.model.get(self.model.get('ical').var(
+            'base')).eval()
+        self.sim.set_constant(self.model.get('ical').var('base'),
+                              base_conductance * ion_scale['ICaL'])
+        base_conductance = self.model.get(self.model.get('ina').var(
+            'gNa')).eval()
+        self.sim.set_constant(self.model.get('ina').var('gNa'),
+                              base_conductance * ion_scale['INa'])
+        base_conductance = self.model.get(self.model.get('ito').var(
+            'gto')).eval()
+        self.sim.set_constant(self.model.get('ito').var('gto'),
+                              base_conductance * ion_scale['Ito'])
+        base_conductance = self.model.get(self.model.get('ik1').var(
+            'gK1')).eval()
+        self.sim.set_constant(self.model.get('ik1').var('gK1'),
+                              base_conductance * ion_scale['IK1'])
+        base_conductance = self.model.get(self.model.get('iks').var(
+            'gKs')).eval()
+        self.sim.set_constant(self.model.get('iks').var('gKs'),
+                              base_conductance * ion_scale['IKs'])
+
+        self.sim.pre(t_max * (repeats - save_signal))
+        log = self.sim.run(t_max * save_signal, log=log_var,
+                           log_interval=timestep)
+        d2 = log.npview()
+        if save_signal > 1:
+            d2 = d2.fold(t_max)
+
+        # self.sim.reset()
+
+        return d2

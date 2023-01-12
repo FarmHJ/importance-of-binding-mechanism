@@ -101,6 +101,8 @@ rel_tol = 1e-8
 #     qNet_df = pd.DataFrame(data=qNet_data)
 #     qNet_df.to_csv(data_dir + 'qNets_stdHill.csv')
 
+# drug_list = drug_list[7:]
+drug_list.remove('quinidine')
 for drug in drug_list:
     print(drug)
 
@@ -128,26 +130,32 @@ for drug in drug_list:
             if reduction_scale == 0:
                 reduction_scale = 1
             multiion_scale[current] = reduction_scale
+        print(multiion_scale)
 
-        log = AP_model.drug_multiion_simulation(
-            drug, drug_conc[i], multiion_scale,
+        # log = AP_model.drug_multiion_simulation(
+        #     drug, drug_conc[i], multiion_scale,
+        #     prepace + save_signal, save_signal=save_signal,
+        #     log_var=['engine.time', 'membrane.V'] + current_list,
+        #     timestep=0.01, abs_tol=abs_tol, rel_tol=rel_tol)
+        # log.save_csv(data_dir + 'SD_AP_inetcurrents_multiion_' + str(i) +
+        #              '.csv')
+        log = AP_model.drug_multiion_CS_sim(
+            multiion_scale,
             prepace + save_signal, save_signal=save_signal,
             log_var=['engine.time', 'membrane.V'] + current_list,
             timestep=0.01, abs_tol=abs_tol, rel_tol=rel_tol)
-        log.save_csv(data_dir + 'SD_AP_inetcurrents_multiion_' + str(i) +
-                     '.csv')
 
         inet = 0
         for c in current_list:
             inet += log[c]  # pA/pF
-        inet_data = {'time': log.time(), 'inet': inet}
-        inet_df = pd.DataFrame(inet_data, columns=['time', 'inet'])
-        inet_df.to_csv(data_dir + 'CS_inet_multiion_' + str(i) + '.csv',
-                       index=False)
+        # inet_data = {'time': log.time(), 'inet': inet}
+        # inet_df = pd.DataFrame(inet_data, columns=['time', 'inet'])
+        # inet_df.to_csv(data_dir + 'CS_inet_multiion_' + str(i) + '.csv',
+        #                index=False)
 
         qNet = np.trapz(inet, x=log.time()) * 1e-3  # pA/pF*s
         qNet_SD_arr.append(qNet)
 
     qNet_data = {'drug_conc': drug_conc, 'SD': qNet_SD_arr}
     qNet_df = pd.DataFrame(data=qNet_data)
-    qNet_df.to_csv(data_dir + 'qNets_multiion.csv')
+    qNet_df.to_csv(data_dir + 'qNets_multiion_CS.csv')

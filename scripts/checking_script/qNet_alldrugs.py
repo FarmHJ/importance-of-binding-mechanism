@@ -24,8 +24,9 @@ AP_model = modelling.BindingKinetics(APmodel, current_head='ikr')
 
 # Define current protocol
 pulse_time = 2000
-AP_model.protocol = modelling.ProtocolLibrary().current_impulse(pulse_time,
-                                                                offset=0)
+# AP_model.protocol = modelling.ProtocolLibrary().current_impulse(pulse_time,
+#                                                                 offset=0)
+AP_model.protocol = myokit.pacing.blocktrain(pulse_time, 0.5)
 base_conductance = APmodel.get('ikr.gKr').value()
 
 # Define Hill model
@@ -101,7 +102,6 @@ rel_tol = 1e-8
 #     qNet_df = pd.DataFrame(data=qNet_data)
 #     qNet_df.to_csv(data_dir + 'qNets_stdHill.csv')
 
-# drug_list = drug_list[7:]
 drug_list.remove('quinidine')
 for drug in drug_list:
     print(drug)
@@ -126,21 +126,18 @@ for drug in drug_list:
         for current in param_lib.Hill_curve[drug].keys():
             Hill_coef = list(param_lib.Hill_curve[drug][current].values())
             Hill_coef = np.array(Hill_coef)
-            reduction_scale = Hill_model.simulate(Hill_coef, drug_conc[i])
-            if reduction_scale == 0:
+            # reduction_scale = Hill_model.simulate(Hill_coef, drug_conc[i])
+            if Hill_coef[1] == 0:
                 reduction_scale = 1
+            else:
+                IC50_base = np.power(10, np.log10(Hill_coef[1]))
+                reduction_scale = 1 / (1 + np.power(drug_conc[i] / IC50_base,
+                                                    Hill_coef[0]))
             multiion_scale[current] = reduction_scale
-        print(multiion_scale)
 
-        # log = AP_model.drug_multiion_simulation(
-        #     drug, drug_conc[i], multiion_scale,
-        #     prepace + save_signal, save_signal=save_signal,
-        #     log_var=['engine.time', 'membrane.V'] + current_list,
-        #     timestep=0.01, abs_tol=abs_tol, rel_tol=rel_tol)
-        # log.save_csv(data_dir + 'SD_AP_inetcurrents_multiion_' + str(i) +
-        #              '.csv')
-        log = AP_model.drug_multiion_CS_sim(
-            multiion_scale,
+        # print(multiion_scale)
+        log = AP_model.drug_multiion_simulation(
+            drug, drug_conc[i], multiion_scale,
             prepace + save_signal, save_signal=save_signal,
             log_var=['engine.time', 'membrane.V'] + current_list,
             timestep=0.01, abs_tol=abs_tol, rel_tol=rel_tol)
@@ -158,4 +155,4 @@ for drug in drug_list:
 
     qNet_data = {'drug_conc': drug_conc, 'SD': qNet_SD_arr}
     qNet_df = pd.DataFrame(data=qNet_data)
-    qNet_df.to_csv(data_dir + 'qNets_multiion_CS.csv')
+    qNet_df.to_csv(data_dir + 'qNets_multiion_check.csv')

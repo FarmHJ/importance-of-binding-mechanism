@@ -43,8 +43,6 @@ for drug in drug_list:
     trapping_data_files = [trapping_data_files[i] for i in sort_ind]
     # conductance_data_files = [conductance_data_files[i] for i in sort_ind]
 
-    cmap = matplotlib.cm.get_cmap('viridis')
-
     # Load action potential and APD data
     SD_inet_log = []
     # CS_inet_log = []
@@ -59,11 +57,16 @@ for drug in drug_list:
     # Initiate constants and variables
     plotting_pulse_time = 2000
 
+    # Define color map
+    cmap = matplotlib.cm.get_cmap('viridis')
+    norm = matplotlib.colors.Normalize(0, len(trapping_data_files) - 1)
+
     # Plot AP and IKr at various drug concentrations
     for i in range(len(trapping_data_files)):
         # fig.axs[0][0].plot(SD_inet_log[i]['time'], SD_inet_log[i]['inet'])
         # fig.axs[0][1].plot(CS_inet_log[i]['time'], CS_inet_log[i]['inet'])
-        fig.axs[0][0].plot(SD_inet_log[i].time(), SD_inet_log[i]['membrane.V'])
+        fig.axs[0][0].plot(SD_inet_log[i].time(), SD_inet_log[i]['membrane.V'],
+                           color=cmap(norm(i)))
         # fig.axs[0][1].plot(CS_inet_log[i].time(), CS_inet_log[i]['membrane.V'])
     # plot.add_multiple_continuous(panel2[1][1], AP_conductance_plot,
     #                              'ikr.IKr', cmap=cmap, labels=labels)
@@ -76,32 +79,6 @@ for drug in drug_list:
 
     # fig.savefig(fig_dir + 'inet.pdf')
     fig.savefig(fig_dir + 'AP_qnet.pdf')
-
-
-# fig = modelling.figures.FigureStructure(figsize=(5, 5), gridspec=(1, 1))
-# plot = modelling.figures.FigurePlot()
-
-# # Load qNets data
-# qNets = pd.read_csv(data_dir + 'qNets.csv')
-
-# param_lib = modelling.BindingParameters()
-# Cmax = param_lib.binding_parameters[drug]['Cmax']
-
-# drug_conc = qNets['drug_conc']
-# drug_conc_multiple = drug_conc / Cmax
-# SD_qNet = qNets['SD']
-# CS_qNet = qNets['CS']
-# # Plot APD90 of both models
-# fig.axs[0][0].plot(drug_conc_multiple, SD_qNet, 'o', color='orange',
-#                    label='ORd-SD model')
-# fig.axs[0][0].plot(drug_conc_multiple, CS_qNet, '^', color='blue',
-#                    label='ORd-CS model', alpha=0.8)
-# # fig.axs[0][0].set_xscale("log", nonpositive='clip')
-# fig.axs[0][0].set_xlabel(r"Drug concentration ($\times \mathrm{C}_\mathrm{max}$)")
-# fig.axs[0][0].set_ylabel('qNet (As/F)')
-# fig.axs[0][0].legend(handlelength=1)
-
-# fig.savefig(fig_dir + 'qnet.pdf')
 
 # Plot qNet for AP-SD model for all drugs
 fig = modelling.figures.FigureStructure(figsize=(5, 5), gridspec=(1, 1))
@@ -124,13 +101,11 @@ marker_color_dict = {
     'verapamil': {'m': '^', 'c': 'green'}}
 
 drug_list.remove('quinidine')
-# drug_list = ['dofetilide', 'bepridil', 'terfenadine', 'verapamil',
-#              'ranolazine', 'mexiletine']
 for drug in drug_list:
     # Load qNets data
     data_dir = '../../simulation_data/model_comparison/' + \
         drug + '/' + protocol_name + '/qNet/'
-    qNets = pd.read_csv(data_dir + 'qNets_multiion_controlpaced.csv')
+    qNets = pd.read_csv(data_dir + 'qNets_multiion_check.csv')
 
     Cmax = param_lib.binding_parameters[drug]['Cmax']
 
@@ -143,8 +118,6 @@ for drug in drug_list:
     color = marker_color_dict[drug]['c']
     fig.axs[0][0].plot(drug_conc_multiple, SD_qNet, marker + '-', label=drug,
                        color=color)
-                    # , color='orange',
-                    # label='ORd-SD model')
     # fig.axs[0][0].plot(drug_conc_multiple, CS_qNet, '^', color='blue',
     #                 label='ORd-CS model', alpha=0.8)
     # fig.axs[0][0].set_xscale("log", nonpositive='clip')
@@ -152,4 +125,4 @@ fig.axs[0][0].set_xlabel(r"Drug concentration ($\times \mathrm{C}_\mathrm{max}$)
 fig.axs[0][0].set_ylabel('qNet (As/F)')
 fig.axs[0][0].legend(handlelength=1)
 
-fig.savefig(fig_dir + 'qnet_multiion_controlpaced.pdf')
+fig.savefig(fig_dir + 'qnet_multiion_check.pdf')

@@ -256,6 +256,7 @@ class FigurePlot(object):
             ax.legend(ncol=5, handles=label_list[0], labels=new_list,
                       loc="lower right", handlelength=1, columnspacing=1,
                       labelspacing=0.3)
+        ax.set_ylim(bottom=0, top=1)
         ax.set_rasterization_zorder(0)
 
     def add_overlapping_pulses(self, ax, log, key, start_pulse,

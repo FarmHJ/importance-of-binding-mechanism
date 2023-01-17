@@ -71,7 +71,7 @@ norm = matplotlib.colors.Normalize(0, i - previous_i)
 Vhalf_chosen_id = [previous_i, int((i - previous_i) / 2 + previous_i + 1),
                    i - 1]
 
-# Plot the APD of the ORd-SD model and the ORd-CS model of these three
+# Plot the APD of the AP-SD model and the AP-CS model of these three
 # parameter combinations
 for i in range(len(Vhalf_chosen_id)):
     for num, r in enumerate(Vhalf_chosen_id):
@@ -89,9 +89,9 @@ for i in range(len(Vhalf_chosen_id)):
                                color='grey', alpha=0.5, zorder=-10)
         else:
             fig.axs[0][i].plot(drug_conc, APD_trapping, 'o',
-                               color='orange', label='ORd-SD model')
+                               color='orange', label='AP-SD model')
             fig.axs[0][i].plot(drug_conc, APD_conductance, '^',
-                               color='blue', label='ORd-CS model')
+                               color='blue', label='AP-CS model')
             fig.axs[0][i].scatter(drug_conc, EAD_marker, color='k',
                                   marker=(5, 2), label='EAD-like AP')
 

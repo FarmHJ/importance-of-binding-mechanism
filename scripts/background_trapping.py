@@ -30,8 +30,12 @@ protocol.schedule(-80, 11000, 14000 - 1, period=pulse_time)
 current_model.protocol = protocol
 repeats = 10
 
+abs_tol = 1e-7
+rel_tol = 1e-8
+
 # Simulate control condition
-control_log = current_model.drug_simulation(drugs[0], 0, 1000, save_signal=10)
+control_log = current_model.drug_simulation(drugs[0], 0, 1000, save_signal=10,
+                                            abs_tol=abs_tol, rel_tol=rel_tol)
 control_log.save_csv(data_dir + 'control_Milnes_current_pulses10.csv')
 
 # Simulate 10 pulses after drug addition from steady state of control condition
@@ -41,7 +45,7 @@ for i, conc_i in enumerate(drug_concs):
     log = current_model.drug_simulation(
         drugs[i], conc_i, repeats, save_signal=repeats,
         log_var=['engine.time', 'membrane.V', 'ikr.IKr'],
-        set_state=control_log_single)
+        set_state=control_log_single, abs_tol=abs_tol, rel_tol=rel_tol)
     log.save_csv(data_dir + drugs[i] + '_Milnes_current_pulses10.csv')
 
 # Simulating the SD model with Milnes' protocol for 1000 pulses till steady
@@ -54,12 +58,14 @@ current_model.protocol = Milnes_protocol
 
 # Simulate SD model under drug-free condition
 repeats = 1000
-log_control = current_model.drug_simulation(drugs[0], 0, repeats)
+log_control = current_model.drug_simulation(drugs[0], 0, repeats,
+                                            abs_tol=abs_tol, rel_tol=rel_tol)
 log_control.save_csv(data_dir + short_label[0] + '_Milnes_current.csv')
 
 # Simulate the SD model under addition of drugs
 for d in range(len(drugs)):
-    log = current_model.drug_simulation(drugs[d], drug_concs[d], repeats)
+    log = current_model.drug_simulation(drugs[d], drug_concs[d], repeats,
+                                        abs_tol=abs_tol, rel_tol=rel_tol)
     log.save_csv(data_dir + short_label[d + 1] + '_Milnes_current.csv')
 
 # Simulating the SD model with AP clamp protocol for 1000 pulses till steady
@@ -77,7 +83,8 @@ protocol = modelling.ProtocolLibrary().current_impulse(pulse_time)
 AP_model.protocol = protocol
 
 # Simulate AP for AP clamp protocol
-APclamp = AP_model.drug_simulation(drugs[1], drug_concs[1], repeats)
+APclamp = AP_model.drug_simulation(drugs[1], drug_concs[1], repeats,
+                                   abs_tol=abs_tol, rel_tol=rel_tol)
 APclamp.save_csv(data_dir + 'APclamp.csv')
 
 # Set up AP clamp protocol
@@ -87,11 +94,13 @@ tmax = times[-1] + 1
 
 # Simulate SD model with AP clamp protocol under drug free condition
 log_control = current_model.drug_APclamp(drugs[0], 0, times, voltages,
-                                         tmax, repeats)
+                                         tmax, repeats, abs_tol=abs_tol,
+                                         rel_tol=rel_tol)
 log_control.save_csv(data_dir + short_label[0] + '_APclamp_current.csv')
 
 # Simulate the SD model under addition of drugs
 for d in range(len(drugs)):
     log = current_model.drug_APclamp(drugs[d], drug_concs[d], times,
-                                     voltages, tmax, repeats)
+                                     voltages, tmax, repeats, abs_tol=abs_tol,
+                                     rel_tol=rel_tol)
     log.save_csv(data_dir + short_label[d + 1] + '_APclamp_current.csv')

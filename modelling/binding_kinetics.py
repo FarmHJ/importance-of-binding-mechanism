@@ -223,7 +223,8 @@ class BindingKinetics(object):
         return APD90
 
     def drug_APclamp(self, drug, drug_conc, times, voltages, t_max, repeats,
-                     timestep=0.1, save_signal=1, log_var=None):
+                     timestep=0.1, save_signal=1, log_var=None, abs_tol=1e-6,
+                     rel_tol=1e-4):
         param_lib = modelling.BindingParameters()
 
         Vhalf = param_lib.binding_parameters[drug]['Vhalf']
@@ -239,6 +240,8 @@ class BindingKinetics(object):
         self.sim.set_fixed_form_protocol(times, voltages)
         self.sim.reset()
         # self.sim.set_state(self.initial_state)
+
+        self.sim.set_tolerance(abs_tol=abs_tol, rel_tol=rel_tol)
 
         self.sim.set_constant(self.current_head.var('Vhalf'), Vhalf)
         self.sim.set_constant(self.current_head.var('Kmax'), Kmax)

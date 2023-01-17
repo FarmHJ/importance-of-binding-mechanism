@@ -148,6 +148,19 @@ scale_map = matplotlib.cm.ScalarMappable(norm=cmap_norm, cmap=cmap)
 axs[0].scatter(Vhalf_range, np.log10(Kmax_range), np.log10(Ku_range),
                c=scale_map.to_rgba(Error_space),
                s=5, marker='o', zorder=-10, alpha=0.5)
+# Kmax_min = min(np.log10(Kmax_range))
+# Kmax_max = max(np.log10(Kmax_range))
+# Kmax_mesh = np.linspace(Kmax_min, Kmax_max, 10)
+# Ku_min = min(np.log10(Ku_range))
+# Ku_max = max(np.log10(Ku_range))
+# Ku_mesh = np.linspace(Ku_min, Ku_max, 10)
+# Kmax_mesh, Ku_mesh = np.meshgrid(Kmax_mesh, Ku_mesh)
+# Vhalf_mesh = 0 * Ku_mesh - 106
+# axs[0].plot_surface(Vhalf_mesh, Kmax_mesh, Ku_mesh)
+# Vhalf_mesh = 0 * Ku_mesh - 200
+# axs[0].plot_surface(Vhalf_mesh, Kmax_mesh, Ku_mesh)
+# Vhalf_mesh = 0 * Ku_mesh - 22
+# axs[0].plot_surface(Vhalf_mesh, Kmax_mesh, Ku_mesh)
 axs[0].view_init(15, 25)
 
 # Plot points of all synthetic drugs and those with RMSD within the defined
@@ -171,6 +184,7 @@ for i in range(2):
     axs[i].set_ylim(min(np.log10(Kmax_range)), max(np.log10(Kmax_range)))
     axs[i].set_zlim(min(np.log10(Ku_curve)), max(np.log10(Ku_curve)))
 
+    axs[i].xaxis.set_major_locator(mticker.MaxNLocator(nbins=6))
     axs[i].yaxis.set_major_formatter(mticker.FuncFormatter(log_tick_formatter))
     axs[i].yaxis.set_major_locator(mticker.MaxNLocator(integer=True))
     axs[i].zaxis.set_major_formatter(mticker.FuncFormatter(log_tick_formatter))

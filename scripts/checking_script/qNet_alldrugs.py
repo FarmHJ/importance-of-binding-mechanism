@@ -103,6 +103,18 @@ rel_tol = 1e-8
 #     qNet_df.to_csv(data_dir + 'qNets_stdHill.csv')
 
 drug_list.remove('quinidine')
+
+drug = drug_list[0]
+scale = {}
+for current in param_lib.Hill_curve[drug].keys():
+    scale[current] = 1
+
+control_log = AP_model.drug_multiion_simulation(
+    drug, 0, scale, 1000, 
+    timestep=0.01, abs_tol=abs_tol, rel_tol=rel_tol)
+data_dir = '../../simulation_data/model_comparison/'
+control_log.save_csv(data_dir + 'control_AP.csv')
+
 for drug in drug_list:
     print(drug)
 
@@ -140,7 +152,15 @@ for drug in drug_list:
             drug, drug_conc[i], multiion_scale,
             prepace + save_signal, save_signal=save_signal,
             log_var=['engine.time', 'membrane.V'] + current_list,
-            timestep=0.01, abs_tol=abs_tol, rel_tol=rel_tol)
+            timestep=0.01, abs_tol=abs_tol, rel_tol=rel_tol,
+            set_state=control_log)
+        log.save_csv(data_dir + 'SD_AP_inetcurrents_multiion_' + str(i) +
+                     '.csv')
+#         log = AP_model.drug_multiion_CS_sim(
+#             multiion_scale,
+#             prepace + save_signal, save_signal=save_signal,
+#             log_var=['engine.time', 'membrane.V'] + current_list,
+#             timestep=0.01, abs_tol=abs_tol, rel_tol=rel_tol)
 
         inet = 0
         for c in current_list:

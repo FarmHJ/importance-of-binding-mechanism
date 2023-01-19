@@ -96,7 +96,7 @@ fig.text(0.5, 0.9, '(B)', fontsize=11)
 fig_dir = '../../figures/supp_mat/APD90diff_N/'
 if not os.path.isdir(fig_dir):
     os.makedirs(fig_dir)
-plt.savefig(fig_dir + 'RMSD_N.pdf',
+plt.savefig(fig_dir + 'RMSD_N.svg', foramt='svg',
             bbox_inches='tight')
 
 # Show mean and standard deviation of the histogram

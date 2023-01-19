@@ -147,4 +147,4 @@ fig.fig.text(0.075, 0.675, '(B)', fontsize=11)
 fig.fig.text(0.535, 0.675, '(C)', fontsize=11)
 fig.fig.text(0.075, 0.355, '(D)', fontsize=11)
 
-fig.savefig(fig_dir + "protocol_dependence_dof_ver.pdf")
+fig.savefig(fig_dir + "protocol_dependence_dof_ver.svg", format='svg')

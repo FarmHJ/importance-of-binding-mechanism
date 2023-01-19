@@ -165,6 +165,7 @@ axs[0].view_init(15, 25)
 
 # Plot points of all synthetic drugs and those with RMSD within the defined
 # range
+xmin, xmax = min(Vhalf_range), max(Vhalf_range)
 axs[1].scatter(Vhalf_chosen, np.log10(Kmax_chosen), np.log10(Ku_chosen),
                c='dimgrey', s=10, marker='o', zorder=-10, alpha=0.5)
 axs[1].scatter(Vhalf_curve, np.log10(Kmax_curve), np.log10(Ku_curve),
@@ -172,6 +173,13 @@ axs[1].scatter(Vhalf_curve, np.log10(Kmax_curve), np.log10(Ku_curve),
 axs[1].scatter(Vhalf_list, np.log10(Kmax_list), np.log10(Ku_list),
                c=scale_map.to_rgba(Error_drug),
                s=100, marker='^', zorder=-1)
+axs[1].scatter(xmin * np.ones(len(Vhalf_list)), np.log10(Kmax_list), np.log10(Ku_list),
+            #    c=scale_map.to_rgba(Error_drug),
+               s=50, marker='o', zorder=-1, c='red')
+
+for i in range(len(Vhalf_list)):
+    axs[1].plot([xmin, Vhalf_list[i]], [np.log10(Kmax_list[i]), np.log10(Kmax_list[i])],
+                zs=[np.log10(Ku_list[i]), np.log10(Ku_list[i])], color='red', linestyle='--')
 axs[1].view_init(15, 25)
 
 # Adjust figure details
@@ -202,7 +210,7 @@ fig.text(0.5, 0.75, '(B)', fontsize=11)
 
 # Save figure
 plt.subplots_adjust(hspace=0)
-plt.savefig(fig_dir + 'Fig_SA_3D_opt.png', bbox_inches='tight')
+plt.savefig(fig_dir + 'Fig_SA_3D_opt_test.png', bbox_inches='tight')
 
 #
 # Plot previous figures at different angles (for supplementary materials)

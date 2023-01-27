@@ -9,6 +9,7 @@ import modelling
 
 # Define drug and protocol
 drug = sys.argv[1]
+
 protocol_name = 'Milnes'
 
 # Define directory to save figure and load results

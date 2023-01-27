@@ -14,7 +14,7 @@ fig_dir = '../../testing_figures/sensitivity_analysis/EC50/'
 
 
 # Load IKr model
-model = '../../math_model/ohara-cipa-v1-2017-IKr.mmt'
+model = '../../math_model/ohara-cipa-v1-2017-IKr-opt.mmt'
 model, _, x = myokit.load(model)
 current_model = modelling.BindingKinetics(model)
 
@@ -29,7 +29,7 @@ hERG_base_conductance = current_model.original_constants['gKr']
 repeats = 1000
 
 # Set AP model
-APmodel = '../../model/ohara-cipa-v1-2017.mmt'
+APmodel = '../../math_model/ohara-cipa-v1-2017-opt.mmt'
 APmodel, _, x = myokit.load(APmodel)
 AP_model = modelling.BindingKinetics(APmodel, current_head='ikr')
 pulse_time_AP = 1000
@@ -51,17 +51,21 @@ SA_model = modelling.ParameterCategory()
 param_names = SA_model.param_names
 parameter_interest = 'EC50'
 
-filename = 'drug_normalisation_error.csv'
-if os.path.exists(data_dir + filename):
-    previous_df = pd.read_csv(data_dir + filename,
-                              header=[0], index_col=[0],
-                              skipinitialspace=True)
-    ran_drugs = previous_df['drug'].values
-else:
-    ran_drugs = []
+# filename = 'drug_normalisation_error.csv'
+# if os.path.exists(data_dir + filename):
+#     previous_df = pd.read_csv(data_dir + filename,
+#                               header=[0], index_col=[0],
+#                               skipinitialspace=True)
+#     ran_drugs = previous_df['drug'].values
+# else:
+#     ran_drugs = []
 
-drug_list = [i for i in drug_list if i not in ran_drugs]
-print(drug_list)
+# drug_list = [i for i in drug_list if i not in ran_drugs]
+# print(drug_list)
+drug_list = ['dofetilide']
+abs_tol = 1e-7
+rel_tol = 1e-8
+
 for drug in drug_list:
     # Set up variables
     Vhalf = param_lib.binding_parameters[drug]['Vhalf']
@@ -82,21 +86,23 @@ for drug in drug_list:
     Hill_curve_coefs, drug_conc_Hill, peaks_norm = \
         ComparisonController.compute_Hill(current_model)
 
-    total_log = []
-    for i in range(len(drug_conc_Hill)):
-        log = current_model.custom_simulation(
-            orig_param_values, drug_conc_Hill[i], 1000,
-            log_var=['engine.time', 'ikr.IKr'])
-        total_log.append(log)
+    # total_log = []
+    # for i in range(len(drug_conc_Hill)):
+    #     log = current_model.custom_simulation(
+    #         orig_param_values, drug_conc_Hill[i], 1000,
+    #         log_var=['engine.time', 'ikr.IKr'],
+    #         abs_tol=abs_tol, rel_tol=rel_tol)
+    #     total_log.append(log)
 
-    log_conductance = []
-    for i in range(len(drug_conc_Hill)):
-        reduction_scale = Hill_model.simulate(
-            Hill_curve_coefs, drug_conc_Hill[i])
-        log = current_model.conductance_simulation(
-            hERG_base_conductance * reduction_scale, 1000,
-            log_var=['engine.time', 'ikr.IKr'])
-        log_conductance.append(log)
+    # log_conductance = []
+    # for i in range(len(drug_conc_Hill)):
+    #     reduction_scale = Hill_model.simulate(
+    #         Hill_curve_coefs, drug_conc_Hill[i])
+    #     log = current_model.conductance_simulation(
+    #         hERG_base_conductance * reduction_scale, 1000,
+    #         log_var=['engine.time', 'ikr.IKr'],
+    #         abs_tol=abs_tol, rel_tol=rel_tol)
+    #     log_conductance.append(log)
 
     # Normalise drug concentration
     drug_conc_Hill_norm = [i / (np.power(half_effect_conc, 1 / Hill_n))
@@ -112,71 +118,74 @@ for drug in drug_list:
         ComparisonController.compute_Hill(current_model,
                                           drug_conc=drug_conc_Hill_norm)
 
-    log_norm = []
-    for i in range(len(drug_conc_Hill_norm)):
-        log = current_model.custom_simulation(
-            param_values, drug_conc_Hill_norm[i], 1000,
-            log_var=['engine.time', 'ikr.IKr'])
-        log_norm.append(log)
+    # log_norm = []
+    # for i in range(len(drug_conc_Hill_norm)):
+    #     log = current_model.custom_simulation(
+    #         param_values, drug_conc_Hill_norm[i], 1000,
+    #         log_var=['engine.time', 'ikr.IKr'],
+    #         abs_tol=abs_tol, rel_tol=rel_tol)
+    #     log_norm.append(log)
 
-    log_conductance_norm = []
-    for i in range(len(drug_conc_Hill_norm)):
-        reduction_scale = Hill_model.simulate(
-            Hill_curve_coefs_norm, drug_conc_Hill_norm[i])
-        log = current_model.conductance_simulation(
-            hERG_base_conductance * reduction_scale,
-            1000, log_var=['engine.time', 'ikr.IKr'])
-        log_conductance_norm.append(log)
+    # log_conductance_norm = []
+    # for i in range(len(drug_conc_Hill_norm)):
+    #     reduction_scale = Hill_model.simulate(
+    #         Hill_curve_coefs_norm, drug_conc_Hill_norm[i])
+    #     log = current_model.conductance_simulation(
+    #         hERG_base_conductance * reduction_scale,
+    #         1000, log_var=['engine.time', 'ikr.IKr'],
+    #         abs_tol=abs_tol, rel_tol=rel_tol)
+    #     log_conductance_norm.append(log)
 
     # Rescale normalised drug concentration for plotting purposes
     drug_conc_Hill_rescale = [i * (np.power(half_effect_conc, 1 / Hill_n))
                               for i in drug_conc_Hill_norm]
 
-    # Plot peak current simulated with actual drug concentration and
-    # normalised drug concentration
-    plt.figure()
-    plt.plot(drug_conc_Hill, peaks_norm, 'b',
-             label='Actual drug concentration')
-    plt.plot(drug_conc_Hill_rescale, peaks_norm2, 'r',
-             label='Normalised drug concentration (rescaled)')
-    plt.xscale('log')
-    plt.xlabel('Drug concentration')
-    plt.ylabel('Normalised peak current')
-    plt.legend()
-    plt.savefig(fig_dir + 'peak_compare_' + drug + '.pdf')
-    plt.close()
+    # # Plot peak current simulated with actual drug concentration and
+    # # normalised drug concentration
+    # plt.figure()
+    # plt.plot(drug_conc_Hill, peaks_norm, 'b',
+    #          label='Actual drug concentration')
+    # plt.plot(drug_conc_Hill_rescale, peaks_norm2, 'r',
+    #          label='Normalised drug concentration (rescaled)')
+    # plt.xscale('log')
+    # plt.xlabel('Drug concentration')
+    # plt.ylabel('Normalised peak current')
+    # plt.legend()
+    # plt.savefig(fig_dir + 'peak_compare_' + drug + '.pdf')
+    # plt.close()
 
-    # Plot hERG current simulated with actual drug concentration and
-    # normalised drug concentration (same color scale)
-    fig = modelling.figures.FigureStructure(figsize=(10, 3),
-                                            gridspec=(2, 2),
-                                            hspace=0.3,
-                                            height_ratios=[1, 1])
-    plot = modelling.figures.FigurePlot()
+    # # Plot hERG current simulated with actual drug concentration and
+    # # normalised drug concentration (same color scale)
+    # fig = modelling.figures.FigureStructure(figsize=(10, 3),
+    #                                         gridspec=(2, 2),
+    #                                         hspace=0.3,
+    #                                         height_ratios=[1, 1])
+    # plot = modelling.figures.FigurePlot()
 
-    labels = [str(i) + ' nM' for i in drug_conc_Hill]
-    labels_norm = [str(i) for i in drug_conc_Hill_norm]
-    plot.add_multiple(fig.axs[0][0], total_log, 'ikr.IKr', labels=labels)
-    plot.add_multiple(fig.axs[1][0], log_norm, 'ikr.IKr',
-                      labels=labels_norm)
-    plot.add_multiple(fig.axs[0][1], log_conductance, 'ikr.IKr', labels=labels)
-    plot.add_multiple(fig.axs[1][1], log_conductance_norm, 'ikr.IKr',
-                      labels=labels_norm)
+    # labels = [str(i) + ' nM' for i in drug_conc_Hill]
+    # labels_norm = [str(i) for i in drug_conc_Hill_norm]
+    # plot.add_multiple(fig.axs[0][0], total_log, 'ikr.IKr', labels=labels)
+    # plot.add_multiple(fig.axs[1][0], log_norm, 'ikr.IKr',
+    #                   labels=labels_norm)
+    # plot.add_multiple(fig.axs[0][1], log_conductance, 'ikr.IKr', labels=labels)
+    # plot.add_multiple(fig.axs[1][1], log_conductance_norm, 'ikr.IKr',
+    #                   labels=labels_norm)
 
-    fig.axs[0][0].set_title('Drug concentration - SD model')
-    fig.axs[1][0].set_title('Normalised drug concentration - SD model')
-    fig.axs[0][1].set_title('Drug concentration - CS model')
-    fig.axs[1][1].set_title('Normalised drug concentration - CS model')
-    fig.sharex(['Time (s)'] * 2, [(0, pulse_time)] * 2)
-    fig.sharey(['Current (A/F)'] * 2)
-    fig.adjust_ticks(fig.axs[1][0], pulse_time)
-    fig.savefig(fig_dir + 'hERG_comparison_' + drug + '.pdf')
+    # fig.axs[0][0].set_title('Drug concentration - SD model')
+    # fig.axs[1][0].set_title('Normalised drug concentration - SD model')
+    # fig.axs[0][1].set_title('Drug concentration - CS model')
+    # fig.axs[1][1].set_title('Normalised drug concentration - CS model')
+    # fig.sharex(['Time (s)'] * 2, [(0, pulse_time)] * 2)
+    # fig.sharey(['Current (A/F)'] * 2)
+    # fig.adjust_ticks(fig.axs[1][0], pulse_time)
+    # fig.savefig(fig_dir + 'hERG_comparison_' + drug + '.pdf')
 
     # Compare action potentials
     # Simulate AP with actual drug concentration
     drug_conc_AP = 10**np.linspace(np.log10(drug_conc_Hill[1]),
                                    np.log10(max(drug_conc_Hill)),
                                    APD_points)
+    # drug_conc_AP = np.array([drug_conc_AP[4], drug_conc_AP[14]])
 
     AP_log = []
     AP_conductance = []
@@ -186,7 +195,7 @@ for drug in drug_list:
     for i in range(len(drug_conc_AP)):
         log = AP_model.custom_simulation(orig_param_values, drug_conc_AP[i],
                                          1000, save_signal=save_signal,
-                                         abs_tol=1e-7, rel_tol=1e-8,
+                                         abs_tol=abs_tol, rel_tol=rel_tol,
                                          log_var=['engine.time', 'membrane.V'])
         AP_log.append(log)
 
@@ -203,7 +212,7 @@ for drug in drug_list:
         d2 = AP_model.conductance_simulation(
             base_conductance * reduction_scale, 1000,
             timestep=0.1, save_signal=save_signal,
-            abs_tol=1e-7, rel_tol=1e-8,
+            abs_tol=abs_tol, rel_tol=rel_tol,
             log_var=['engine.time', 'membrane.V'])
         AP_conductance.append(d2)
 
@@ -231,6 +240,7 @@ for drug in drug_list:
         log = AP_model.custom_simulation(param_values,
                                          drug_conc_AP_norm[i],
                                          1000, save_signal=save_signal,
+                                         abs_tol=abs_tol, rel_tol=rel_tol,
                                          log_var=['engine.time', 'membrane.V'])
         AP_log_norm.append(log)
 
@@ -241,13 +251,16 @@ for drug in drug_list:
             APD_pulse.append(apd90)
         APD_normalised.append(APD_pulse)
 
+        APD_pulse_EAD_pos = [True if APD_pulse[i]]
+
         # Run simulation for conductance model
         reduction_scale = Hill_model.simulate(
             Hill_curve_coefs_norm, drug_conc_AP_norm[i])
         d2 = AP_model.conductance_simulation(
             base_conductance * reduction_scale, 1000,
-            timestep=0.1, save_signal=save_signal, abs_tol=1e-7,
-            rel_tol=1e-8, log_var=['engine.time', 'membrane.V'])
+            timestep=0.1, save_signal=save_signal,
+            abs_tol=abs_tol, rel_tol=rel_tol,
+            log_var=['engine.time', 'membrane.V'])
         AP_conductance_norm.append(d2)
 
         # Compute APD90
@@ -257,17 +270,20 @@ for drug in drug_list:
             APD_conductance_pulse.append(apd90)
         APD_conductance_norm.append(APD_conductance_pulse)
 
+    APD_normalised_pos = [np.argmax(i) for i in APD_normalised]
     APD_normalised = [max(i) for i in APD_normalised]
+    APD_conductance_norm_pos = [np.argmax(i) for i in APD_conductance_norm]
     APD_conductance_norm = [max(i) for i in APD_conductance_norm]
+    print(APD_normalised_pos)
 
-    RMSError_trap = ComparisonController.compute_RMSE(
-        APD_actual, APD_normalised)
-    MAError_trap = ComparisonController.compute_MAE(
-        APD_actual, APD_normalised)
-    RMSError_conductance = ComparisonController.compute_RMSE(
-        APD_conductance, APD_conductance_norm)
-    MAError_conductance = ComparisonController.compute_MAE(
-        APD_conductance, APD_conductance_norm)
+    # RMSError_trap = ComparisonController.compute_RMSE(
+    #     APD_actual, APD_normalised)
+    # MAError_trap = ComparisonController.compute_MAE(
+    #     APD_actual, APD_normalised)
+    # RMSError_conductance = ComparisonController.compute_RMSE(
+    #     APD_conductance, APD_conductance_norm)
+    # MAError_conductance = ComparisonController.compute_MAE(
+    #     APD_conductance, APD_conductance_norm)
 
     fig = modelling.figures.FigureStructure(figsize=(10, 3),
                                             gridspec=(2, 2),
@@ -287,6 +303,7 @@ for drug in drug_list:
                                  'membrane.V', labels=labels_norm)
 
     fig.axs[0][0].set_title('Drug concentration - SD model', fontsize=8)
+    fig.axs[0][0].legend()
     fig.axs[1][0].set_title('Normalised drug concentration - SD model',
                             fontsize=8)
     fig.axs[0][1].set_title('Drug concentration - CS model', fontsize=8)
@@ -303,44 +320,44 @@ for drug in drug_list:
     fig.sharey(['Voltage (mV)', 'Voltage (mV)'])
     fig.savefig(fig_dir + 'AP_comparison_' + drug + '.pdf')
 
-    # Rescale normalised drug concentration for plotting purposes
-    drug_conc_AP_rescale = [i * (np.power(half_effect_conc, 1 / Hill_n))
-                            for i in drug_conc_AP_norm]
+    # # Rescale normalised drug concentration for plotting purposes
+    # drug_conc_AP_rescale = [i * (np.power(half_effect_conc, 1 / Hill_n))
+    #                         for i in drug_conc_AP_norm]
 
-    # Plot APD90 simulated with actual drug concentration and
-    # normalised drug concentration
-    fig = modelling.figures.FigureStructure(figsize=(10, 2),
-                                            gridspec=(1, 2),)
-    plot = modelling.figures.FigurePlot()
+    # # Plot APD90 simulated with actual drug concentration and
+    # # normalised drug concentration
+    # fig = modelling.figures.FigureStructure(figsize=(10, 2),
+    #                                         gridspec=(1, 2),)
+    # plot = modelling.figures.FigurePlot()
 
-    fig.axs[0][0].plot(drug_conc_AP, APD_actual, 'o', color='b',
-                       label='Actual drug conc')
-    fig.axs[0][0].plot(drug_conc_AP_rescale, APD_normalised, '^', color='r',
-                       label='Norm drug conc (rescaled)')
-    fig.axs[0][1].plot(drug_conc_AP, APD_conductance, 'o', color='b',
-                       label='Actual drug conc')
-    fig.axs[0][1].plot(drug_conc_AP_rescale, APD_conductance_norm, '^',
-                       color='r', label='Norm drug conc (rescaled)')
-    for i in range(2):
-        fig.axs[0][i].set_xscale('log')
-        fig.axs[0][i].set_xlabel('Drug concentration')
-        fig.axs[0][i].set_ylabel(r'APD$_{90}$ (ms)')
-        fig.axs[0][i].legend()
-    fig.savefig(fig_dir + 'APD_compare_' + drug + '.pdf')
-    plt.close()
+    # fig.axs[0][0].plot(drug_conc_AP, APD_actual, 'o', color='b',
+    #                    label='Actual drug conc')
+    # fig.axs[0][0].plot(drug_conc_AP_rescale, APD_normalised, '^', color='r',
+    #                    label='Norm drug conc (rescaled)')
+    # fig.axs[0][1].plot(drug_conc_AP, APD_conductance, 'o', color='b',
+    #                    label='Actual drug conc')
+    # fig.axs[0][1].plot(drug_conc_AP_rescale, APD_conductance_norm, '^',
+    #                    color='r', label='Norm drug conc (rescaled)')
+    # for i in range(2):
+    #     fig.axs[0][i].set_xscale('log')
+    #     fig.axs[0][i].set_xlabel('Drug concentration')
+    #     fig.axs[0][i].set_ylabel(r'APD$_{90}$ (ms)')
+    #     fig.axs[0][i].legend()
+    # fig.savefig(fig_dir + 'APD_compare_' + drug + '.pdf')
+    # plt.close()
 
-    filename = 'drug_normalisation_error.csv'
-    error_df = pd.DataFrame([drug, RMSError_trap, MAError_trap,
-                             RMSError_conductance, MAError_conductance],
-                            index=['drug', 'RMSError_trap', 'MAError_trap',
-                                   'RMSError_conductance',
-                                   'MAError_conductance'])
-    error_df = error_df.T
-    if os.path.exists(data_dir + filename):
-        previous_df = pd.read_csv(data_dir + filename,
-                                  header=[0], index_col=[0],
-                                  skipinitialspace=True)
-        comb_df = pd.concat([previous_df, error_df])
-    else:
-        comb_df = error_df
-    comb_df.to_csv(data_dir + filename)
+    # filename = 'drug_normalisation_error.csv'
+    # error_df = pd.DataFrame([drug, RMSError_trap, MAError_trap,
+    #                          RMSError_conductance, MAError_conductance],
+    #                         index=['drug', 'RMSError_trap', 'MAError_trap',
+    #                                'RMSError_conductance',
+    #                                'MAError_conductance'])
+    # error_df = error_df.T
+    # if os.path.exists(data_dir + filename):
+    #     previous_df = pd.read_csv(data_dir + filename,
+    #                               header=[0], index_col=[0],
+    #                               skipinitialspace=True)
+    #     comb_df = pd.concat([previous_df, error_df])
+    # else:
+    #     comb_df = error_df
+    # comb_df.to_csv(data_dir + filename)

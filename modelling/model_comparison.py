@@ -11,12 +11,6 @@ class ModelComparison(object):
     def __init__(self, drug_param_values):
         super(ModelComparison, self).__init__()
 
-        # Need to create or check that there is a similar ForwardModel for
-        # BindingKinetics
-        # if not issubclass(BKmodel, modelling.ForwardModel):
-        #     raise TypeError(
-        #         'Model has to be a subclass of modelling.ForwardModel.')
-
         self.drug_param_values = drug_param_values
         param_names = ['Vhalf', 'Kmax', 'Ku', 'N', 'EC50']
 
@@ -36,8 +30,7 @@ class ModelComparison(object):
             drug_conc = list(np.append(0, 10**np.linspace(-1, 1, 5)))
 
         drug_conc = [i / norm_constant for i in drug_conc]
-        ################
-        # Might need extra data points that are normalised
+
         peaks = []
         for i in range(len(drug_conc)):
             log = BKmodel.custom_simulation(

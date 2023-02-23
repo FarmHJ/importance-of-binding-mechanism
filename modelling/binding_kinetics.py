@@ -220,7 +220,7 @@ class BindingKinetics(object):
         if APD90 < 1:
             APD90 = len(signal) * timestep
 
-        return APD90
+        return APD90, index
 
     def drug_APclamp(self, drug, drug_conc, times, voltages, t_max, repeats,
                      timestep=0.1, save_signal=1, log_var=None, abs_tol=1e-6,

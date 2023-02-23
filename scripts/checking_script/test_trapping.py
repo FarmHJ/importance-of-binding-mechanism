@@ -5,7 +5,7 @@ import os
 import modelling
 
 drugs = ['cisapride']
-drug_concs = [900]  # nM
+drug_concs = [1000]  # nM
 short_label = ['cisapride']
 
 data_dir = '../../simulation_data/background/'
@@ -69,6 +69,22 @@ log = current_model.drug_simulation(drugs[d], drug_concs[d], repeats,
                                     abs_tol=abs_tol, rel_tol=rel_tol)
 log.save_csv(data_dir + short_label[d] + '_Milnes_current.csv')
 
+fig = modelling.figures.FigureStructure(figsize=(5, 5), gridspec=(2, 1),
+                                        height_ratios=[1, 1], hspace=0.1)
+plot = modelling.figures.FigurePlot()
+color_seq = ['#7e7e7e', '#986464', '#989864', '#986496', '#988364',
+             '#64986a', '#74a9cf', '#045a8d', '#2b8cbe']
+
+plot.state_occupancy_plot(fig.axs[1][0], log, model, color_seq=color_seq)
+plot.add_single(fig.axs[0][0], log, 'ikr.IKr')
+
+# Adjust axes
+fig.sharex(['Time (s)'], [(0, pulse_time)])
+fig.sharey(['Current (A/F)', 'State\noccupancy'])
+fig.adjust_ticks(fig.axs[1][0], pulse_time)
+
+fig.savefig('../../testing_figures/cisapride_current.pdf')
+
 # Simulating the SD model with AP clamp protocol for 1000 pulses till steady
 # state under drug free, addition of dofetilide-like drug and verapamil-like
 # drug conditions
@@ -103,7 +119,20 @@ tmax = times[-1] + 1
 # Simulate the SD model under addition of drugs
 # for d in range(len(drugs)):
 log = current_model.drug_APclamp(drugs[d], drug_concs[d], times,
-                                    voltages, tmax, repeats, abs_tol=abs_tol,
-                                    rel_tol=rel_tol)
+                                 voltages, tmax, repeats, abs_tol=abs_tol,
+                                 rel_tol=rel_tol)
 log.save_csv(data_dir + short_label[d] + '_APclamp_current.csv')
 
+fig = modelling.figures.FigureStructure(figsize=(5, 6), gridspec=(3, 1),
+                                        height_ratios=[1, 1, 1], hspace=0.1)
+
+plot.state_occupancy_plot(fig.axs[2][0], log, model, color_seq=color_seq)
+plot.add_single(fig.axs[1][0], log, 'ikr.IKr')
+plot.add_single(fig.axs[0][0], log, 'membrane.V')
+
+# Adjust axes
+fig.sharex(['Time (s)'], [(0, pulse_time)])
+fig.sharey(['Voltage\n(mV)', 'Current (A/F)', 'State\noccupancy'])
+fig.adjust_ticks(fig.axs[2][0], pulse_time)
+
+fig.savefig('../../testing_figures/cisapride_AP.pdf')

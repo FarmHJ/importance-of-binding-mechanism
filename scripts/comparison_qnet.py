@@ -36,7 +36,6 @@ control_log = AP_model.conductance_simulation(
 param_lib = modelling.BindingParameters()
 drug_list = param_lib.drug_compounds[:-1]
 
-drug_list = ['quinidine']
 for drug in drug_list:
     print(drug)
     # Define the range of drug concentration for a given drug

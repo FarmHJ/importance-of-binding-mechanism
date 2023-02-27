@@ -44,7 +44,8 @@ class BindingKinetics(object):
 
     def drug_simulation(self, drug, drug_conc, repeats,
                         timestep=0.1, save_signal=1, log_var=None,
-                        set_state=None, abs_tol=1e-6, rel_tol=1e-4):
+                        set_state=None, abs_tol=1e-6, rel_tol=1e-4,
+                        protocol_period=None):
         param_lib = modelling.BindingParameters()
 
         Vhalf = param_lib.binding_parameters[drug]['Vhalf']
@@ -53,7 +54,10 @@ class BindingKinetics(object):
         N = param_lib.binding_parameters[drug]['N']
         EC50 = param_lib.binding_parameters[drug]['EC50']
 
-        t_max = self.protocol.characteristic_time()
+        if protocol_period is None:
+            t_max = self.protocol.characteristic_time()
+        else:
+            t_max = protocol_period
         # print(t_max)
 
         concentration = self.model.get('ikr.D')

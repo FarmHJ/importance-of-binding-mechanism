@@ -22,12 +22,8 @@ current_model = modelling.BindingKinetics(model)
 
 # Define Milnes' protocol
 pulse_time = 25e3
-protocol = myokit.Protocol()
-protocol.schedule(-80, 0, 800, period=pulse_time)
-protocol.schedule(-90, 800, 100, period=pulse_time)
-protocol.schedule(-80, 900, 100, period=pulse_time)
-protocol.schedule(-80, 11000, 14000 - 1, period=pulse_time)
-current_model.protocol = protocol
+Milnes_protocol = modelling.ProtocolLibrary().Milnes(pulse_time)
+current_model.protocol = Milnes_protocol
 repeats = 10
 
 abs_tol = 1e-7
@@ -35,17 +31,21 @@ rel_tol = 1e-8
 
 # Simulate control condition
 control_log = current_model.drug_simulation(drugs[0], 0, 1000, save_signal=10,
-                                            abs_tol=abs_tol, rel_tol=rel_tol)
+                                            abs_tol=abs_tol, rel_tol=rel_tol,
+                                            protocol_period=pulse_time)
 control_log.save_csv(data_dir + 'control_Milnes_current_pulses10.csv')
 
 # Simulate 10 pulses after drug addition from steady state of control condition
-control_log_single = current_model.drug_simulation(drugs[0], 0, 1000)
+control_log_single = current_model.drug_simulation(
+    drugs[0], 0, 1000, abs_tol=abs_tol, rel_tol=rel_tol,
+    protocol_period=pulse_time)
 for i, conc_i in enumerate(drug_concs):
 
     log = current_model.drug_simulation(
         drugs[i], conc_i, repeats, save_signal=repeats,
         log_var=['engine.time', 'membrane.V', 'ikr.IKr'],
-        set_state=control_log_single, abs_tol=abs_tol, rel_tol=rel_tol)
+        set_state=control_log_single, abs_tol=abs_tol, rel_tol=rel_tol,
+        protocol_period=pulse_time)
     log.save_csv(data_dir + drugs[i] + '_Milnes_current_pulses10.csv')
 
 # Simulating the SD model with Milnes' protocol for 1000 pulses till steady
@@ -53,8 +53,8 @@ for i, conc_i in enumerate(drug_concs):
 # drug conditions
 
 # Define Milnes' protocol
-Milnes_protocol = modelling.ProtocolLibrary().Milnes(pulse_time)
-current_model.protocol = Milnes_protocol
+# Milnes_protocol = modelling.ProtocolLibrary().Milnes(pulse_time)
+# current_model.protocol = Milnes_protocol
 
 # Simulate SD model under drug-free condition
 repeats = 1000

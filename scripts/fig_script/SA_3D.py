@@ -161,7 +161,7 @@ axs[0].scatter(Vhalf_range, np.log10(Kmax_range), np.log10(Ku_range),
 # axs[0].plot_surface(Vhalf_mesh, Kmax_mesh, Ku_mesh)
 # Vhalf_mesh = 0 * Ku_mesh - 22
 # axs[0].plot_surface(Vhalf_mesh, Kmax_mesh, Ku_mesh)
-axs[0].view_init(15, 25)
+axs[0].view_init(32, 55)
 
 # Plot points of all synthetic drugs and those with RMSD within the defined
 # range
@@ -173,14 +173,15 @@ axs[1].scatter(Vhalf_curve, np.log10(Kmax_curve), np.log10(Ku_curve),
 axs[1].scatter(Vhalf_list, np.log10(Kmax_list), np.log10(Ku_list),
                c=scale_map.to_rgba(Error_drug),
                s=100, marker='^', zorder=-1)
-axs[1].scatter(xmin * np.ones(len(Vhalf_list)), np.log10(Kmax_list), np.log10(Ku_list),
-            #    c=scale_map.to_rgba(Error_drug),
-               s=50, marker='o', zorder=-1, c='red')
+axs[1].scatter(xmin * np.ones(len(Vhalf_list)), np.log10(Kmax_list),
+               np.log10(Ku_list), s=50, marker='o', zorder=-1, c='red')
 
 for i in range(len(Vhalf_list)):
-    axs[1].plot([xmin, Vhalf_list[i]], [np.log10(Kmax_list[i]), np.log10(Kmax_list[i])],
-                zs=[np.log10(Ku_list[i]), np.log10(Ku_list[i])], color='red', linestyle='--')
-axs[1].view_init(15, 25)
+    axs[1].plot([xmin, Vhalf_list[i]],
+                [np.log10(Kmax_list[i]), np.log10(Kmax_list[i])],
+                zs=[np.log10(Ku_list[i]), np.log10(Ku_list[i])],
+                color='red', linestyle='--', linewidth=0.7)
+axs[1].view_init(32, 55)
 
 # Adjust figure details
 for i in range(2):
@@ -225,19 +226,44 @@ cmap = plt.get_cmap('rainbow')
 cmap_norm = matplotlib.colors.Normalize(cmin, cmax)
 scale_map = matplotlib.cm.ScalarMappable(norm=cmap_norm, cmap=cmap)
 
+# # Plot points of all synthetic drugs and those with RMSD within the defined
+# # range
+# for i in range(2):
+#     axs[i].scatter(Vhalf_chosen, np.log10(Kmax_chosen), np.log10(Ku_chosen),
+#                    c='dimgrey', s=10, marker='o', zorder=-10, alpha=0.5)
+#     axs[i].scatter(Vhalf_curve, np.log10(Kmax_curve), np.log10(Ku_curve),
+#                    c='dimgrey', s=10, marker='o', zorder=-10, alpha=0.5)
+#     axs[i].scatter(Vhalf_list, np.log10(Kmax_list), np.log10(Ku_list),
+#                    c=scale_map.to_rgba(Error_drug), s=100, marker='^')
+
+axs[0].scatter(Vhalf_range, np.log10(Kmax_range), np.log10(Ku_range),
+               c=scale_map.to_rgba(Error_space),
+               s=5, marker='o', zorder=-10, alpha=0.5)
+axs[0].view_init(32, 55)
+
 # Plot points of all synthetic drugs and those with RMSD within the defined
 # range
-for i in range(2):
-    axs[i].scatter(Vhalf_chosen, np.log10(Kmax_chosen), np.log10(Ku_chosen),
-                   c='dimgrey', s=10, marker='o', zorder=-10, alpha=0.5)
-    axs[i].scatter(Vhalf_curve, np.log10(Kmax_curve), np.log10(Ku_curve),
-                   c='dimgrey', s=10, marker='o', zorder=-10, alpha=0.5)
-    axs[i].scatter(Vhalf_list, np.log10(Kmax_list), np.log10(Ku_list),
-                   c=scale_map.to_rgba(Error_drug), s=100, marker='^')
+xmin, xmax = min(Vhalf_range), max(Vhalf_range)
+axs[1].scatter(Vhalf_chosen, np.log10(Kmax_chosen), np.log10(Ku_chosen),
+               c='dimgrey', s=10, marker='o', zorder=-10, alpha=0.5)
+axs[1].scatter(Vhalf_curve, np.log10(Kmax_curve), np.log10(Ku_curve),
+               c='dimgrey', s=10, marker='o', zorder=-10, alpha=0.5)
+axs[1].scatter(Vhalf_list, np.log10(Kmax_list), np.log10(Ku_list),
+               c=scale_map.to_rgba(Error_drug),
+               s=100, marker='^', zorder=-1)
+axs[1].scatter(xmin * np.ones(len(Vhalf_list)), np.log10(Kmax_list),
+               np.log10(Ku_list), s=50, marker='o', zorder=-1, c='red')
+
+for i in range(len(Vhalf_list)):
+    axs[1].plot([xmin, Vhalf_list[i]],
+                [np.log10(Kmax_list[i]), np.log10(Kmax_list[i])],
+                zs=[np.log10(Ku_list[i]), np.log10(Ku_list[i])],
+                color='red', linestyle='--', linewidth=0.7)
 
 # Initiate different viewing angles
-axs[0].view_init(35, 60)
-axs[1].view_init(10, 10)
+# axs[0].view_init(15, 25)
+axs[0].view_init(10, 45)
+axs[1].view_init(10, 45)
 
 # Adjust figure details
 for i in range(2):
@@ -249,6 +275,7 @@ for i in range(2):
     axs[i].set_ylim(min(np.log10(Kmax_range)), max(np.log10(Kmax_range)))
     axs[i].set_zlim(min(np.log10(Ku_curve)), max(np.log10(Ku_curve)))
 
+    axs[i].xaxis.set_major_locator(mticker.MaxNLocator(nbins=6))
     axs[i].yaxis.set_major_formatter(mticker.FuncFormatter(log_tick_formatter))
     axs[i].yaxis.set_major_locator(mticker.MaxNLocator(integer=True))
     axs[i].zaxis.set_major_formatter(mticker.FuncFormatter(log_tick_formatter))
@@ -268,4 +295,4 @@ plt.subplots_adjust(hspace=0)
 fig_dir = '../../figures/supp_mat/'
 if not os.path.isdir(fig_dir):
     os.makedirs(fig_dir)
-plt.savefig(fig_dir + 'FigS_SA_3D_opt.png', bbox_inches='tight')
+plt.savefig(fig_dir + 'FigS_SA_3D_opt_test.png', bbox_inches='tight')

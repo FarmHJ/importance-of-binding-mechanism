@@ -192,6 +192,8 @@ for drug in drug_list:
     APD_actual = []
     APD_conductance = []
     orig_param_values[parameter_interest][0] = half_effect_conc
+
+    print(orig_param_values)
     for i in range(len(drug_conc_AP)):
         log = AP_model.custom_simulation(orig_param_values, drug_conc_AP[i],
                                          1000, save_signal=save_signal,
@@ -251,7 +253,7 @@ for drug in drug_list:
             APD_pulse.append(apd90)
         APD_normalised.append(APD_pulse)
 
-        APD_pulse_EAD_pos = [True if APD_pulse[i]]
+        # APD_pulse_EAD_pos = [True if APD_pulse[i]]
 
         # Run simulation for conductance model
         reduction_scale = Hill_model.simulate(

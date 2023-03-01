@@ -136,9 +136,7 @@ for drug in drug_list:
 
     APD_trapping_df = pd.DataFrame(np.array(APD_trapping))
     APD_trapping_df['drug concentration'] = drug_conc
-    APD_trapping_df.to_csv(data_dir + 'SD_APD_pulses' + str(save_signal) +
-                           '.csv')
+    APD_trapping_df.to_csv(data_dir + 'SD_APD_fine.csv')
     APD_conductance_df = pd.DataFrame(np.array(APD_conductance))
     APD_conductance_df['drug concentration'] = drug_conc
-    APD_conductance_df.to_csv(data_dir + 'CS_APD_pulses' + str(save_signal) +
-                              '.csv')
+    APD_conductance_df.to_csv(data_dir + 'CS_APD_fine.csv')

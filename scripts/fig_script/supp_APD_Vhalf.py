@@ -1,4 +1,8 @@
-# Compare the AP and the APD90 of different Vhalf-trap values
+#
+# Figure S13 & S14
+# Compare the signed RMSD values and the APD90s of different Vhalf-trap values.
+#
+
 import matplotlib
 import matplotlib.pyplot as plt
 import numpy as np
@@ -16,7 +20,7 @@ SA_model = modelling.SensitivityAnalysis()
 
 # Define directory to load simulated results and save figures
 data_dir = '../../simulation_data/parameter_space_exploration/SA_space/'
-file_prefix = 'SA_allparam_uniform'
+file_prefix = 'SA_allparam'
 result_files = [data_dir + f for f in os.listdir(data_dir)
                 if f.startswith(file_prefix)]
 fig_dir = '../../figures/supp_mat/'
@@ -114,7 +118,7 @@ fig.fig.text(0.38, 0.9, '(B)', fontsize=11)
 fig.fig.text(0.66, 0.9, '(C)', fontsize=11)
 
 # Save figure
-fig.savefig(fig_dir + 'APD_Vhalf_test.svg', format='svg')
+fig.savefig(fig_dir + 'FigS_APD_Vhalf.pdf')
 
 #
 # Show the signed RMSD value for three different Vhalf-trap values
@@ -122,7 +126,7 @@ fig.savefig(fig_dir + 'APD_Vhalf_test.svg', format='svg')
 
 # Load APD90 data
 data_dir = '../../simulation_data/parameter_space_exploration/SA_space/'
-file_prefix = 'SA_allparam_uniform'
+file_prefix = 'SA_allparam'
 result_files = [data_dir + f for f in os.listdir(data_dir)
                 if f.startswith(file_prefix)]
 first_iter = True
@@ -203,4 +207,4 @@ fig.fig.text(0.37, 0.9, '(B)', fontsize=11)
 fig.fig.text(0.64, 0.9, '(C)', fontsize=11)
 
 # Save figure
-fig.savefig(fig_dir + 'SA_Vhalf_opt.svg', format='svg')
+fig.savefig(fig_dir + 'FigS_SA_Vhalf.pdf')

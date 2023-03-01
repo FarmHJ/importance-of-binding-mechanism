@@ -1,5 +1,9 @@
-# Plot the range of RMSD for each synthetic drug when varying the Hill
-# coefficient
+#
+# Figure S11
+# Plot the (A) distribution of the RMSD values for each synthetic drug and
+# (B) the histogram of the RMSD for all synthetic drugs when varying the Hill
+# coefficient.
+#
 
 import matplotlib.pyplot as plt
 import numpy as np
@@ -8,7 +12,7 @@ import pandas as pd
 
 # Read APD90 differences for all synthetic drug
 data_dir = '../../simulation_data/'
-filename = 'SA_alldrugs_opt.csv'
+filename = 'SA_alldrugs.csv'
 drug_df = pd.read_csv(data_dir + filename,
                       header=[0, 1], index_col=[0],
                       skipinitialspace=True)
@@ -93,11 +97,10 @@ fig.text(0.075, 0.9, '(A)', fontsize=11)
 fig.text(0.5, 0.9, '(B)', fontsize=11)
 
 # Save figure
-fig_dir = '../../figures/supp_mat/APD90diff_N/'
+fig_dir = '../../figures/supp_mat/'
 if not os.path.isdir(fig_dir):
     os.makedirs(fig_dir)
-plt.savefig(fig_dir + 'RMSD_N.svg', foramt='svg',
-            bbox_inches='tight')
+plt.savefig(fig_dir + 'FigS_RMSD_N.pdf', bbox_inches='tight')
 
 # Show mean and standard deviation of the histogram
 print(np.mean(arr))

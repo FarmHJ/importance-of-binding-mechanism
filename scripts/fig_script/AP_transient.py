@@ -347,4 +347,4 @@ fig.fig.text(0.1, 0.325, '(E)', fontsize=11)
 fig.fig.text(0.535, 0.325, '(F)', fontsize=11)
 
 # Save figure
-fig.savefig(fig_dir + "AP_transient.svg", format='svg')
+fig.savefig(fig_dir + "Fig5_AP_transient.pdf")

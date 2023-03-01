@@ -1,0 +1,20 @@
+To cite this work in publications, please use:
+
+Farm, H. J., Clerx, M., Cooper, F., Polonchuk, L., Wang, K., Gavaghan, D. J., & Lei, C. L. (2023).
+Importance of modelling hERG binding in predicting drug-induced action potentials for drug safety assessment.
+Frontiers in Pharmacology, 14:1110555.
+
+https://doi.org/10.3389/fphar.2023.1110555
+
+A BibTeX entry for LaTeX users is
+
+@article{Farm2023Binding,
+  title={Importance of modelling {hERG} binding in predicting drug-induced action potentials for drug safety assessment},
+  author={Hui Jia Farm and Michael Clerx and Fergus Cooper and Liudmila Polonchuk and Ken Wang and David J Gavaghan and Chon Lok Lei},
+  journal={Frontiers in Pharmacology},
+  volume={14},
+  pages={1110555},
+  year={2023},
+  doi={10.3389/fphar.2023.1110555}
+}
+

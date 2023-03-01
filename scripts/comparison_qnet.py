@@ -53,7 +53,7 @@ for drug in drug_list:
     Hill_model = modelling.HillsModel()
 
     # Define directories to save simulated data
-    data_dir = data_dir + '/Milnes/qNet/'
+    data_dir = data_dir + '/Milnes/'
     if not os.path.isdir(data_dir):
         os.makedirs(data_dir)
 

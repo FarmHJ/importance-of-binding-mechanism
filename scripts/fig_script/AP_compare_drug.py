@@ -19,7 +19,7 @@ import modelling
 drug = sys.argv[1]
 protocol_name = 'Milnes'
 
-# Define directories to read data and to save plotted figures
+# Define directories to read data and to save figures
 data_dir = '../../simulation_data/model_comparison/' + \
     drug + '/' + protocol_name + '/'
 fig_dir = '../../figures/model_comparison/' + drug + '/' + \
@@ -225,7 +225,7 @@ l_lim, r_lim = panel3[0][0].get_xlim()
 panel4 = axs[3]
 
 # Load qNets data
-qNets = pd.read_csv(data_dir + 'qNet/qNets.csv')
+qNets = pd.read_csv(data_dir + 'qNets.csv')
 
 param_lib = modelling.BindingParameters()
 Cmax = param_lib.binding_parameters[drug]['Cmax']

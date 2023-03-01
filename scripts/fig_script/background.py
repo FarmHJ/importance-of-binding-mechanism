@@ -11,10 +11,12 @@ import pandas as pd
 
 import modelling
 
+# Define drugs, their concentration and labels
 drugs = ['dofetilide', 'verapamil']
 drug_conc = [30, 1000]
 drug_label = ['drug free', 'dofetilide', 'verapamil']
 
+# Define directories to load data and to save figures
 fig_dir = '../../figures/background/'
 if not os.path.isdir(fig_dir):
     os.makedirs(fig_dir)

@@ -1,4 +1,11 @@
-# Compares the IKr, AP and APD90 of the SD model and the CS model
+#
+# Figure 3 & 4
+# (A) Compares the IKr between the SD model and the CS model for the example
+# drugs.
+# Compares the (B) AP, (C) APD90 and (D) qNet between the AP-SD model and the
+# AP-CS model for the example drugs.
+#
+
 import matplotlib
 import myokit
 import numpy as np
@@ -12,7 +19,7 @@ import modelling
 drug = sys.argv[1]
 protocol_name = 'Milnes'
 
-# Define directories to read data and save plotted figures
+# Define directories to read data and to save plotted figures
 data_dir = '../../simulation_data/model_comparison/' + \
     drug + '/' + protocol_name + '/'
 fig_dir = '../../figures/model_comparison/' + drug + '/' + \
@@ -34,10 +41,6 @@ subgs.append(fig.gs[0].subgridspec(*subgridspecs[0], wspace=0.08,
 for i in range(1, 2 * 2):
     subgs.append(fig.gs[i].subgridspec(*subgridspecs[i], wspace=0.08,
                                        hspace=0.08))
-# axs = [[[fig.fig.add_subplot(subgs[k][i, j]) for j in range(
-#          subgridspecs[k][1])] for i in range(subgridspecs[k][0])]
-#        for k in [0, 2]]
-# axs.append([[fig.fig.add_subplot(subgs[3][0, 0])]])
 axs = [[[fig.fig.add_subplot(subgs[k][i, j]) for j in range(
          subgridspecs[k][1])] for i in range(subgridspecs[k][0])]
        for k in range(len(subgs))]
@@ -61,7 +64,8 @@ drug_conc_CS = [float(fname[6:-4]) for fname in CS_data_files]
 
 # Sort in increasing order of drug concentration
 sort_ind = [i[0] for i in sorted(enumerate(drug_conc_SD), key=lambda x:x[1])]
-sort_ind_CS = [i[0] for i in sorted(enumerate(drug_conc_CS), key=lambda x:x[1])]
+sort_ind_CS = [i[0] for i in
+               sorted(enumerate(drug_conc_CS), key=lambda x:x[1])]
 drug_conc = sorted(drug_conc_SD)
 trapping_data_files = [SD_data_files[i] for i in sort_ind]
 conductance_data_files = [CS_data_files[i] for i in sort_ind_CS]
@@ -72,6 +76,7 @@ conc_label = [r"$10^{:d}$".format(int(np.log10(float(i)))) if float(i) >= 1e3
 # Initiate constants and variables
 labels = [i + ' nM' for i in conc_label]
 cmap = matplotlib.cm.get_cmap('viridis')
+plotting_pulse_time = 1000 * 2
 
 # Load action potential and APD data
 trapping_AP_log = []
@@ -90,10 +95,7 @@ APD_trapping = [max(APD_trapping.loc[i].values.tolist()[1:-1]) for i in
 APD_conductance = [max(APD_conductance.loc[i].values.tolist()[1:-1]) for i in
                    range(APD_conductance.shape[0])]
 
-# Initiate constants and variables
-plotting_pulse_time = 1000 * 2
-
-# Remove repeated signals at high concentrations
+# Remove repeated signals with EAD-like behaviour
 second_EAD_trap = [i for i, e in enumerate(APD_trapping)
                    if e == 1000][1:]
 second_EAD_conduct = [i for i, e in enumerate(APD_conductance)
@@ -111,13 +113,11 @@ AP_conductance_plot = [e for i, e in enumerate(conductance_AP_log)
 
 # Plot AP and IKr at various drug concentrations
 plot.add_multiple_continuous(panel2[0][0], AP_trapping_plot,
-                             'membrane.V', cmap=cmap,
-                             labels=labels)
+                             'membrane.V', cmap=cmap, labels=labels)
 plot.add_multiple_continuous(panel2[1][0], AP_trapping_plot,
                              'ikr.IKr', cmap=cmap, labels=labels)
 plot.add_multiple_continuous(panel2[0][1], AP_conductance_plot,
-                             'membrane.V', cmap=cmap,
-                             labels=labels)
+                             'membrane.V', cmap=cmap, labels=labels)
 plot.add_multiple_continuous(panel2[1][1], AP_conductance_plot,
                              'ikr.IKr', cmap=cmap, labels=labels)
 panel2[0][0].set_title('AP-state dependent model')
@@ -133,6 +133,7 @@ fig.sharey(['Voltage (mV)', 'Current (A/F)'],
 # Shows Milnes' protocol and the IKr stimulated by it at various drug
 # concentration for both the SD model and the CS model
 panel1 = axs[0]
+
 # Read files name of IKr data
 SD_data_files = [f for f in os.listdir(data_dir) if
                  f.startswith('SD_current_')]
@@ -143,7 +144,8 @@ drug_conc_CS = [float(fname[11:-4]) for fname in CS_data_files]
 
 # Sort in increasing order of drug concentration
 sort_ind = [i[0] for i in sorted(enumerate(drug_conc_SD), key=lambda x:x[1])]
-sort_ind_CS = [i[0] for i in sorted(enumerate(drug_conc_CS), key=lambda x:x[1])]
+sort_ind_CS = [i[0] for i in
+               sorted(enumerate(drug_conc_CS), key=lambda x:x[1])]
 trapping_data_files = [SD_data_files[i] for i in sort_ind]
 conductance_data_files = [CS_data_files[i] for i in sort_ind_CS]
 
@@ -229,11 +231,10 @@ param_lib = modelling.BindingParameters()
 Cmax = param_lib.binding_parameters[drug]['Cmax']
 
 drug_conc = np.array(qNets['drug_conc'])
-# drug_conc_multiple = drug_conc / Cmax
 SD_qNet = np.array(qNets['SD'])
 CS_qNet = np.array(qNets['CS'])
 
-# EAD_indicator = np.array([1 if i is None else None for i in EAD_marker])
+# Remove data points with EAD-like behaviour AP
 SD_qNet = [None if APD_trapping[i] >= 1000 else SD_qNet[i] for i in
            range(len(SD_qNet))]
 CS_qNet = [None if APD_conductance[i] >= 1000 else CS_qNet[i] for i in
@@ -245,7 +246,6 @@ panel4[0][0].plot(drug_conc, SD_qNet, 'o', color='orange',
 panel4[0][0].plot(drug_conc, CS_qNet, '^', color='blue',
                   label='AP-CS model', alpha=0.8)
 panel4[0][0].set_xlabel("Drug concentration (nM)")
-    # r"Drug concentration ($\times \mathrm{C}_\mathrm{max}$)")
 panel4[0][0].set_xscale("log", nonpositive='clip')
 panel4[0][0].set_xlim(left=l_lim, right=r_lim)
 panel4[0][0].set_ylabel('qNet (C/F)')
@@ -258,4 +258,4 @@ fig.fig.text(0.1, 0.455, '(B)', fontsize=11)
 fig.fig.text(0.64, 0.905, '(C)', fontsize=11)
 fig.fig.text(0.64, 0.455, '(D)', fontsize=11)
 
-fig.savefig(fig_dir + "model_compare_qNets.svg", format='svg')
+fig.savefig(fig_dir + "model_compare.svg", format='svg')

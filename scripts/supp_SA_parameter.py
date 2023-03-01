@@ -1,5 +1,7 @@
-# Check that when changing Hill coefficient of each synthetic drug, the range
-# of the RMSD between APD90s of the ORd-SD model and the ORd-CS model is small
+#
+# Compute the RMSD between APD90s of the AP-SD model and the AP-CS model for
+# each synthetic drug with varying parameter N.
+#
 
 import myokit
 import numpy as np

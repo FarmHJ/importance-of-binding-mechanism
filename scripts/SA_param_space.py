@@ -1,6 +1,8 @@
-# Explore the parameter space of drug-related parameters (Vhalf, Kmax and Ku)
-# Compute the APD90 differences between the ORd-SD model and the ORd-CS model
-# for a given virtual drug
+#
+# Explore the parameter space of drug-related parameters (Vhalf, Kmax and Ku).
+# Compute the APD90 differences between the AP-SD model and the AP-CS model
+# for a given virtual drug.
+#
 
 import itertools
 import myokit
@@ -35,7 +37,7 @@ AP_model = modelling.BindingKinetics(APmodel, current_head='ikr')
 pulse_time = 1000
 AP_model.protocol = modelling.ProtocolLibrary().current_impulse(pulse_time)
 
-# Parameters used in simulations
+# Define constants for simulations
 offset = 50
 save_signal = 2
 repeats = 1000
@@ -46,15 +48,6 @@ SA_model = modelling.SensitivityAnalysis()
 param_names = SA_model.param_names
 
 # Define parameter space
-# res = 5
-# Vhalf_range = SA_model.param_explore('Vhalf', res)
-# Kmax_range = SA_model.param_explore('Kmax', res)
-# Ku_range = SA_model.param_explore('Ku', res)
-
-# Vhalf_fullrange = SA_model.param_explore_gaps(Vhalf_range, 3, 'Vhalf')
-# Kmax_fullrange = SA_model.param_explore_gaps(Kmax_range, 3, 'Kmax')
-# Ku_fullrange = SA_model.param_explore_gaps(Ku_range, 3, 'Ku')
-
 Vhalf_fullrange = SA_model.param_explore_uniform('Vhalf')
 Kmax_fullrange = SA_model.param_explore_uniform('Kmax')
 Ku_fullrange = SA_model.param_explore_uniform('Ku')
@@ -91,7 +84,7 @@ def param_evaluation(param_values):
         MAError = float("Nan")
     else:
         try:
-            # Simulate APs and APD90s of the ORd-SD model and the ORd-CS model
+            # Simulate APs and APD90s of the AP-SD model and the AP-CS model
             APD_trapping, APD_conductance, drug_conc_AP = \
                 ComparisonController.APD_sim(
                     AP_model, Hill_curve_coefs, drug_conc=drug_conc_AP,

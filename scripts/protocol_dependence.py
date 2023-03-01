@@ -1,3 +1,4 @@
+#
 # To compare the Hill curve of the SD model and the CS model for different
 # protocols.
 # Generate Hill curve of drug simulations under different protocols.
@@ -7,6 +8,7 @@
 # P40 protocol.
 # 2. Hill curve of drugs from the SD model and the CS model, calibrated with
 # Hill curve from Milnes' protocol.
+#
 
 import myokit
 import os
@@ -33,7 +35,7 @@ param_lib = modelling.BindingParameters()
 Hill_model = modelling.HillsModel()
 drug_conc_lib = modelling.DrugConcentrations()
 
-# Define constants
+# Define constants for simulations
 abs_tol = 1e-7
 rel_tol = 1e-8
 repeats = 1000
@@ -49,7 +51,7 @@ for drug in drugs:
     Hill_coef_df = pd.DataFrame(columns=['Hill coefficient', 'IC50',
                                          'protocol'])
 
-    # Compute the Hill curves for all protocols given
+    # Compute the Hill curves for all protocols
     for p in range(len(protocols)):
         current_model.protocol = protocols[p]
 
@@ -79,7 +81,7 @@ pulse_time = 1000
 AP_model.protocol = modelling.ProtocolLibrary().current_impulse(pulse_time)
 base_conductance = APmodel.get('ikr.gKr').value()
 
-# Define constants and variables for APD90 simulation of ORd-CS model
+# Define constants and variables for APD90 simulation of AP-CS model
 drug = 'verapamil'
 repeats = 1000
 save_signal = 2
@@ -91,12 +93,12 @@ prot_dir = '../simulation_data/model_comparison/' + drug + '/protocols/'
 if not os.path.isdir(prot_dir):
     os.makedirs(prot_dir)
 
-# Simulate APD90 of ORd-CS model whose ionic conductance is calibrated with
+# Simulate APD90 of AP-CS model whose ionic conductance is calibrated with
 # different protocols
 for p in protocol_name:
 
     APD_conductance = []
-    # Read Hill curve of given protocol
+    # Load Hill curve of given protocol
     Hill_eq = Hill_coef_df.loc[Hill_coef_df['protocol'] == p]
     Hill_eq = Hill_eq.values.tolist()[0][:-1]
 

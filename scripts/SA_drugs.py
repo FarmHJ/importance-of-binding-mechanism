@@ -1,5 +1,7 @@
-# Compute the APD90 differences between the ORd-SD model and the ORd-CS model
-# for all synthetic drug
+#
+# Compute the APD90 differences between the AP-SD model and the AP-CS model
+# for all synthetic drug.
+#
 
 import myokit
 import numpy as np
@@ -28,7 +30,7 @@ pulse_time = 1000
 AP_model.protocol = modelling.ProtocolLibrary().current_impulse(pulse_time)
 base_conductance = APmodel.get('ikr.gKr').value()
 
-# Parameters used in simulations
+# Define constants for simulations
 offset = 50
 save_signal = 2
 repeats = 1000
@@ -77,7 +79,7 @@ def param_evaluation(param_values, drug):
         RMSError = float("Nan")
         MAError = float("Nan")
     else:
-        # Simulate APs and APD90s of the ORd-SD model and the ORd-CS model
+        # Simulate APs and APD90s of the AP-SD model and the AP-CS model
         APD_trapping, APD_conductance, drug_conc_AP = \
             ComparisonController.APD_sim(
                 AP_model, Hill_curve_coefs, drug_conc=drug_conc_AP,
@@ -113,7 +115,7 @@ def param_evaluation(param_values, drug):
     return big_df
 
 
-# Determine completed simulations so that we don't repeat the same simulations
+# Determine completed simulations so that same simulations are not repeated
 filename = 'SA_alldrugs_opt.csv'
 if os.path.exists(data_dir + filename):
     results_df = pd.read_csv(data_dir + filename, header=[0, 1], index_col=[0],
@@ -136,13 +138,13 @@ for drug in drug_list:
 
     all_params = [Vhalf, Kmax, Ku, Hill_n, half_effect_conc]
 
-    # Define parameter values to the system
+    # Define parameter values input to the system
     orig_param_values = pd.DataFrame(all_params, index=param_names)
     orig_param_values = orig_param_values.T
     ComparisonController = modelling.ModelComparison(orig_param_values)
 
     # Evaluate the RMSD and MD between APD90s of a synthetic drug from the
-    # ORd-SD model and the ORd-CS model
+    # AP-SD model and the AP-CS model
     if not os.path.exists(data_dir + filename):
         results_df = param_evaluation(orig_param_values, drug)
         results_df = results_df.T

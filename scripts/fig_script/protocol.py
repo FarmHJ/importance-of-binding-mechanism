@@ -1,12 +1,17 @@
-# Plots the protocols used in the study, the Hill curves of drugs when
-# stimulated with these protocols
-# Plots also the APD90 of the AP-CS model when the ionic conductance is
-# scaled with the Hill curves
+#
+# Figure 6
+# (A-C) Plots the protocols used in the study and the Hill curves of example
+# drugs when stimulated with these protocols.
+# (D) Compares the APD90s of the AP-CS model when the ionic conductance is
+# scaled with different Hill curves.
+#
+
 import numpy as np
 import pandas as pd
 
 import modelling
 
+# Define directory to save figure
 fig_dir = '../../figures/model_comparison/'
 
 # Set up structure of figure
@@ -58,6 +63,7 @@ for i in range(len(protocol_name)):
     panel1[0][i].spines['top'].set_visible(False)
     panel1[0][i].spines['right'].set_visible(False)
 
+# Adjust axes
 fig.sharex(['Time (s)'] * 4, [(0, 25e3)] + [(0, 5400)] * 3,
            axs=panel1, subgridspec=subgridspecs[0])
 for i in range(len(protocol_name)):
@@ -111,7 +117,6 @@ panel3 = axs[2]
 
 # Plot for example drug N
 drug = 'verapamil'
-
 prot_dir = '../../simulation_data/model_comparison/' + drug + '/protocols/'
 
 for p, prot in enumerate(protocol_name):
@@ -147,4 +152,4 @@ fig.fig.text(0.075, 0.675, '(B)', fontsize=11)
 fig.fig.text(0.535, 0.675, '(C)', fontsize=11)
 fig.fig.text(0.075, 0.355, '(D)', fontsize=11)
 
-fig.savefig(fig_dir + "protocol_dependence_dof_ver.svg", format='svg')
+fig.savefig(fig_dir + "protocol_dependence.svg", format='svg')

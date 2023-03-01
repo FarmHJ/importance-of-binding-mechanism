@@ -1,4 +1,8 @@
-# Describe the fitting procedure of the CS model to the SD model
+#
+# Figure 2
+# Describe the fitting procedure of the CS model to the SD model.
+#
+
 import matplotlib
 import myokit
 import numpy as np
@@ -36,9 +40,10 @@ protocol_name = 'Milnes'
 data_dir = '../../simulation_data/model_comparison/' + drug + '/' + \
     protocol_name + '/'
 
-# Showing hERG currents
+# Panels that show hERG currents
 panel1 = axs[0]
 panel2 = axs[3]
+
 # Load hERG current data
 SD_fileprefix = 'SD_current_'
 CS_fileprefix = 'CS_current_'
@@ -67,26 +72,27 @@ for i in range(len(trapping_data_files)):
     conductance_hERG_log.append(myokit.DataLog.load_csv(
         data_dir + conductance_data_files[i]))
 
+# Initiate constants and variables
+pulse_time = 25e3
+cmap = matplotlib.cm.get_cmap('viridis')
+
 peaks = []
 peaks_pos = []
 peaks_firstpulse = []
 peaks_pos_firstpulse = []
 for log in trapping_hERG_log:
-    peaks_firstpulse.append(np.max(log['ikr.IKr'][:250000]))
-    peaks_pos_firstpulse.append(log.time()[np.argmax(log['ikr.IKr'][:250000])])
+    peaks_firstpulse.append(np.max(log['ikr.IKr'][:pulse_time * 10]))
+    peaks_pos_firstpulse.append(log.time()[np.argmax(log['ikr.IKr']
+                                                     [:pulse_time * 10])])
     peaks.append(np.max(log['ikr.IKr']))
     peaks_pos.append(log.time()[np.argmax(log['ikr.IKr'])])
-
-# Initiate constants and variables
-pulse_time = 25e3
-cmap = matplotlib.cm.get_cmap('viridis')
 
 # Plot figure
 plot.add_multiple(panel1[0][0], trapping_hERG_log, 'ikr.IKr', color=cmap)
 panel1[0][0].plot(peaks_pos_firstpulse[1:], peaks_firstpulse[1:], 'kx')
 plot.add_multiple(panel2[0][0], conductance_hERG_log, 'ikr.IKr', color=cmap)
 
-# panel1[1][0].legend()
+# Adjust panels
 panel1[0][0].set_title('State-dependent drug block')
 panel2[0][0].set_title('Conductance scaling drug block')
 fig.sharex(['Time (s)'], [(0, pulse_time)],
@@ -100,38 +106,46 @@ fig.sharey(['Current (A/F)'],
 fig.adjust_ticks(panel1[0][0], pulse_time)
 fig.adjust_ticks(panel2[0][0], pulse_time)
 
-# Showing Hill curve
+# Panels that show the Hill curve
 panel3 = axs[1]
 panel4 = axs[4]
 
+# Plot peaks of hERG current
 peaks = (peaks - min(peaks)) / (max(peaks) - min(peaks))
 panel3[0][0].plot(drug_conc[1:], peaks[1:], 'x', color='k')
 
+# Adjust axes
 panel3[0][0].set_xscale("log", nonpositive='clip')
 panel3[0][0].set_xlabel('Drug concentration (nM)')
 panel3[0][0].set_ylabel('Normalised peak current')
 
+# Load coefficients for Hill curve
 Hill_model = modelling.HillsModel()
 Hill_coef_df = pd.read_csv(data_dir + '../Hill_curves.csv')
-
-drug_conc_lib = modelling.DrugConcentrations()
-conc_grid = drug_conc_lib.drug_concentrations[drug]['fine']
 
 Hill_eq = Hill_coef_df.loc[
     Hill_coef_df['protocol'] == protocol_name]
 Hill_eq = Hill_eq.values.tolist()[0][1:-1]
 
+# Define drug concentration
+drug_conc_lib = modelling.DrugConcentrations()
+conc_grid = drug_conc_lib.drug_concentrations[drug]['fine']
+
+# Plot peaks of hERG current and the Hill curve
 panel4[0][0].plot(drug_conc[1:], peaks[1:], 'x', color='k')
 panel4[0][0].plot(conc_grid, Hill_model.simulate(
     Hill_eq, conc_grid), linestyle='-', color='k')
 
+# Adjust axes
 panel4[0][0].set_xscale("log", nonpositive='clip')
 panel4[0][0].set_xlabel('Drug concentration (nM)')
 panel4[0][0].set_ylabel('Ionic conductance scale')
 panel4[0][0].set_title('Fitted Hill curve')
 
-# Show example AP
+# Panel to show an example AP
 panel5 = axs[2]
+
+# Load AP data
 CS_AP_prefix = 'CS_AP_'
 conductance_data_files = [f for f in os.listdir(data_dir) if
                           f.startswith(CS_AP_prefix) and not
@@ -157,6 +171,7 @@ plot.add_multiple_continuous(panel5[0][0], conductance_AP_log,
                              'membrane.V', cmap=cmap)
 panel5[0][0].set_title('AP-conductance scaling')
 
+# Adjust axes
 fig.sharex(['Time (ms)'], [(0, plotting_pulse_time)],
            axs=panel5, subgridspec=subgridspecs[2])
 fig.sharey(['Voltage\n(mV)'],
@@ -165,4 +180,6 @@ fig.sharey(['Voltage\n(mV)'],
 for i in range(5):
     axs[i][0][0].spines['top'].set_visible(False)
     axs[i][0][0].spines['right'].set_visible(False)
+
+# Save figure
 fig.savefig(fig_dir + 'method_diagram.svg', format='svg')

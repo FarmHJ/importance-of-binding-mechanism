@@ -1,16 +1,16 @@
-# To compare the Hill curve of drugs for different protocols.
-# Generate Hill curve of drug simulations under different protocols.
-# Compare the APD90 of the ORd-SD model and the ORd-CS model for each
-# synthetic drug
+#
+# Generate Hill curve of drugs simulated under different protocols.
+# Compare the APD90 of the AP-SD model and the AP-CS model for each
+# synthetic drug.
 # Output:
-# 1. Hill curve of drugs from the SD model under Milnes' protocol stimulation
-# 2. The APD90 of the ORd-SD model and the ORd-CS model for a given drug
+# 1. Hill curves of drugs from the SD model under Milnes' protocol stimulation.
+# 2. The APD90 of the AP-SD model and the AP-CS model for a given drug.
+#
 
 import myokit
 import numpy as np
 import os
 import pandas as pd
-import sys
 
 import modelling
 
@@ -39,8 +39,7 @@ AP_model = modelling.BindingKinetics(APmodel, current_head='ikr')
 
 drug_conc_lib = modelling.DrugConcentrations()
 
-# Define drug
-# drug = sys.argv[1]
+# Define drugs
 param_lib = modelling.BindingParameters()
 drug_list = param_lib.drug_compounds[:-1]
 
@@ -53,7 +52,8 @@ for drug in drug_list:
     # Set up the range of drug concentration
     drug_conc = drug_conc_lib.drug_concentrations[drug]['coarse']
 
-    Hill_coef_df = pd.DataFrame(columns=['Hill coefficient', 'IC50', 'protocol'])
+    Hill_coef_df = pd.DataFrame(columns=['Hill coefficient', 'IC50',
+                                         'protocol'])
     repeats = 1000
     abs_tol = 1e-7
     rel_tol = 1e-8
@@ -65,7 +65,8 @@ for drug in drug_list:
         peaks = []
         for i in range(len(drug_conc)):
             log = current_model.drug_simulation(drug, drug_conc[i], repeats,
-                                                abs_tol=abs_tol, rel_tol=rel_tol)
+                                                abs_tol=abs_tol,
+                                                rel_tol=rel_tol)
             peak, _ = current_model.extract_peak(log, 'ikr.IKr')
             peaks.append(peak[-1])
 
@@ -99,7 +100,7 @@ for drug in drug_list:
     APD_trapping = []
 
     for i, conc in enumerate(drug_conc):
-        # Simulate AP of the ORd-SD model
+        # Simulate AP of the AP-SD model
         log = AP_model.drug_simulation(
             drug, conc, repeats, save_signal=save_signal,
             abs_tol=abs_tol, rel_tol=rel_tol,
@@ -113,7 +114,7 @@ for drug in drug_list:
 
         APD_trapping.append(APD_trapping_pulse)
 
-        # Simulate AP of the ORd-CS model
+        # Simulate AP of the AP-CS model
         reduction_scale = Hill_model.simulate(Hill_eq, conc)
         d2 = AP_model.conductance_simulation(
             base_conductance * reduction_scale, repeats,
@@ -135,8 +136,9 @@ for drug in drug_list:
 
     APD_trapping_df = pd.DataFrame(np.array(APD_trapping))
     APD_trapping_df['drug concentration'] = drug_conc
-    APD_trapping_df.to_csv(data_dir + 'SD_APD_pulses' + str(save_signal) + '.csv')
+    APD_trapping_df.to_csv(data_dir + 'SD_APD_pulses' + str(save_signal) +
+                           '.csv')
     APD_conductance_df = pd.DataFrame(np.array(APD_conductance))
     APD_conductance_df['drug concentration'] = drug_conc
     APD_conductance_df.to_csv(data_dir + 'CS_APD_pulses' + str(save_signal) +
-                            '.csv')
+                              '.csv')

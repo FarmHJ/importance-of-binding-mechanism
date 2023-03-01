@@ -1,15 +1,18 @@
-# Combine all simulated data of the parameter space with essential information
-# for easy loading when plotting figures
+#
+# Combine all essential information from the parameter space exploration
+# for easy loading when plotting figures.
+#
+
 import os
 import pandas as pd
 
-# Read saved data from parameter space exploration
+# Load saved data from parameter space exploration
 data_dir = '../simulation_data/SA_space/'
 file_prefix = 'SA_allparam_'
 result_files = [data_dir + f for f in os.listdir(data_dir) if
                 f.startswith(file_prefix)]
 
-# Combine all files with selected columns
+# Combine all files with selected data, i.e. parameter values, APDs and errors
 first_iter = True
 for file in result_files:
     df = pd.read_csv(file, header=[0, 1], index_col=[0],

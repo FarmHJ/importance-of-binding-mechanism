@@ -1,8 +1,10 @@
+#
 # Explore the parameter space of drug-related parameters (Vhalf, Kmax and Ku),
-# around the boundary surface where the ORd-SD model and the ORd-CS model give
-# similar APD90s
-# Compute the APD90 differences between the ORd-SD model and the ORd-CS model
-# for a given parameter combination
+# around the boundary surface where the AP-SD model and the AP-CS model give
+# similar APD90s.
+# Compute the APD90 differences between the AP-SD model and the AP-CS model
+# for a given parameter combination.
+#
 
 import itertools
 import myokit
@@ -39,7 +41,7 @@ AP_model = modelling.BindingKinetics(APmodel, current_head='ikr')
 pulse_time = 1000
 AP_model.protocol = modelling.ProtocolLibrary().current_impulse(pulse_time)
 
-# Parameters used in simulations
+# Define constants for simulations
 offset = 50
 save_signal = 2
 repeats = 1000
@@ -49,46 +51,8 @@ APD_points = 20
 SA_model = modelling.SensitivityAnalysis()
 param_names = SA_model.param_names
 
-# Define parameter combinations around the boundary surface (where the ORd-SD
-# model and the ORd-CS model give similar APD90s) at higher resolution
-# res = 5
-# Vhalf_fullrange = SA_model.param_explore('Vhalf', res)
-# Vhalf_fullrange = SA_model.param_explore_gaps(Vhalf_fullrange, 3, 'Vhalf')
-# Vhalf_range = sorted(Vhalf_fullrange)
-
-# # remove -100.6775 as it is close to -100
-# Vhalf_range.pop(11)
-
-# Kmax_fullrange = SA_model.param_explore('Kmax', res)
-# Kmax_fullrange = SA_model.param_explore_gaps(Kmax_fullrange, 3, 'Kmax')
-# Kmax_fullrange = np.log10(sorted(Kmax_fullrange))
-
-# Ku_fullrange = SA_model.param_explore('Ku', res)
-# Ku_fullrange = SA_model.param_explore_gaps(Ku_fullrange, 3, 'Ku')
-# Ku_fullrange = np.log10(sorted(Ku_fullrange))
-
-# Kmax_range1 = np.linspace(Kmax_fullrange[3], Kmax_fullrange[4], 3 + 2)[1:-1]
-# Kmax_range1 = 10**Kmax_range1
-
-# Ku_range1 = np.concatenate((np.linspace(Ku_fullrange[4], Ku_fullrange[7], 9),
-#                             Ku_fullrange[7:]))
-# Ku_range1 = 10**Ku_range1
-
-# Kmax_range2 = np.concatenate((
-#     np.linspace(Kmax_fullrange[3], Kmax_fullrange[4], 3 + 2)[1:-1],
-#     np.linspace(Kmax_fullrange[4], Kmax_fullrange[7], 7 + 2)[1:-1]))
-# Kmax_range2 = 10**Kmax_range2
-
-# Ku_range2 = np.concatenate((
-#     np.linspace(Ku_fullrange[2], Ku_fullrange[4], 5 + 2)[1:-1],
-#     np.linspace(Ku_fullrange[0], Ku_fullrange[2], 7 + 2)[1:-1]))
-# Ku_range2 = 10**Ku_range2
-
-# Kmax_range3 = Kmax_fullrange[6:]
-# Kmax_range3 = 10**Kmax_range3
-# Ku_range3 = np.linspace(-5, Ku_fullrange[0], 3 + 2)[:-1]
-# Ku_range3 = 10**Ku_range3
-
+# Define parameter combinations around the boundary surface (where the AP-SD
+# model and the AP-CS model give similar APD90s) at higher resolution
 Vhalf_range = SA_model.param_explore_uniform('Vhalf')
 
 Kmax_fullrange = SA_model.param_explore_uniform('Kmax')
@@ -132,6 +96,7 @@ def param_evaluation(param_values):
         ComparisonController.compute_Hill(current_model,
                                           parallel=False)
     # parameters of Hill curve are based on normalised drug concentration
+    # Hill coefficient remains the same but IC50 -> IC50/EC50
 
     # Define drug concentration range similar to the drug concentration used
     # to infer Hill curve
@@ -147,7 +112,7 @@ def param_evaluation(param_values):
         MAError = float("Nan")
     else:
         try:
-            # Simulate APs and APD90s of the ORd-SD model and the ORd-CS model
+            # Simulate APs and APD90s of the AP-SD model and the AP-CS model
             APD_trapping, APD_conductance, drug_conc_AP = \
                 ComparisonController.APD_sim(
                     AP_model, Hill_curve_coefs, drug_conc=drug_conc_AP,

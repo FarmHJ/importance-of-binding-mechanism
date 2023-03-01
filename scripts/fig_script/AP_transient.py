@@ -1,5 +1,11 @@
-# Compares the IKr and AP of the AP-SD model and the AP-CS model at first
-# few pulses after addition of drugs
+#
+# Figure 5
+# (A-D) Compares the IKr and AP between the AP-SD model and the AP-CS model at
+# first few pulses after addition of example drugs.
+# (E-F) Plots the APD90 of both the AP-SD model and the AP-CS model from
+# transient phase to steady state.
+#
+
 import matplotlib
 import myokit
 import numpy as np
@@ -8,11 +14,11 @@ import pandas as pd
 
 import modelling
 
-# Set up directory for figures
+# Define directories to read data and to save plotted figures
 fig_dir = '../../figures/model_comparison/'
 root_dir = '../../simulation_data/model_comparison/'
 
-# Set up figure's main grid
+# Set up figure's structure
 fig = modelling.figures.FigureStructure(
     figsize=(10, 8), gridspec=(3, 2), hspace=0.55,
     wspace=0.25, height_ratios=[1, 1, 1],
@@ -31,7 +37,7 @@ axs = [[[fig.fig.add_subplot(subgs[k][i, j]) for j in range(
 control_log = myokit.DataLog.load_csv(root_dir + 'steady_state_control.csv')
 
 # Read file names of action potential data for both AP models with
-# example drug T
+# addition of example drug T
 drug = 'dofetilide'
 drug_label = 'T'
 protocol_name = 'Milnes'
@@ -71,11 +77,13 @@ cmap = matplotlib.colors.ListedColormap(
 
 # Top left panel
 # Plot the action potential and IKr of the AP-SD model with various
-# concentrations of an example drug T
+# concentrations of an example drug T (dofetilide-like drug)
 panel1 = axs[0]
+
 # Plot AP and IKr at steady state of control condition
 plot.add_single(panel1[0][0], control_log, 'membrane.V', color=cmap(0))
 plot.add_single(panel1[1][0], control_log, 'ikr.IKr', color=cmap(0))
+
 # Indicate time point of drug addition
 panel1[0][0].axvline(999, color='k', linestyle='--')
 panel1[1][0].axvline(999, color='k', linestyle='--')
@@ -102,9 +110,11 @@ panel1[0][0].set_title("example drug " + drug_label + ", AP-SD model", y=1.25)
 # Plot the action potential and IKr of the AP-CS model with various
 # concentrations of an example drug T
 panel3 = axs[2]
+
 # Plot AP and IKr at steady state of control condition
 plot.add_single(panel3[0][0], control_log, 'membrane.V', color=cmap(0))
 plot.add_single(panel3[1][0], control_log, 'ikr.IKr', color=cmap(0))
+
 # Indicate location of drug addition
 panel3[0][0].axvline(999, color='k', linestyle='--')
 panel3[1][0].axvline(999, color='k', linestyle='--')
@@ -128,7 +138,7 @@ fig.adjust_ticks(panel3[1][0], plotting_pulse_time)
 panel3[0][0].set_title("example drug " + drug_label + ", AP-CS model", y=1.25)
 
 # Third row, left panel
-# Plot the APD90 of the AP models with example drug T for 300 pulses
+# Plot the APD90 of the AP models with example drug T for first 300 pulses
 panel5 = axs[4]
 
 # Load APD values of the first 300 pulses for example drug T
@@ -167,7 +177,6 @@ for i in range(len(drug_conc)):
     panel5[0][i].set_title(str(drug_conc[i]) + ' nM')
 
 # Adjust figure details
-panel5[0][0].plot(0, 1050, 'o', marker=(5, 2), color='k')
 panel5[0][1].plot(150, 1050, 'o', marker=(5, 2), color='k',
                   label='EAD-like AP')
 handles, labels = panel5[0][1].get_legend_handles_labels()
@@ -220,11 +229,13 @@ plotting_pulse_time = 1000 * 7
 
 # Top right panel
 # Plot the action potential and IKr of the AP-SD model with various
-# concentrations of an example drug N
+# concentrations of an example drug N (verapamil-like drug)
 panel2 = axs[1]
+
 # Plot AP and IKr at steady state of control condition
 plot.add_single(panel2[0][0], control_log, 'membrane.V', color=cmap(0))
 plot.add_single(panel2[1][0], control_log, 'ikr.IKr', color=cmap(0))
+
 # Indicate time point of drug addition
 panel2[0][0].axvline(999, color='k', linestyle='--')
 panel2[1][0].axvline(999, color='k', linestyle='--')
@@ -249,11 +260,13 @@ panel2[0][0].set_title("example drug " + drug_label + ", AP-SD model", y=1.25)
 
 # Second row, right panel
 # Plot the action potential and IKr of the AP-CS model with various
-# concentrations of a verapamikl-like drug
+# concentrations of an example drug N
 panel4 = axs[3]
+
 # Plot AP and IKr at steady state of control condition
 plot.add_single(panel4[0][0], control_log, 'membrane.V', color=cmap(0))
 plot.add_single(panel4[1][0], control_log, 'ikr.IKr', color=cmap(0))
+
 # Indicate location of drug addition
 panel4[0][0].axvline(999, color='k', linestyle='--')
 panel4[1][0].axvline(999, color='k', linestyle='--')
@@ -277,7 +290,7 @@ fig.adjust_ticks(panel4[1][0], plotting_pulse_time)
 panel4[0][0].set_title("example drug " + drug_label + ", AP-CS model", y=1.25)
 
 # Third row, right panel
-# Plot the APD90 of the AP models with example drug N for 300 pulses
+# Plot the APD90 of the AP models with example drug N for first 300 pulses
 panel6 = axs[5]
 
 # Load APD values of the first 300 pulses for example drug N
@@ -334,4 +347,4 @@ fig.fig.text(0.1, 0.325, '(E)', fontsize=11)
 fig.fig.text(0.535, 0.325, '(F)', fontsize=11)
 
 # Save figure
-fig.savefig(fig_dir + "AP_transient_paced_test.svg", format='svg')
+fig.savefig(fig_dir + "AP_transient.svg", format='svg')

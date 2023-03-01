@@ -1,5 +1,10 @@
-# Plot the signed RMSD of the explored parameter space and the region where
-# the RMSD between the APD90 of the ORd-SD model and the ORd-CS model is small
+#
+# Figure 7
+# (A) Plot the signed RMSD of the explored parameter space
+# (B) Show the region where the RMSD between the APD90 of the AP-SD model and
+# the AP-CS model is small (RMSD < 30 ms)
+#
+
 import matplotlib
 import matplotlib.pyplot as plt
 import matplotlib.ticker as mticker
@@ -27,7 +32,7 @@ ComparisonController = modelling.ModelComparison(starting_param_df)
 
 # Read simulated data for synthetic drugs
 root_dir = '../../simulation_data/'
-filename = 'SA_alldrugs_opt.csv'
+filename = 'SA_alldrugs.csv'
 df = pd.read_csv(root_dir + filename, header=[0, 1], index_col=[0],
                  skipinitialspace=True)
 
@@ -44,11 +49,8 @@ Error_drug = np.array(RMSError_drug) * np.array(MError_drug) / \
     np.abs(np.array(MError_drug))
 
 # Read simulated data of virtual drugs in the parameter space
-# data_dir = root_dir + 'parameter_space_exploration/'
-# file_prefix = 'SA_APD'
 data_dir = root_dir + 'parameter_space_exploration/SA_space/'
-file_prefix = 'SA_allparam_uniform_opt'
-# file_prefix = 'SA_allparam'
+file_prefix = 'SA_allparam'
 result_files = [data_dir + f for f in os.listdir(data_dir)
                 if f.startswith(file_prefix)]
 
@@ -104,7 +106,7 @@ Ku_chosen = combined_chosen_df['param_values']['Ku'].values
 # Read simulated data of virtual drugs in the parameter space around the
 # surface where the RMSD value is small
 data_dir = data_dir + '../SA_curve/'
-file_prefix = 'SA_curve_uniform_opt'
+file_prefix = 'SA_curve'
 result_files2 = [data_dir + f for f in os.listdir(data_dir)
                  if f.startswith(file_prefix)]
 
@@ -140,7 +142,6 @@ gs = fig.add_gridspec(1, 2, wspace=0.1)
 axs = [fig.add_subplot(gs[0, j], projection='3d') for j in range(2)]
 
 cmap = plt.get_cmap('rainbow')
-# cmap = plt.get_cmap('RdYlBu_r')
 cmap_norm = matplotlib.colors.Normalize(cmin, cmax)
 scale_map = matplotlib.cm.ScalarMappable(norm=cmap_norm, cmap=cmap)
 
@@ -148,19 +149,6 @@ scale_map = matplotlib.cm.ScalarMappable(norm=cmap_norm, cmap=cmap)
 axs[0].scatter(Vhalf_range, np.log10(Kmax_range), np.log10(Ku_range),
                c=scale_map.to_rgba(Error_space),
                s=5, marker='o', zorder=-10, alpha=0.5)
-# Kmax_min = min(np.log10(Kmax_range))
-# Kmax_max = max(np.log10(Kmax_range))
-# Kmax_mesh = np.linspace(Kmax_min, Kmax_max, 10)
-# Ku_min = min(np.log10(Ku_range))
-# Ku_max = max(np.log10(Ku_range))
-# Ku_mesh = np.linspace(Ku_min, Ku_max, 10)
-# Kmax_mesh, Ku_mesh = np.meshgrid(Kmax_mesh, Ku_mesh)
-# Vhalf_mesh = 0 * Ku_mesh - 106
-# axs[0].plot_surface(Vhalf_mesh, Kmax_mesh, Ku_mesh)
-# Vhalf_mesh = 0 * Ku_mesh - 200
-# axs[0].plot_surface(Vhalf_mesh, Kmax_mesh, Ku_mesh)
-# Vhalf_mesh = 0 * Ku_mesh - 22
-# axs[0].plot_surface(Vhalf_mesh, Kmax_mesh, Ku_mesh)
 axs[0].view_init(32, 55)
 
 # Plot points of all synthetic drugs and those with RMSD within the defined
@@ -211,7 +199,7 @@ fig.text(0.5, 0.75, '(B)', fontsize=11)
 
 # Save figure
 plt.subplots_adjust(hspace=0)
-plt.savefig(fig_dir + 'Fig_SA_3D_opt_test.png', bbox_inches='tight')
+plt.savefig(fig_dir + 'Fig7_SA_3D.png', bbox_inches='tight')
 
 #
 # Plot previous figures at different angles (for supplementary materials)
@@ -221,20 +209,6 @@ fig = plt.figure(figsize=(10, 5))
 
 gs = fig.add_gridspec(1, 2, wspace=0.1)
 axs = [fig.add_subplot(gs[0, j], projection='3d') for j in range(2)]
-
-cmap = plt.get_cmap('rainbow')
-cmap_norm = matplotlib.colors.Normalize(cmin, cmax)
-scale_map = matplotlib.cm.ScalarMappable(norm=cmap_norm, cmap=cmap)
-
-# # Plot points of all synthetic drugs and those with RMSD within the defined
-# # range
-# for i in range(2):
-#     axs[i].scatter(Vhalf_chosen, np.log10(Kmax_chosen), np.log10(Ku_chosen),
-#                    c='dimgrey', s=10, marker='o', zorder=-10, alpha=0.5)
-#     axs[i].scatter(Vhalf_curve, np.log10(Kmax_curve), np.log10(Ku_curve),
-#                    c='dimgrey', s=10, marker='o', zorder=-10, alpha=0.5)
-#     axs[i].scatter(Vhalf_list, np.log10(Kmax_list), np.log10(Ku_list),
-#                    c=scale_map.to_rgba(Error_drug), s=100, marker='^')
 
 axs[0].scatter(Vhalf_range, np.log10(Kmax_range), np.log10(Ku_range),
                c=scale_map.to_rgba(Error_space),
@@ -261,7 +235,6 @@ for i in range(len(Vhalf_list)):
                 color='red', linestyle='--', linewidth=0.7)
 
 # Initiate different viewing angles
-# axs[0].view_init(15, 25)
 axs[0].view_init(10, 45)
 axs[1].view_init(10, 45)
 
@@ -295,4 +268,4 @@ plt.subplots_adjust(hspace=0)
 fig_dir = '../../figures/supp_mat/'
 if not os.path.isdir(fig_dir):
     os.makedirs(fig_dir)
-plt.savefig(fig_dir + 'FigS_SA_3D_opt_test.png', bbox_inches='tight')
+plt.savefig(fig_dir + 'FigS_SA_3D.png', bbox_inches='tight')

@@ -160,7 +160,7 @@ def param_evaluation(param_values):
 # For simplicity, let N = 1.
 
 # Save defined parameter space or load previously saved parameter space
-param_space_filename = 'parameter_space_uniform_curve.csv'
+param_space_filename = 'parameter_space_curve.csv'
 sample_filepath = param_space_dir + param_space_filename
 param_space = []
 if os.path.exists(sample_filepath):
@@ -193,7 +193,7 @@ samples_split_n = int(np.ceil(total_samples / samples_per_save))
 total_saving_file_num = np.arange(samples_split_n)
 
 # Determine completed simulations so that it is not repeated
-file_prefix = 'SA_curve_uniform_opt_'
+file_prefix = 'SA_curve_'
 evaluation_result_files = [f for f in os.listdir(data_dir) if
                            f.startswith(file_prefix)]
 if len(evaluation_result_files) == 0:
@@ -235,7 +235,7 @@ else:
 n_workers = 8
 evaluator = pints.ParallelEvaluator(param_evaluation,
                                     n_workers=n_workers)
-for file_num in np.flip(saving_file_dict['file_num']):
+for file_num in saving_file_dict['file_num']:
     print('Starting function evaluation for file number: ', file_num)
     current_time = time.strftime("%H:%M:%S", time.localtime())
     print('Starting time: ', current_time)

@@ -116,7 +116,7 @@ def param_evaluation(param_values, drug):
 
 
 # Determine completed simulations so that same simulations are not repeated
-filename = 'SA_alldrugs_opt.csv'
+filename = 'SA_alldrugs.csv'
 if os.path.exists(data_dir + filename):
     results_df = pd.read_csv(data_dir + filename, header=[0, 1], index_col=[0],
                              skipinitialspace=True)

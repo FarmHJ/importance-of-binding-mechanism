@@ -135,7 +135,7 @@ def param_evaluation(param_values):
 # Save defined parameter space or load previously saved parameter space
 if not os.path.isdir(data_filepath + 'parameter_space/'):
     os.makedirs(data_filepath + 'parameter_space/')
-sample_filepath = data_filepath + 'parameter_space/parameter_space_uniform.csv'
+sample_filepath = data_filepath + 'parameter_space/parameter_space.csv'
 
 param_space = []
 if os.path.exists(sample_filepath):
@@ -165,7 +165,7 @@ samples_split_n = int(np.ceil(total_samples / samples_per_save))
 total_saving_file_num = np.arange(samples_split_n)
 
 # Determine completed simulations so that it is not repeated
-file_prefix = 'SA_allparam_uniform_opt_'
+file_prefix = 'SA_allparam_'
 data_dir = data_filepath + 'SA_space/'
 if not os.path.isdir(data_dir):
     os.makedirs(data_dir)

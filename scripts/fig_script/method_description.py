@@ -81,9 +81,9 @@ peaks_pos = []
 peaks_firstpulse = []
 peaks_pos_firstpulse = []
 for log in trapping_hERG_log:
-    peaks_firstpulse.append(np.max(log['ikr.IKr'][:pulse_time * 10]))
+    peaks_firstpulse.append(np.max(log['ikr.IKr'][:int(pulse_time * 10)]))
     peaks_pos_firstpulse.append(log.time()[np.argmax(log['ikr.IKr']
-                                                     [:pulse_time * 10])])
+                                                     [:int(pulse_time * 10)])])
     peaks.append(np.max(log['ikr.IKr']))
     peaks_pos.append(log.time()[np.argmax(log['ikr.IKr'])])
 

@@ -95,8 +95,14 @@ for i in range(len(Vhalf_chosen_id)):
             fig.axs[0][i].scatter(drug_conc, EAD_marker, color='k',
                                   marker=(5, 2), label='EAD-like AP')
 
-        fig.axs[0][i].set_title(r'$V_{half-trap} = $' + "%.2e" %
-                                (Vhalf_range[Vhalf_chosen_id[i]]))
+        title_str_num = "{0:.2e}".format(Vhalf_range[Vhalf_chosen_id[i]])
+        base, power = title_str_num.split("e")
+        power = int(power)
+        if power == 0:
+            fig.axs[0][i].set_title(r'$V_{half-trap} = $' + base)
+        else:
+            fig.axs[0][i].set_title(r'$V_{half-trap} = $' + base +
+                                    r"$\times 10^{:d}$".format(power))
         fig.axs[0][i].set_xscale("log", nonpositive='clip')
         fig.axs[0][i].set_xlabel('Normalised drug concentration (nM)')
         fig.axs[0][i].set_ylabel(r'APD$_{90}$ (ms)')
@@ -108,7 +114,7 @@ fig.fig.text(0.38, 0.9, '(B)', fontsize=11)
 fig.fig.text(0.66, 0.9, '(C)', fontsize=11)
 
 # Save figure
-fig.savefig(fig_dir + 'APD_Vhalf.svg', format='svg')
+fig.savefig(fig_dir + 'APD_Vhalf_test.svg', format='svg')
 
 #
 # Show the signed RMSD value for three different Vhalf-trap values
@@ -129,13 +135,6 @@ for file in result_files:
     else:
         combined_df = pd.concat([combined_df, df])
 
-# Load APD90 data for parameter combinations that require smaller tolerance
-# value
-# nan_df = pd.read_csv(data_dir + '../supp_mat/filling_nan.csv',
-#                      header=[0, 1], index_col=[0],
-#                      skipinitialspace=True)
-# combined_df = pd.concat([combined_df, nan_df])
-
 RMSError = combined_df['RMSE']['RMSE'].values
 MError = combined_df['ME']['ME'].values
 
@@ -154,14 +153,11 @@ cmap = plt.get_cmap('rainbow')
 cmap_norm = matplotlib.colors.Normalize(cmin, cmax)
 scale_map = matplotlib.cm.ScalarMappable(norm=cmap_norm, cmap=cmap)
 
-Vhalf_list = combined_df['param_values']['Vhalf'].values
-Vhalf_list = [Vhalf_list[i] for i in range(len(Vhalf_list)) if Vhalf_list[i]
-              not in Vhalf_list[:i]]
-
 # Choose three Vhalf-trap values and extract data from the dataframe
-chosen_Vhalf_value = [-199.5, -105.543, -1.147]  #  -22.026]
+chosen_Vhalf_value = [-199.5, -84.66, -1.147]
 for i in range(3):
-    # Extract from the dataframe with Vhalf-trap values close to the chosen value
+    # Extract from the dataframe with Vhalf-trap values close to the chosen
+    # value
     chosen_Vhalf_df = combined_df[np.abs(combined_df[('param_values', 'Vhalf')]
                                   - chosen_Vhalf_value[i]) < 0.01]
     chosen_Vhalf_df = chosen_Vhalf_df.sort_values(by=[('param_values', 'Kmax'),
@@ -183,8 +179,14 @@ for i in range(3):
                           s=5, marker='o', zorder=-10)
     fig.axs[0][i].set_xscale('log')
     fig.axs[0][i].set_yscale('log')
-    fig.axs[0][i].set_title(r'$V_{half-trap} = $' + "%.2e" %
-                            (chosen_Vhalf_value[i]))
+    title_str_num = "{0:.2e}".format(chosen_Vhalf_value[i])
+    base, power = title_str_num.split("e")
+    power = int(power)
+    if power == 0:
+        fig.axs[0][i].set_title(r'$V_{half-trap} = $' + base)
+    else:
+        fig.axs[0][i].set_title(r'$V_{half-trap} = $' + base +
+                                r"$\times 10^{:d}$".format(power))
 
 # Adjust figure details
 fig.sharex([r"$K_\mathrm{max}$"] * 3)
@@ -201,4 +203,4 @@ fig.fig.text(0.37, 0.9, '(B)', fontsize=11)
 fig.fig.text(0.64, 0.9, '(C)', fontsize=11)
 
 # Save figure
-fig.savefig(fig_dir + 'SA_Vhalf_2D_2.svg', format='svg')
+fig.savefig(fig_dir + 'SA_Vhalf_opt.svg', format='svg')

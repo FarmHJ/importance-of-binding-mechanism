@@ -44,7 +44,7 @@ Figure6:
 	cd fig_script/; \
 	python3 protocol_dependence.py; \
 
-# Figure 7 (parameter exploration) and Figure S12
+# Figure 7 (parameter space exploration) and Figure S12
 Figure7:
 	cd scripts/; \
 	python3 SA_param_space.py; \

@@ -21,3 +21,12 @@ git clone https://github.com/FarmHJ/binding-mechanism.git
 cd binding-mechanism
 pip install -e .
 ```
+
+## Acknowledging this work
+If you publish any work based on the contents of this repository please cite ([CITATION file](CITATION)):
+
+Farm, H. J., Clerx, M., Cooper, F., Polonchuk, L., Wang, K., Gavaghan, D. J. and Lei, C. L. (2023).
+Importance of modelling hERG binding in predicting drug-induced action potentials for drug safety assessment.
+_Frontiers in Pharmacology_, 14:1110555.
+[doi:10.3389/fphar.2023.1110555](https://doi.org/10.3389/fphar.2023.1110555).
+

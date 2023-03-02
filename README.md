@@ -1,6 +1,8 @@
 # Importance of modelling hERG binding
 
-In this work, we study the impact of including state-dependent drug binding in a mathematical ion channel model of the human Ether-À-Go-Go-Related Gene (hERG) channel.
+[![DOI](https://zenodo.org/badge/DOI/10.5281/zenodo.7689046.svg)](https://doi.org/10.5281/zenodo.7689046)
+
+In this work, we study the impact of including state-dependent drug binding in a mathematical ion channel model of the human Ether-à-go-go-Related Gene (hERG) channel.
 We compared the action potential predictions when modelling drug binding of hERG using a state-dependent model versus a conductance scaling model.
 
 Source code associated with "Importance of modelling hERG binding in predicting drug-induced action potential prolongations for drug safety assessment" by Hui Jia Farm,

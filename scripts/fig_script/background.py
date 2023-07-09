@@ -227,4 +227,4 @@ fig.fig.text(0.5, 0.925, '(B)', fontsize=11)
 fig.fig.text(0.075, 0.525, '(C)', fontsize=11)
 fig.fig.text(0.5, 0.525, '(D)', fontsize=11)
 
-fig.savefig(fig_dir + "background.svg", format='svg')
+fig.savefig(fig_dir + "background.eps", format='eps')

@@ -105,6 +105,7 @@ AP_model = modelling.BindingKinetics(APmodel, current_head='ikr')
 pulse_time = 1000
 AP_model.protocol = modelling.ProtocolLibrary().current_impulse(pulse_time)
 base_conductance = APmodel.get('ikr.gKr').value()
+protocol_duration = AP_model.protocol.characteristic_time()
 
 offset = 50
 save_signal = 2
@@ -132,10 +133,16 @@ for i in range(len(drug_conc)):
         rel_tol=rel_tol)
     log.save_csv(data_dir + 'SD_AP_' + str(drug_conc[i]) + '.csv')
 
-    APD_trapping_pulse = []
-    for pulse in range(save_signal):
-        apd90 = AP_model.APD90(log['membrane.V', pulse], offset, 0.1)
-        APD_trapping_pulse.append(apd90)
+    # APD_trapping_pulse = []
+    # for pulse in range(save_signal):
+    #     apd90 = AP_model.APD90(log['membrane.V', pulse], offset, 0.1)
+    #     APD_trapping_pulse.append(apd90)
+
+    Vm_signal = list(log['membrane.V', 0])
+    for pulse in range(1, save_signal):
+        Vm_signal += list(log['membrane.V', pulse])
+    APD_trapping_pulse = AP_model.APD90_update(
+        log.time(), Vm_signal, offset, protocol_duration)
 
     AP_trapping.append(log)
     APD_trapping.append(APD_trapping_pulse)
@@ -148,10 +155,16 @@ for i in range(len(drug_conc)):
         rel_tol=rel_tol)
     d2.save_csv(data_dir + 'CS_AP_' + str(drug_conc[i]) + '.csv')
 
-    APD_conductance_pulse = []
-    for pulse in range(save_signal):
-        apd90 = AP_model.APD90(d2['membrane.V', pulse], offset, 0.1)
-        APD_conductance_pulse.append(apd90)
+    # APD_conductance_pulse = []
+    # for pulse in range(save_signal):
+    #     apd90 = AP_model.APD90(d2['membrane.V', pulse], offset, 0.1)
+    #     APD_conductance_pulse.append(apd90)
+
+    Vm_signal = list(d2['membrane.V', 0])
+    for pulse in range(1, save_signal):
+        Vm_signal += list(d2['membrane.V', pulse])
+    APD_conductance_pulse = AP_model.APD90_update(
+        d2.time(), Vm_signal, offset, protocol_duration)
 
     AP_conductance.append(d2)
     APD_conductance.append(APD_conductance_pulse)
@@ -188,10 +201,16 @@ for i in range(len(drug_conc)):
         rel_tol=rel_tol)
 
     # Compute APD90 of simulated AP
-    APD_trapping_pulse = []
-    for pulse in range(save_signal):
-        apd90 = AP_model.APD90(log['membrane.V', pulse], offset, 0.1)
-        APD_trapping_pulse.append(apd90)
+    # APD_trapping_pulse = []
+    # for pulse in range(save_signal):
+    #     apd90 = AP_model.APD90(log['membrane.V', pulse], offset, 0.1)
+    #     APD_trapping_pulse.append(apd90)
+
+    Vm_signal = list(log['membrane.V', 0])
+    for pulse in range(1, save_signal):
+        Vm_signal += list(log['membrane.V', pulse])
+    APD_trapping_pulse = AP_model.APD90_update(
+        log.time(), Vm_signal, offset, protocol_duration)
 
     APD_trapping.append(APD_trapping_pulse)
 
@@ -204,18 +223,29 @@ for i in range(len(drug_conc)):
         rel_tol=rel_tol)
 
     # Compute APD90 of simulated AP
-    APD_conductance_pulse = []
-    for pulse in range(save_signal):
-        apd90 = AP_model.APD90(d2['membrane.V', pulse], offset, 0.1)
-        APD_conductance_pulse.append(apd90)
+    # APD_conductance_pulse = []
+    # for pulse in range(save_signal):
+    #     apd90 = AP_model.APD90(d2['membrane.V', pulse], offset, 0.1)
+    #     APD_conductance_pulse.append(apd90)
+
+    Vm_signal = list(d2['membrane.V', 0])
+    for pulse in range(1, save_signal):
+        Vm_signal += list(d2['membrane.V', pulse])
+    APD_conductance_pulse = AP_model.APD90_update(
+        d2.time(), Vm_signal, offset, protocol_duration)
 
     APD_conductance.append(APD_conductance_pulse)
 
     print('done concentration: ' + str(drug_conc[i]))
 
 # Compute APD90 with AP behaviour in alternating cycles
-APD_trapping = [max(i) for i in APD_trapping]
-APD_conductance = [max(i) for i in APD_conductance]
+# APD_trapping = [max(i) for i in APD_trapping]
+# APD_conductance = [max(i) for i in APD_conductance]
+
+APD_trapping = [float('nan') if np.isnan(i).any() else max(i)
+                for i in APD_trapping]
+APD_conductance = [float('nan') if np.isnan(i).any() else max(i)
+                   for i in APD_conductance]
 
 # Save APD90 data
 APD_trapping_df = pd.DataFrame(np.array(APD_trapping), columns=['APD'])

@@ -225,6 +225,40 @@ class BindingKinetics(object):
             APD90 = len(signal) * timestep
 
         return APD90
+    
+    def APD90_update(self, time_signal, Vm_signal, offset, protocol_duration):
+        timestep = (max(time_signal) - min(time_signal)) / len(time_signal)
+        pulse_num = round(len(Vm_signal) / len(time_signal))
+
+        APD90s = []
+        for i in range(pulse_num):
+            AP_Vm = Vm_signal[
+                round(i * protocol_duration / timestep):
+                round((i + 1) * (protocol_duration + offset) / timestep)]
+            APamp = max(AP_Vm) - min(AP_Vm)
+            APD90_v = min(AP_Vm) + 0.1 * APamp
+
+            min_APD = int(5 / timestep)
+            offset_index = int(offset / timestep)
+
+            start_time = time_signal[offset_index]
+            end_time = None
+            for ind, v in enumerate(AP_Vm[offset_index + min_APD:]):
+                if v < APD90_v:
+                    t_prev = time_signal[offset_index + min_APD:][ind - 1]
+                    v_prev = AP_Vm[offset_index + min_APD:][ind - 1]
+                    t_current = time_signal[offset_index + min_APD:][ind]
+                    end_time = t_prev + (APD90_v - v_prev) / (v - v_prev) * (t_current - t_prev)
+                    break
+
+            if end_time is not None:
+                APD90_value = end_time - start_time
+            else:
+                APD90_value = float('Nan')
+
+            APD90s.append(APD90_value)
+
+        return APD90s
 
     def drug_APclamp(self, drug, drug_conc, times, voltages, t_max, repeats,
                      timestep=0.1, save_signal=1, log_var=None, abs_tol=1e-6,

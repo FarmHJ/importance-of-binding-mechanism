@@ -53,7 +53,7 @@ setup(
 
     maintainer_email='',
 
-    url='https://github.com/FarmHJ/binding-mechanism.git',
+    url='https://github.com/FarmHJ/importance-of-binding-mechanism.git',
 
     # Packages to include
     packages=find_packages(include=('modelling', 'modelling.*')),
